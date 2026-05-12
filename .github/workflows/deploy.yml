@@ -6,9 +6,9 @@ on:
     types: [deploy]
   # Also allow manual trigger
   workflow_dispatch:
-  # Build on push to main
+  # Build on push to master
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   deploy:
