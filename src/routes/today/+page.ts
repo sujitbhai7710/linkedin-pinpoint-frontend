@@ -1,4 +1,4 @@
-import { getToday, getYesterday, formatDate } from '$lib/api';
+import { getToday, getYesterday } from '$lib/api';
 import { buildMeta, articleJsonLd, breadcrumbJsonLd, SITE_URL } from '$lib/seo';
 import type { PinpointPuzzle } from '$lib/types';
 
@@ -14,7 +14,7 @@ export async function load({ fetch, setHeaders }) {
 	try {
 		today = await getToday(fetch);
 	} catch (e) {
-		error = 'Failed to load today\'s puzzle. Please try again later.';
+		error = 'Failed to load today\'s puzzle. Try refreshing the page.';
 	}
 
 	try {
@@ -23,19 +23,19 @@ export async function load({ fetch, setHeaders }) {
 		// Not critical
 	}
 
-	const dateStr = today ? formatDate(today.date) : 'Today';
+	const dateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Today';
 	const title = today
 		? `LinkedIn Pinpoint #${today.number} Answer - ${today.answer.toUpperCase()} (${dateStr})`
 		: "Today's LinkedIn Pinpoint Answer";
 	const descriptionText = today
-		? `The answer to LinkedIn Pinpoint #${today.number} is ${today.answer}. See all 5 clues, full explanation, and ${today.totalSolutions} valid solutions for ${dateStr}.`
-		: "Get today's LinkedIn Pinpoint answer with clues and explanations.";
+		? `The answer to LinkedIn Pinpoint #${today.number} is ${today.answer}. See all 5 clues, read the full explanation of how they connect, and browse ${today.totalSolutions} valid solutions.`
+		: "Get today's LinkedIn Pinpoint answer with all clues and a detailed explanation.";
 
 	const seo = buildMeta({
 		title,
 		description: descriptionText,
 		keywords: today
-			? `LinkedIn Pinpoint #${today.number}, ${today.answer}, today's pinpoint answer, pinpoint solution ${today.date}`
+			? `LinkedIn Pinpoint #${today.number}, ${today.answer}, today's pinpoint answer, pinpoint solution ${today.date}, LinkedIn puzzle answer`
 			: "LinkedIn Pinpoint, today's answer, daily puzzle",
 		canonical: `${SITE_URL}/today`,
 		ogType: 'article',
@@ -43,7 +43,7 @@ export async function load({ fetch, setHeaders }) {
 			articleJsonLd({
 				title,
 				description: today
-					? `The answer to LinkedIn Pinpoint #${today.number} is ${today.answer}.`
+					? `The answer to LinkedIn Pinpoint #${today.number} is ${today.answer}. Full explanation and all valid solutions.`
 					: "Today's LinkedIn Pinpoint answer",
 				url: `${SITE_URL}/today`,
 				datePublished: today?.date || new Date().toISOString().split('T')[0],

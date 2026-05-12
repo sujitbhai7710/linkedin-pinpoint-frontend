@@ -8,27 +8,11 @@ export interface SEOData {
 	jsonLd?: object | object[];
 }
 
-const SITE_NAME = 'LinkedIn Pinpoint Answers';
+const SITE_NAME = 'Pinpoint Answer Today';
 const SITE_URL = 'https://linkedin-pinpoint-answers.pages.dev';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
 
-export function buildMeta(seo: SEOData): {
-	title: string;
-	description: string;
-	keywords: string;
-	canonical: string;
-	ogTitle: string;
-	ogDescription: string;
-	ogImage: string;
-	ogUrl: string;
-	ogType: string;
-	ogSiteName: string;
-	twitterCard: string;
-	twitterTitle: string;
-	twitterDescription: string;
-	twitterImage: string;
-	jsonLdString: string;
-} {
+export function buildMeta(seo: SEOData) {
 	const canonical = seo.canonical || SITE_URL;
 	const ogImage = seo.ogImage || DEFAULT_OG_IMAGE;
 	const jsonLd = seo.jsonLd
@@ -61,11 +45,16 @@ export function websiteJsonLd(): object {
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
 		name: SITE_NAME,
+		alternateName: 'LinkedIn Pinpoint Answers',
 		url: SITE_URL,
-		description: 'Daily answers and solutions for LinkedIn Pinpoint word puzzle game',
+		description: 'Daily answers and explanations for LinkedIn Pinpoint word puzzle game',
+		inLanguage: 'en-US',
 		potentialAction: {
 			'@type': 'SearchAction',
-			target: `${SITE_URL}/archive?q={search_term_string}`,
+			target: {
+				'@type': 'EntryPoint',
+				urlTemplate: `${SITE_URL}/archive?date={search_term_string}`
+			},
 			'query-input': 'required name=search_term_string'
 		}
 	};
@@ -95,13 +84,20 @@ export function articleJsonLd(data: {
 		publisher: {
 			'@type': 'Organization',
 			name: SITE_NAME,
-			url: SITE_URL
+			url: SITE_URL,
+			logo: {
+				'@type': 'ImageObject',
+				url: `${SITE_URL}/favicon.png`
+			}
 		},
 		mainEntity: {
 			'@type': 'Thing',
 			name: `LinkedIn Pinpoint #${data.number}`,
 			description: `The answer is: ${data.answer}`
-		}
+		},
+		wordCount: 500,
+		articleSection: 'Word Games',
+		inLanguage: 'en-US'
 	};
 }
 

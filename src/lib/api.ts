@@ -3,9 +3,14 @@ import type { PinpointPuzzle, PinpointSummary, CheckResult, SolutionsResponse } 
 const API_BASE = 'https://linkedin-pinpoint-worker.gdgdughdshf.workers.dev';
 const ORIGIN_HEADER = 'https://pinpointanswertoday.online';
 
+// API secret for server-side rendering (same as worker SECRET_KEY)
+// This is needed because Cloudflare Pages SSR fetch doesn't send Origin headers
+const API_SECRET = 'BloggingIo@7';
+
 const defaultHeaders: Record<string, string> = {
         'Origin': ORIGIN_HEADER,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-API-Key': API_SECRET
 };
 
 type FetchFn = typeof globalThis.fetch;

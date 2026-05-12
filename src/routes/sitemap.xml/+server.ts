@@ -8,7 +8,6 @@ export const GET: RequestHandler = async ({ fetch, setHeaders }) => {
 		'Cache-Control': 'public, max-age=3600, s-maxage=7200'
 	});
 
-	// Fetch all puzzles for sitemap
 	let allPuzzles: { number: number; date: string }[] = [];
 	let page = 1;
 	let hasMore = true;
@@ -48,6 +47,24 @@ export const GET: RequestHandler = async ({ fetch, setHeaders }) => {
 			lastmod: today,
 			changefreq: 'daily',
 			priority: '0.8'
+		},
+		{
+			loc: `${SITE_URL}/about`,
+			lastmod: today,
+			changefreq: 'monthly',
+			priority: '0.5'
+		},
+		{
+			loc: `${SITE_URL}/contact`,
+			lastmod: today,
+			changefreq: 'monthly',
+			priority: '0.4'
+		},
+		{
+			loc: `${SITE_URL}/privacy`,
+			lastmod: today,
+			changefreq: 'yearly',
+			priority: '0.3'
 		},
 		...allPuzzles.map((puzzle) => ({
 			loc: `${SITE_URL}/archive?date=${puzzle.date}`,
