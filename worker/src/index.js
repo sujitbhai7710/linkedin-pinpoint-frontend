@@ -983,8 +983,8 @@ Maintain a premium, expert tone throughout. Ensure every section is fully popula
  * This tells the frontend repo to rebuild its static site with the latest data
  */
 async function triggerBuildWorkflow(data, env) {
-  const REPO_OWNER = env.GH_REPO_OWNER || 'satwikaffiliatemarketing';
-  const REPO_NAME = env.GH_REPO_NAME || 'pinpoint-answer';
+  const REPO_OWNER = env.GH_REPO_OWNER || 'sujitbhai7710';
+  const REPO_NAME = env.GH_REPO_NAME || 'linkedin-pinpoint-frontend';
   const WORKFLOW_ID = env.GH_WORKFLOW_ID || 'build.yml';
   const token = env.GITHUB_TOKEN;
 
