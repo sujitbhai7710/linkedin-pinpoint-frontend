@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Crawl-delay: 1
+
+# Allow AI bots to access content
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+Sitemap: https://linkedin-pinpoint-answers.pages.dev/sitemap.xml

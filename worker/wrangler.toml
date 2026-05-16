@@ -1,0 +1,15 @@
+name = "linkedin-pinpoint-worker"
+main = "src/index.js"
+compatibility_date = "2024-12-28"
+compatibility_flags = ["nodejs_compat"]
+
+[browser]
+binding = "BROWSER"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "linkedin-pinpoint-db"
+database_id = "3037e22c-1f89-453c-8b5c-c84af52db65c"
+
+[triggers]
+crons = ["0 8 * * *"]

@@ -1,0 +1,73 @@
+name: Build & Deploy Static Site
+
+on:
+  # Triggered by the Cloudflare Worker after daily scrape (1:30 PM IST)
+  workflow_dispatch:
+    inputs:
+      puzzle_number:
+        description: 'Puzzle number that triggered this build'
+        required: false
+        default: ''
+      puzzle_date:
+        description: 'Puzzle date (YYYY-MM-DD)'
+        required: false
+        default: ''
+
+  # Also allow manual trigger from GitHub UI
+  # (no schedule here — the worker cron is the single source of truth)
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch data from Worker API
+        run: npm run fetch-data
+        env:
+          API_BASE: ${{ secrets.API_BASE }}
+          API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
+
+      - name: Build static site
+        run: npm run build-only
+
+      - name: Verify build output
+        run: |
+          echo "Build output:"
+          ls -la build/
+          echo ""
+          echo "Data files:"
+          ls -la build/data/ 2>/dev/null || echo "No data directory"
+          echo ""
+          echo "Solutions files:"
+          ls -la build/data/solutions/ 2>/dev/null || echo "No solutions directory"
+          echo ""
+          echo "Build size:"
+          du -sh build/
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build --project-name=linkedin-pinpoint-answers
+          workingDirectory: frontend

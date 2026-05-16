@@ -1,0 +1,10 @@
+node_modules/
+build/
+.svelte-kit/
+.env
+.env.*
+!.env.example
+frontend/static/data/*.json
+!frontend/static/data/.gitkeep
+!frontend/static/data/solutions/.gitkeep
+*.log
