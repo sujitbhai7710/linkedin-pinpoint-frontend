@@ -3,7 +3,7 @@ Allow: /
 Disallow: /data/
 Disallow: /contact
 Disallow: /privacy
-Sitemap: https://linkedin-pinpoint-answers.pages.dev/sitemap.xml
+Sitemap: https://pinpointanswertoday.online/sitemap.xml
 
 User-agent: Googlebot
 Allow: /

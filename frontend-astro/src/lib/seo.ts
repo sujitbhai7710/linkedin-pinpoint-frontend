@@ -10,7 +10,7 @@ export interface SEOData {
 }
 
 const SITE_NAME = 'Pinpoint Answer Today';
-const SITE_URL = 'https://linkedin-pinpoint-answers.pages.dev';
+const SITE_URL = 'https://pinpointanswertoday.online';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
 
 export function buildMeta(seo: SEOData) {

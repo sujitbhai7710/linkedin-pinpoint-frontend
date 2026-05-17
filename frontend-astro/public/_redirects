@@ -1,3 +1,2 @@
-# Permalink URLs are now handled by src/pages/[...permalink].astro
-# which redirects to /archive with sessionStorage for the date.
-# No _redirects entries needed for permalinks.
+# /guide redirects to /blog
+/guide /blog 301

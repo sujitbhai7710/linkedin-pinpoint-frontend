@@ -188,7 +188,7 @@
 <div class="game-container">
   <div style="text-align:center; margin-bottom:1rem;">
     <h1 style="font-family:var(--font-serif); font-weight:400; font-size:clamp(1.4rem,3.5vw,2rem); margin-bottom:0.3rem;">LinkedIn Pinpoint Unlimited Game</h1>
-    <p style="color:var(--text-muted); font-size:0.88rem; max-width:520px; margin:0 auto;">Practice <strong>Pinpoint</strong> puzzles anytime with unlimited rounds. Sharpen your word association skills with random past puzzles, track your streak, and improve your daily solve rate.</p>
+    <p style="color:var(--text-muted); font-size:0.88rem; max-width:520px; margin:0 auto;">Practice <strong>Pinpoint</strong> puzzles anytime with unlimited rounds. Get better at spotting categories with random past puzzles, track your streak, and improve your daily solve rate.</p>
   </div>
 
   <div class="game-header">

@@ -14,19 +14,19 @@
   }
 
   function shareTwitter() {
-    const url = encodeURIComponent(`https://linkedin-pinpoint-answers.pages.dev/blog/${post.slug}`);
+    const url = encodeURIComponent(`https://pinpointanswertoday.online/blog/${post.slug}`);
     const text = encodeURIComponent(post.title);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   }
 
   function shareLinkedIn() {
-    const url = encodeURIComponent(`https://linkedin-pinpoint-answers.pages.dev/blog/${post.slug}`);
+    const url = encodeURIComponent(`https://pinpointanswertoday.online/blog/${post.slug}`);
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
   }
 
   async function copyLink() {
     try {
-      await navigator.clipboard.writeText(`https://linkedin-pinpoint-answers.pages.dev/blog/${post.slug}`);
+      await navigator.clipboard.writeText(`https://pinpointanswertoday.online/blog/${post.slug}`);
       copySuccess = true;
       setTimeout(() => copySuccess = false, 2000);
     } catch { /* fallback */ }

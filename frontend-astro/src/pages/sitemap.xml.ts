@@ -1,13 +1,6 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../lib/seo';
 import { blogPosts } from '../lib/blog-data';
-import fs from 'fs';
-import path from 'path';
-
-const MONTH_NAMES = [
-  'january', 'february', 'march', 'april', 'may', 'june',
-  'july', 'august', 'september', 'october', 'november', 'december'
-];
 
 export const GET: APIRoute = async () => {
   const today = new Date().toISOString().split('T')[0];
@@ -19,7 +12,9 @@ export const GET: APIRoute = async () => {
     { loc: `${SITE_URL}/unlimited`, lastmod: today, changefreq: 'weekly', priority: '0.7' },
     { loc: `${SITE_URL}/how-to-play`, lastmod: '2025-05-13', changefreq: 'monthly', priority: '0.6' },
     { loc: `${SITE_URL}/blog`, lastmod: today, changefreq: 'weekly', priority: '0.6' },
-    { loc: `${SITE_URL}/about`, lastmod: '2025-05-01', changefreq: 'monthly', priority: '0.5' }
+    { loc: `${SITE_URL}/about`, lastmod: '2025-05-01', changefreq: 'monthly', priority: '0.5' },
+    { loc: `${SITE_URL}/contact`, lastmod: '2025-05-01', changefreq: 'yearly', priority: '0.3' },
+    { loc: `${SITE_URL}/privacy`, lastmod: '2025-05-01', changefreq: 'yearly', priority: '0.3' }
   ];
 
   // Add blog post URLs
@@ -35,7 +30,6 @@ export const GET: APIRoute = async () => {
   // Note: Permalink URLs (/linkedin-pinpoint-answer-for-*) are NOT included in the sitemap
   // because they have noindex meta tags and redirect to /archive via JS.
   // Including noindex pages in sitemaps is a SEO contradiction.
-  // Google will still discover these URLs through internal/external links.
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

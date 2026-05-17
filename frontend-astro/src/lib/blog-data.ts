@@ -14,7 +14,7 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
         {
                 slug: 'solve-linkedin-pinpoint-puzzles-faster',
-                title: 'How to Solve LinkedIn Pinpoint Puzzles Faster — Strategies That Actually Work',
+                title: 'How to Solve LinkedIn Pinpoint Puzzles Faster — From 3.8 Clues to 2.1',
                 description: 'Practical strategies from hundreds of played Pinpoint puzzles. Learn pattern recognition, clue interpretation, and guessing tactics that help you solve with fewer clues.',
                 date: '2025-02-18',
                 author: 'Pinpoint Answer Today Editorial Team',
@@ -22,7 +22,7 @@ export const blogPosts: BlogPost[] = [
                 tags: ['linkedin pinpoint strategy', 'puzzle solving tips', 'word game strategy', 'pinpoint hints'],
                 readTime: '8 min read',
                 content: `
-<h1>How to Solve LinkedIn Pinpoint Puzzles Faster — Strategies That Actually Work</h1>
+<h1>How to Solve LinkedIn Pinpoint Puzzles Faster — From 3.8 Clues to 2.1</h1>
 <p>I've played over 400 LinkedIn Pinpoint puzzles since the game launched in February 2025. After that many rounds, certain patterns emerge. Not just in the puzzle content — but in how you, the player, can systematically get better. This isn't theoretical advice. These are the exact strategies I use every morning when I open the game, and they've cut my average clue count from 3.8 down to 2.1.</p>
 
 <h2>The Core Strategy: Think in Categories, Not Words</h2>
@@ -182,7 +182,7 @@ export const blogPosts: BlogPost[] = [
 
 <h2>Pinpoint vs Quordle and Variants — Simplicity vs Complexity</h2>
 <p>Quordle, Dordle, and Octordle are just Wordle multiplied — more grids, more words, same mechanic. They're harder because you're juggling multiple puzzles simultaneously, but the core skill (letter elimination) is identical. Pinpoint doesn't have "harder versions" in the same way — each puzzle stands alone. The difficulty comes from the category itself, not from multiplying the challenge.</p>
-<p>That said, you can practice Pinpoint at scale with our <a href="/unlimited">unlimited game mode</a>, which feeds you random historical puzzles one after another. It's not harder per puzzle, but the cumulative challenge of solving 10+ in a row sharpens your association skills noticeably.</p>
+<p>That said, you can practice Pinpoint at scale with our <a href="/unlimited">unlimited game mode</a>, which feeds you random historical puzzles one after another. It's not harder per puzzle, but the cumulative challenge of solving 10+ in a row makes you noticeably faster at spotting categories.</p>
 
 <h2>Why Pinpoint Belongs on LinkedIn</h2>
 <p>Here's what nobody else is talking about: Pinpoint is the only daily word game designed for a professional network. Wordle is on the NYT. Connections is on the NYT. Spelling Bee is on the NYT. They're all standalone games that happen to have social sharing. Pinpoint is integrated into LinkedIn — your results are visible to your professional connections.</p>
@@ -391,7 +391,7 @@ export const blogPosts: BlogPost[] = [
 <p>LinkedIn explicitly designed their games to fit into a "morning routine" use case. Each game takes 1-3 minutes. The daily puzzle resets at midnight. The idea is that you open LinkedIn while having your morning coffee, play a quick game, and then — because you're already in the app — you scroll your feed, check notifications, and maybe see a sponsored post or recruiter message. The game is the hook. Everything else is the revenue.</p>
 
 <h4>How This Differs From NYT's Approach</h4>
-<p>The New York Times acquired Wordle in 2022 and built a games platform (NYT Games) that generates subscription revenue directly. People pay $25/year for NYT Games. LinkedIn isn't charging for games — they're free to all users. The revenue model is indirect: games drive engagement, engagement drives ad impressions and premium subscription upgrades, and those drive revenue. Different playbook, same fundamental insight: daily word games are incredibly sticky.</p>
+<p>The New York Times acquired Wordle in 2022 and built a games platform (NYT Games) that generates subscription revenue directly. People pay $25/year for NYT Games. LinkedIn isn't charging for games — they're free to all users. The revenue model is indirect: games drive engagement, engagement drives ad impressions and premium subscription upgrades, and those drive revenue. Different playbook, same fundamental insight: daily word games are sticky.</p>
 
 <h5>Why Free Games Work Better for LinkedIn</h5>
 <p>LinkedIn already has a premium subscription (LinkedIn Premium, Sales Navigator, Recruiter). Adding a paid games tier would create friction and reduce the very engagement they're trying to build. Free games lower the barrier to daily use. More daily users = more data = better ad targeting = higher CPMs. The games are a cost center that pays for itself through the broader platform economics.</p>
@@ -529,7 +529,7 @@ export const blogPosts: BlogPost[] = [
         },
         {
                 slug: 'build-daily-puzzle-habit',
-                title: 'How to Build a Daily Puzzle Habit That Actually Sticks',
+                title: 'How to Build a Daily Puzzle Habit — 14 Months and Counting',
                 description: "How to make LinkedIn Pinpoint (or any daily puzzle) a consistent part of your routine. From habit stacking to progress tracking — what works and what doesn't.",
                 date: '2025-02-01',
                 author: 'Pinpoint Answer Today Editorial Team',
@@ -537,7 +537,7 @@ export const blogPosts: BlogPost[] = [
                 tags: ['daily puzzle habit', 'word game routine', 'brain training', 'puzzle practice'],
                 readTime: '7 min read',
                 content: `
-<h1>How to Build a Daily Puzzle Habit That Actually Sticks</h1>
+<h1>How to Build a Daily Puzzle Habit — 14 Months and Counting</h1>
 <p>I've maintained a daily puzzle habit for 14 months straight. Wordle, Connections, and now Pinpoint — every single morning since January 2024. Not because I have extraordinary willpower (I absolutely don't), but because I set up systems that make skipping harder than doing. Here's exactly how I did it, and how you can too.</p>
 
 <h2>Why Most Puzzle Habits Fail</h2>
