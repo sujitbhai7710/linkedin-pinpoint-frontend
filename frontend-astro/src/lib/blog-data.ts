@@ -120,7 +120,7 @@ export const blogPosts: BlogPost[] = [
         {
                 slug: 'linkedin-pinpoint-vs-other-word-games',
                 title: 'LinkedIn Pinpoint vs Other Word Games — What Makes It Different',
-                description: 'A detailed comparison of LinkedIn Pinpoint against Wordle, Connections, and other daily puzzle games. What makes Pinpoint unique and why it appeals to a different type of player.',
+                description: 'How LinkedIn Pinpoint stacks up against Wordle, Connections, Spelling Bee, and other daily puzzle games. What makes it different and who it appeals to.',
                 date: '2025-02-15',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Explanations',
@@ -216,15 +216,15 @@ export const blogPosts: BlogPost[] = [
         },
         {
                 slug: 'complete-guide-clue-types-and-patterns',
-                title: 'The Complete Guide to LinkedIn Pinpoint Clue Types and Patterns',
-                description: 'Break down every common clue pattern in LinkedIn Pinpoint — from geography and professions to abstract concepts. Learn to identify each type and solve faster.',
+                title: 'LinkedIn Pinpoint Clue Types and Patterns — What to Look For',
+                description: 'Break down every common clue pattern in LinkedIn Pinpoint — from geography and professions to abstract concepts. Spot each type and solve faster.',
                 date: '2025-02-12',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Tips',
                 tags: ['pinpoint clue types', 'clue patterns', 'word association', 'category recognition'],
                 readTime: '10 min read',
                 content: `
-<h1>The Complete Guide to LinkedIn Pinpoint Clue Types and Patterns</h1>
+<h1>LinkedIn Pinpoint Clue Types and Patterns — What to Look For</h1>
 <p>Every LinkedIn Pinpoint puzzle follows a structure. The clues might change daily, but the underlying patterns repeat. After cataloging every puzzle in our <a href="/archive">archive</a>, I've sorted Pinpoint clues into six distinct types. Knowing these types — and having a strategy for each — is the fastest way to improve your solve rate. This guide covers all of them with real examples and specific tactics.</p>
 
 <h2>The Six Clue Types You'll Encounter</h2>
@@ -344,7 +344,7 @@ export const blogPosts: BlogPost[] = [
         {
                 slug: 'why-linkedin-launched-pinpoint',
                 title: 'Why LinkedIn Launched Pinpoint — The Story Behind the Game',
-                description: 'The history of LinkedIn\'s games section, why they added Pinpoint, and how it fits into their broader platform strategy. From Queens to Pinpoint — the full timeline.',
+                description: "The history of LinkedIn's games section, why they added Pinpoint, and how it fits into their platform strategy. From Queens to Pinpoint — the full timeline.",
                 date: '2025-02-08',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Explanations',
@@ -437,7 +437,7 @@ export const blogPosts: BlogPost[] = [
         {
                 slug: 'common-mistakes-in-pinpoint',
                 title: '5 Common Mistakes Everyone Makes in LinkedIn Pinpoint (And How to Fix Them)',
-                description: 'The specific errors that cost you clues in every Pinpoint puzzle — from guessing too early to ignoring clue context. Practical fixes for each one.',
+                description: 'The specific errors that cost you clues in every Pinpoint puzzle — from guessing too early to ignoring clue context. Fixes for each one.',
                 date: '2025-02-05',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Tips',
@@ -530,7 +530,7 @@ export const blogPosts: BlogPost[] = [
         {
                 slug: 'build-daily-puzzle-habit',
                 title: 'How to Build a Daily Puzzle Habit That Actually Sticks',
-                description: 'Practical advice on making LinkedIn Pinpoint (or any daily puzzle) a consistent part of your routine. From habit stacking to progress tracking — what works and what doesn\'t.',
+                description: "How to make LinkedIn Pinpoint (or any daily puzzle) a consistent part of your routine. From habit stacking to progress tracking — what works and what doesn't.",
                 date: '2025-02-01',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Strategy',
@@ -622,7 +622,7 @@ export const blogPosts: BlogPost[] = [
                 faqs: [
                         {
                                 question: 'How long does it take to build a daily puzzle habit?',
-                                answer: 'Research on habit formation suggests 21-66 days for a behavior to become automatic, with an average of 66 days. For puzzle habits specifically, most people find that 2-3 weeks of consistent daily play establishes the routine. Using habit stacking (attaching it to an existing habit like morning coffee) accelerates this significantly.'
+                                answer: 'Most people need 2-3 weeks of daily play before it feels automatic. The research says anywhere from 21 to 66 days depending on the person. The fastest way: attach it to something you already do every day (like morning coffee). That habit-stacking trick cuts the time way down.'
                         },
                         {
                                 question: 'What should I do if I miss a day of my puzzle habit?',

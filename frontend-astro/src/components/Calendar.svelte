@@ -73,11 +73,11 @@
     selectedError = null;
     loadingPuzzle = true;
 
-    // Update URL hash (no query params — SEO clean)
+    // Keep URL clean — just /archive (no hash, no query params)
+    // This avoids duplicate content SEO issues
     if (typeof window !== 'undefined') {
-      const targetPath = `/archive#${dateStr}`;
-      if (window.location.hash !== `#${dateStr}`) {
-        window.history.replaceState(null, '', targetPath);
+      if (window.location.hash || window.location.search) {
+        window.history.replaceState(null, '', '/archive');
       }
     }
 
@@ -107,19 +107,42 @@
 
   import { onMount } from 'svelte';
   onMount(() => {
-    // Priority: 1) Hash fragment, 2) Query param ?date= (legacy redirect support)
-    const hash = window.location.hash.slice(1);
-    if (hash && /^\d{4}-\d{2}-\d{2}$/.test(hash)) {
-      selectDate(hash);
-    } else {
-      // Fallback: support ?date= from redirects (cleaned to hash via replaceState)
+    // Priority: 1) sessionStorage (from permalink redirect), 2) Hash fragment, 3) Query param
+    let dateToOpen: string | null = null;
+
+    // Check sessionStorage first (set by permalink redirect pages)
+    try {
+      const stored = sessionStorage.getItem('pinpoint-open-date');
+      if (stored && /^\d{4}-\d{2}-\d{2}$/.test(stored)) {
+        dateToOpen = stored;
+        sessionStorage.removeItem('pinpoint-open-date'); // Clean up
+      }
+    } catch (e) { /* sessionStorage not available */ }
+
+    // Check hash fragment
+    if (!dateToOpen) {
+      const hash = window.location.hash.slice(1);
+      if (hash && /^\d{4}-\d{2}-\d{2}$/.test(hash)) {
+        dateToOpen = hash;
+      }
+    }
+
+    // Check query params (legacy support)
+    if (!dateToOpen) {
       const params = new URLSearchParams(window.location.search);
       const dateParam = params.get('date') || params.get('d');
       if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
-        // Immediately replace URL: remove query params, use hash only
-        window.history.replaceState(null, '', `/archive#${dateParam}`);
-        selectDate(dateParam);
+        dateToOpen = dateParam;
       }
+    }
+
+    // Open the date if found, and clean up the URL
+    if (dateToOpen) {
+      // Clean URL: remove any hash or query params, show just /archive
+      if (window.location.hash || window.location.search) {
+        window.history.replaceState(null, '', '/archive');
+      }
+      selectDate(dateToOpen);
     }
 
     // Listen for hash changes (back/forward navigation)

@@ -34,8 +34,8 @@ const seo = buildMeta({
     ? `LinkedIn Pinpoint Answer Today — #${today.number} (${shortDateStr})`
     : 'LinkedIn Pinpoint Answer Today — Daily Puzzle Solutions',
   description: today
-    ? `Get today's LinkedIn Pinpoint #${today.number} answer for ${shortDateStr}. Clues: ${clueWords}. Detailed explanations and all valid alternative solutions. Updated daily.`
-    : `Get today's LinkedIn Pinpoint answer with all 5 clues, detailed explanations, and every valid alternative solution. Browse our complete Pinpoint archive and practice with unlimited games. Updated daily.`,
+    ? `Get today's LinkedIn Pinpoint #${today.number} answer for ${shortDateStr}. Clues: ${clueWords}. Explanations and all valid alternative solutions. Updated daily.`
+    : `Get today's LinkedIn Pinpoint answer with all 5 clues and explanations. Browse the archive and practice with unlimited games. Updated daily.`,
   keywords: `LinkedIn Pinpoint answers, pinpoint answer today, daily puzzle solution, LinkedIn word game, Pinpoint clues, Pinpoint hints, pinpoint answer today, LinkedIn Pinpoint solution, pinpoint archive, pinpoint answers, pinpoint clue, LinkedIn Pinpoint game${today ? `, Pinpoint #${today.number}, ${today.answer}` : ''}`,
   canonical: SITE_URL,
   ogType: 'website',
@@ -86,7 +86,7 @@ const faqs = [
           </div>
           <h1>Today's LinkedIn Pinpoint {today ? `#${today.number}` : ''} Answer</h1>
           <div class="hero-accent"></div>
-          <p class="hero-desc">Get today's Pinpoint answer with all clues and a detailed explanation. We break down how each clue connects to the solution so you can improve your game.</p>
+          <p class="hero-desc">Get today's Pinpoint answer with all clues and an explanation for each one. See how every clue connects to the solution so you can get better over time.</p>
           <div class="hero-buttons">
             <a href="/today" class="btn btn-primary btn-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
@@ -253,7 +253,7 @@ const faqs = [
       <div class="seo-content-grid">
         <div class="seo-content-main">
           <h2 id="seo-heading">Your Daily Pinpoint Answer — All Clues, All Solutions, Full Explanations</h2>
-          <p>Looking for today's LinkedIn Pinpoint answer? You are in the right place. Every day we post the full <strong>Pinpoint answer</strong> with every clue broken down, every valid alternative solution listed, and a walkthrough of how each clue ties back to the category.</p>
+          <p>Looking for today's LinkedIn Pinpoint answer? We've got it. Every day we post the full <strong>Pinpoint answer</strong> with every clue broken down, every valid alternative solution listed, and a walkthrough of how each clue ties back to the category.</p>
           <p>We started this site because the existing answer sites left us frustrated. You get the answer word and nothing else — no explanation, no context, no list of alternatives. Just "the answer is X" surrounded by ads. We do things differently: each puzzle gets a full <strong>clue-by-clue analysis</strong>, a solving walkthrough, and a takeaways section so you can spot similar patterns the next time you play.</p>
           <h3>What Makes a Great Pinpoint Clue?</h3>
           <p>Each <strong>Pinpoint clue</strong> points toward one connecting word or category. Clue one is vague on purpose — it could fit dozens of answers. As more clues appear, the field narrows. By clue four or five, the answer is obvious to most players. The skill is in spotting the pattern early, and that comes with practice.</p>
@@ -281,7 +281,7 @@ const faqs = [
             <ul style="padding-left:1rem; margin:0;">
               <li>100% verified daily answers</li>
               <li>All valid solutions listed</li>
-              <li>Detailed clue-by-clue explanations</li>
+              <li>Clue-by-clue explanations</li>
               <li>Updated every day by early afternoon</li>
               <li>Free access, no sign-up required</li>
               <li>Spoiler-safe reveal buttons</li>

@@ -39,6 +39,9 @@
   onMount(() => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = post.content;
+    // Remove duplicate h1 — the component already renders the title as h1
+    const h1 = tempDiv.querySelector('h1');
+    if (h1) h1.remove();
     const headings = tempDiv.querySelectorAll('h2, h3, h4');
     const items: { id: string; text: string; level: number }[] = [];
     headings.forEach((h, i) => {
@@ -121,7 +124,7 @@
         <div class="blog-author-avatar">P</div>
         <div class="blog-author-info">
           <h4>{post.author}</h4>
-          <p>Daily players and analysts of LinkedIn Pinpoint who verify every answer and write detailed clue-by-clue explanations.</p>
+          <p>We play LinkedIn Pinpoint every day, verify the answers ourselves, and write clue-by-clue explanations so you can see exactly how each puzzle works.</p>
         </div>
       </div>
 

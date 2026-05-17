@@ -1,15 +1,16 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { buildMeta, breadcrumbJsonLd, faqJsonLd, SITE_URL } from '../lib/seo';
+import { buildMeta, breadcrumbJsonLd, faqJsonLd, howToJsonLd, SITE_URL } from '../lib/seo';
 
 const seo = buildMeta({
-  title: 'How to Play LinkedIn Pinpoint — Rules, Tips & Strategies',
-  description: 'Learn how to play LinkedIn Pinpoint with our complete guide. Understand the rules, scoring system, and proven strategies to solve puzzles faster with fewer clues.',
+  title: 'How to Play LinkedIn Pinpoint — Tips & Strategies',
+  description: 'Learn how to play LinkedIn Pinpoint with our step-by-step guide. Understand the rules, scoring, and proven strategies to solve puzzles faster with fewer clues.',
   keywords: 'how to play LinkedIn Pinpoint, Pinpoint rules, Pinpoint tips, Pinpoint strategy, LinkedIn game guide, word association game tips, how to solve Pinpoint',
   canonical: `${SITE_URL}/how-to-play`,
   ogType: 'website',
   jsonLd: [
     breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'How to Play', url: `${SITE_URL}/how-to-play` }]),
+    howToJsonLd(),
     faqJsonLd([
       { question: 'How many clues do you get in LinkedIn Pinpoint?', answer: 'You get a maximum of 5 clues in LinkedIn Pinpoint. The first clue is shown immediately, and each wrong guess reveals the next clue. Your goal is to guess the answer using as few clues as possible.' },
       { question: 'What happens if I guess wrong in Pinpoint?', answer: 'Each wrong guess reveals the next clue. You can keep guessing until you get it right or use all 5 clues.' },
@@ -29,7 +30,7 @@ const seo = buildMeta({
 
   <div class="content-page container">
     <h1>How to Play LinkedIn Pinpoint</h1>
-    <p class="page-desc">A complete guide to LinkedIn's word association puzzle — from basic rules to advanced strategies that help you solve faster.</p>
+    <p class="page-desc">Everything you need to know about LinkedIn's word association puzzle — from the basic rules to strategies that'll help you solve faster.</p>
 
     <h2>What Is LinkedIn Pinpoint?</h2>
     <p>LinkedIn Pinpoint is a daily word puzzle game available on LinkedIn's games section. The game presents you with five clues, each pointing to the same underlying concept, category, or word. Your job is to figure out the connecting thread before all five clues are revealed.</p>

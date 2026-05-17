@@ -30,6 +30,6 @@ const seo = buildMeta({
   ]
 });
 ---
-<BaseLayout {...seo}>
+<BaseLayout {...seo} articlePublishedTime={post.date}>
   <BlogDetail client:load post={post} relatedPosts={relatedPosts} />
 </BaseLayout>

@@ -39,7 +39,7 @@ const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
 const title = today ? `LinkedIn Pinpoint #${today.number} Answer — ${shortDateStr}` : "Today's LinkedIn Pinpoint Answer";
 const descriptionText = today
   ? `The answer to LinkedIn Pinpoint #${today.number} for ${shortDateStr}. Clues: ${clueWords}. See all 5 clues, read the full explanation${today.totalSolutions ? `, and browse ${today.totalSolutions} valid solutions` : ''}.`
-  : "Get today's LinkedIn Pinpoint answer with all clues and a detailed explanation.";
+  : "Get today's LinkedIn Pinpoint answer with all clues and a full explanation.";
 
 const seo = buildMeta({
   title,

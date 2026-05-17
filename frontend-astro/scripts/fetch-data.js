@@ -208,22 +208,13 @@ async function main() {
   writeJson('date-map.json', dateMap);
 
   // ─── 9. GENERATE CLOUDFLARE _redirects FILE ─────────────────
-  console.log('\n📝 Generating Cloudflare _redirects file...');
-  const MONTH_NAMES_RED = ['january','february','march','april','may','june','july','august','september','october','november','december'];
-  const redirectLines = [];
-  for (const puzzle of allPuzzles) {
-    const date = new Date(puzzle.date + 'T00:00:00');
-    const monthName = MONTH_NAMES_RED[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    const monthNum = String(date.getMonth() + 1).padStart(2, '0');
-    const dayPadded = String(day).padStart(2, '0');
-    const dateStr = `${year}-${monthNum}-${dayPadded}`;
-    redirectLines.push(`/linkedin-pinpoint-answer-for-${monthName}-${day}-${year}  /archive#${dateStr}  301`);
-  }
+  // Permalink URLs are now handled by Astro's [...permalink].astro page
+  // which uses sessionStorage + JS redirect to /archive (no hash, no query params)
+  // This avoids duplicate content SEO issues.
+  console.log('\n📝 Writing empty _redirects (permalinks handled by Astro pages)...');
   const redirectsPath = join(__dirname, '..', 'public', '_redirects');
-  writeFileSync(redirectsPath, redirectLines.join('\n') + '\n');
-  console.log(`  ✓ _redirects (${redirectLines.length} entries)`);
+  writeFileSync(redirectsPath, '# Permalinks handled by src/pages/[...permalink].astro\n');
+  console.log('  ✓ _redirects (minimal — permalinks handled by Astro pages)');
 
   console.log('\n✅ Data fetch complete! Static JSON files ready for build.\n');
 }

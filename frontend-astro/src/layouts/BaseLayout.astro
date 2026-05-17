@@ -47,8 +47,8 @@ const navItems = [
   <meta name="author" content="Pinpoint Answer Today" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:site_name" content="Pinpoint Answer Today" />
-  <link rel="alternate" hreflang="en" href="https://linkedin-pinpoint-answers.pages.dev/" />
-  <link rel="alternate" hreflang="x-default" href="https://linkedin-pinpoint-answers.pages.dev/" />
+  <link rel="alternate" hreflang="en" href={props.canonical || `https://linkedin-pinpoint-answers.pages.dev${currentPath}`} />
+  <link rel="alternate" hreflang="x-default" href={props.canonical || `https://linkedin-pinpoint-answers.pages.dev${currentPath}`} />
 
   {props.title && <title>{props.title}</title>}
   {props.description && <meta name="description" content={props.description} />}
