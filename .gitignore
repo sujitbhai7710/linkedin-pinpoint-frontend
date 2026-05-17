@@ -1,10 +1,17 @@
 node_modules/
 build/
+dist/
 .svelte-kit/
+.astro/
 .env
 .env.*
 !.env.example
 frontend/static/data/*.json
 !frontend/static/data/.gitkeep
 !frontend/static/data/solutions/.gitkeep
+frontend-astro/public/data/*.json
+!frontend-astro/public/data/.gitkeep
+!frontend-astro/public/data/solutions/.gitkeep
+frontend-astro/dist/
+frontend-astro/.astro/
 *.log

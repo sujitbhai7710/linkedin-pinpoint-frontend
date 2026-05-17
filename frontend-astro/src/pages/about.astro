@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { buildMeta, breadcrumbJsonLd, authorJsonLd, organizationJsonLd, SITE_URL } from '../lib/seo';
+
+const seo = buildMeta({
+  title: 'About Pinpoint Answer Today — Who We Are and Why We Built This',
+  description: 'Learn about Pinpoint Answer Today: an independent team of word puzzle enthusiasts who verify every LinkedIn Pinpoint answer before publishing.',
+  keywords: 'about Pinpoint Answer Today, LinkedIn Pinpoint answers site, who runs Pinpoint Answer Today, verified Pinpoint answers, Pinpoint answer accuracy',
+  canonical: `${SITE_URL}/about`,
+  ogType: 'website',
+  jsonLd: [
+    breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'About', url: `${SITE_URL}/about` }]),
+    { '@context': 'https://schema.org', '@type': 'AboutPage', name: 'About Pinpoint Answer Today', description: 'An independent resource for LinkedIn Pinpoint daily puzzle answers with explanations.', url: `${SITE_URL}/about`, author: authorJsonLd(), publisher: organizationJsonLd(), dateModified: new Date().toISOString().split('T')[0] }
+  ]
+});
+---
+<BaseLayout {...seo}>
+  <div class="container">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="separator" aria-hidden="true">/</span>
+      <span class="current">About</span>
+    </nav>
+  </div>
+
+  <div class="content-page container">
+    <h1>About Pinpoint Answer Today</h1>
+    <p class="page-desc">Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}. We built this site because we kept Googling for LinkedIn Pinpoint answers and finding the same thing: clickbait titles, no explanations, and answers buried under twelve paragraphs of fluff. We figured we could do better.</p>
+
+    <h2>What We Do</h2>
+    <p>Every day, we publish the answer to that day's LinkedIn Pinpoint puzzle. That part is straightforward. What makes us different is the explanation — we don't just give you the word and call it done. We break down each clue, show how it connects to the answer, and walk through the solving process the way an actual person would think through it.</p>
+    <p>We also list every valid alternative solution the game accepts, not just the main answer. Some puzzles have dozens of accepted words, and knowing which synonyms work helps you on future puzzles too.</p>
+
+    <h2>Who We Are</h2>
+    <p>We're a small team of word puzzle enthusiasts who got hooked on LinkedIn Pinpoint shortly after it launched. Some of us are crossword people, some are Wordle diehards, and one person still does the newspaper jumble every morning (no judgment). The point is: we like word games, we like explaining things clearly, and we built the resource we wished existed.</p>
+    <p>Pinpoint Answer Today is not affiliated with LinkedIn, Microsoft, or any of the game's creators. We're fans of the game, not employees of the company that makes it. Our answers come from playing the game ourselves and verifying everything before we publish.</p>
+
+    <h2>How It Works</h2>
+    <p>The daily pipeline goes like this: a new Pinpoint puzzle drops, we play it, we scrape the data, run it through an AI model that generates the explanation, and then a human reviews the output for accuracy and readability before the site rebuilds and deploys automatically. The whole thing takes a few minutes.</p>
+    <p>We also keep a complete archive. Every past puzzle is accessible through our calendar view. And if you want more than one puzzle per day, our <a href="/unlimited">Unlimited Game</a> lets you practice with random historical puzzles as many times as you want.</p>
+
+    <h2>Why Explanations Matter</h2>
+    <p>Plenty of sites will tell you the answer. That's easy. The hard part — and the part worth doing — is explaining <em>why</em> it's the answer. Each clue in Pinpoint points to the same concept from a different angle. When you read through our explanations, you start seeing patterns: categories, associations, lateral connections. That makes you better at the game over time.</p>
+
+    <h2>Accuracy and Verification</h2>
+    <p>We verify every answer against the official LinkedIn Pinpoint game before it goes live. If we ever get something wrong, we fix it fast — usually within the hour after a reader reports it.</p>
+
+    <h2>Get in Touch</h2>
+    <p>Found a mistake? Have a suggestion? Just want to say you solved it on clue one? <a href="/contact">Reach out to us</a>. We read everything, and we act on corrections fast.</p>
+  </div>
+</BaseLayout>

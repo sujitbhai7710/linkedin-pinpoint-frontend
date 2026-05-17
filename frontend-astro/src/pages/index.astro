@@ -1,0 +1,301 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroAnswerReveal from '../components/HeroAnswerReveal.svelte';
+import FaqAccordion from '../components/FaqAccordion.svelte';
+import { formatDate, formatDateShort } from '../lib/api';
+import { buildMeta, websiteJsonLd, organizationJsonLd, authorJsonLd, reviewerJsonLd, faqJsonLd, howToJsonLd, itemListJsonLd, SITE_NAME, SITE_URL } from '../lib/seo';
+import type { PinpointPuzzle, PinpointSummary } from '../lib/types';
+import fs from 'fs';
+import path from 'path';
+
+let today: PinpointPuzzle | null = null;
+let recent: PinpointSummary[] = [];
+let error: string | null = null;
+
+try {
+  const todayPath = path.join(process.cwd(), 'public/data/today.json');
+  const todayRaw = fs.readFileSync(todayPath, 'utf-8');
+  today = JSON.parse(todayRaw);
+} catch (e) {
+  error = 'Failed to load today\'s puzzle. Try again in a moment.';
+}
+
+try {
+  const recentPath = path.join(process.cwd(), 'public/data/recent.json');
+  const recentRaw = fs.readFileSync(recentPath, 'utf-8');
+  recent = JSON.parse(recentRaw);
+} catch (e) { /* Not critical */ }
+
+const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
+const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
+
+const seo = buildMeta({
+  title: today
+    ? `LinkedIn Pinpoint Answer Today — #${today.number} (${shortDateStr})`
+    : 'LinkedIn Pinpoint Answer Today — Daily Puzzle Solutions',
+  description: today
+    ? `Get today's LinkedIn Pinpoint #${today.number} answer for ${shortDateStr}. Clues: ${clueWords}. Detailed explanations and all valid alternative solutions. Updated daily.`
+    : `Get today's LinkedIn Pinpoint answer with all 5 clues, detailed explanations, and every valid alternative solution. Browse our complete Pinpoint archive and practice with unlimited games. Updated daily.`,
+  keywords: `LinkedIn Pinpoint answers, pinpoint answer today, daily puzzle solution, LinkedIn word game, Pinpoint clues, Pinpoint hints, pinpoint answer today, LinkedIn Pinpoint solution, pinpoint archive, pinpoint answers, pinpoint clue, LinkedIn Pinpoint game${today ? `, Pinpoint #${today.number}, ${today.answer}` : ''}`,
+  canonical: SITE_URL,
+  ogType: 'website',
+  jsonLd: [
+    organizationJsonLd(),
+    websiteJsonLd(),
+    authorJsonLd(),
+    reviewerJsonLd(),
+    howToJsonLd(),
+    faqJsonLd([
+      { question: 'What is LinkedIn Pinpoint?', answer: 'LinkedIn Pinpoint is a daily word puzzle on LinkedIn where players guess a connecting word or category from five progressive clues.' },
+      { question: 'How often are new Pinpoint puzzles released?', answer: 'New LinkedIn Pinpoint puzzles are released daily at midnight. Our site updates by early afternoon with the latest answer and full explanation.' },
+      { question: 'Are the answers on this site accurate?', answer: 'Yes. Every answer is verified against the official LinkedIn Pinpoint game before posting.' },
+      { question: 'Is this site affiliated with LinkedIn?', answer: 'No. We are an independent resource. Not affiliated with, endorsed by, or connected to LinkedIn or Microsoft.' },
+      { question: 'Can I play Pinpoint unlimited times?', answer: 'The daily puzzle is once per day, but our Unlimited Game mode lets you practice with random historical puzzles as many times as you want.' },
+      { question: 'What time does the new Pinpoint puzzle come out?', answer: 'New LinkedIn Pinpoint puzzles are released at midnight Eastern Time. Our answers are typically posted by early afternoon each day.' },
+      { question: 'Why are there multiple valid answers for some puzzles?', answer: 'LinkedIn Pinpoint accepts a specific set of words for each puzzle. Sometimes a synonym or close variant also works. We list every accepted solution, not just the main one.' }
+    ]),
+    itemListJsonLd(
+      recent.slice(0, 10).map(p => ({
+        name: `LinkedIn Pinpoint #${p.number} — ${new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+        url: `${SITE_URL}/archive`,
+        date: p.date
+      }))
+    )
+  ]
+});
+
+const faqs = [
+  { question: 'What is LinkedIn Pinpoint?', answer: 'LinkedIn Pinpoint is a daily word puzzle that lives inside LinkedIn\'s games section. You get five clues, revealed one at a time, and the goal is to guess the connecting word or category before all five clues are shown. Fewer clues needed means a better score.' },
+  { question: 'How do I play LinkedIn Pinpoint?', answer: 'Head to the LinkedIn games section. Tap Pinpoint, and you\'ll see the first clue. Type your guess. If you\'re wrong, the next clue appears. Keep going until you get it.' },
+  { question: 'When do new puzzles come out?', answer: 'New Pinpoint puzzles drop daily at midnight. Our site updates by early afternoon each day with the answer, all five clues, and a full breakdown.' },
+  { question: 'Are these answers accurate?', answer: 'Yes. We verify every answer before posting. The explanations break down each clue so you can see exactly why the answer fits.' },
+  { question: 'Is this site affiliated with LinkedIn?', answer: 'No. We\'re an independent resource for people who play LinkedIn Pinpoint. We\'re not connected to, endorsed by, or affiliated with LinkedIn or Microsoft.' },
+  { question: 'Can I practice Pinpoint more than once a day?', answer: 'The daily puzzle is once per day on LinkedIn, but our Pinpoint Unlimited Game lets you practice with random past puzzles as many times as you want.' },
+  { question: 'Why are there multiple valid answers for some puzzles?', answer: 'LinkedIn Pinpoint accepts a specific set of words for each puzzle. Sometimes a synonym or close variant also works. We list every accepted solution, not just the main one.' }
+];
+---
+<BaseLayout {...seo}>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Daily Puzzle Answer
+          </div>
+          <h1>Today's LinkedIn Pinpoint {today ? `#${today.number}` : ''} Answer</h1>
+          <div class="hero-accent"></div>
+          <p class="hero-desc">Get today's Pinpoint answer with all clues and a detailed explanation. We break down how each clue connects to the solution so you can improve your game.</p>
+          <div class="hero-buttons">
+            <a href="/today" class="btn btn-primary btn-lg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              View Today's Answer
+            </a>
+            <a href="/archive" class="btn btn-secondary btn-lg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Browse Archive
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-value">Daily</div><div class="hero-stat-label">Updates</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">100%</div><div class="hero-stat-label">Verified</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">Free</div><div class="hero-stat-label">Access</div></div>
+          </div>
+        </div>
+
+        {today && (
+          <div class="hero-card-wrapper">
+            <div class="hero-card-outer">
+              <div class="hero-card-inner">
+                <div class="hero-card-header">
+                  <h3>Pinpoint #{today.number} Clues</h3>
+                  <div class="date">{today.date}</div>
+                </div>
+                <div class="hero-card-clues">
+                  {today.clues.map((clue: string) => (
+                    <div class="hero-clue-chip">{clue}</div>
+                  ))}
+                </div>
+                <div class="hero-card-footer">
+                  <HeroAnswerReveal client:load answer={today.answer} />
+                </div>
+              </div>
+            </div>
+            <div class="hero-deco-top">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
+            <div class="hero-deco-bottom">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Puzzles -->
+  {recent.length > 0 && (
+    <section class="section section-white" aria-labelledby="recent-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 id="recent-heading" class="section-title">Recent Puzzles</h2>
+          <a href="/archive" class="btn btn-ghost btn-sm">View All →</a>
+        </div>
+        <div class="archive-cards">
+          {recent.map((puzzle: any) => (
+            <a href="/archive" class="archive-card">
+              <div class="archive-card-header">
+                <span class="archive-card-number">#{puzzle.number}</span>
+                <span class="archive-card-date">{formatDateShort(puzzle.date)}</span>
+              </div>
+              <div class="archive-card-clues">
+                {puzzle.clues.slice(0, 3).map((clue: string) => (
+                  <span class="archive-clue-pill">{clue.length > 28 ? clue.slice(0, 28) + '...' : clue}</span>
+                ))}
+              </div>
+              <div class="archive-card-link">View Answer →</div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Features Section -->
+  <section class="section section-gray" aria-labelledby="features-heading">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:1.25rem;">
+        <h2 id="features-heading">Why Pinpoint Answer Today?</h2>
+        <p style="color:var(--text-muted); max-width:540px; margin:0.4rem auto 0; font-size:0.9rem;">We play this game every day, just like you. Here's what we built that other answer sites don't bother with.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <h3>Daily Updates</h3>
+          <p>New answer posted every day by early afternoon. No delays, no missing days.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+          <h3>Full Explanations</h3>
+          <p>Not just the answer — we break down how each clue connects to the solution.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h3>All Valid Solutions</h3>
+          <p>Every accepted answer, not just one. Some puzzles have dozens of valid words.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <h3>Complete Archive</h3>
+          <p>Browse every past puzzle by date with our calendar view.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--teal-50); color:var(--teal-500);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <h3>Unlimited Practice Game</h3>
+          <p>The daily puzzle is once per day, but our <a href="/unlimited" style="color:var(--teal-600); text-decoration:underline;">Unlimited Game</a> lets you play random past puzzles endlessly.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Spoiler-Safe</h3>
+          <p>Answers are hidden behind a click. Browse clues without accidentally seeing the solution.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Unlimited Game Spotlight -->
+  <section class="section section-white" aria-labelledby="game-heading">
+    <div class="container">
+      <div class="game-spotlight">
+        <div class="game-spotlight-content">
+          <span class="badge badge-teal" style="margin-bottom:0.5rem;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Practice Mode
+          </span>
+          <h2 id="game-heading">Pinpoint Unlimited — Play As Many Rounds As You Want</h2>
+          <p>The daily LinkedIn Pinpoint puzzle is one round per day. That's it. If you want more — and most regular players do — our <strong>Pinpoint Unlimited Game</strong> is built for exactly that. It pulls from our complete archive of hundreds of past puzzles, shuffles them randomly, and lets you play round after round.</p>
+          <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a href="/unlimited" class="btn btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Play Unlimited Now
+            </a>
+            <a href="/how-to-play" class="btn btn-secondary">Learn Strategies</a>
+          </div>
+        </div>
+        <div class="game-spotlight-aside">
+          <div class="sidebar-card">
+            <h3>How It Works</h3>
+            <ul style="padding-left:1rem; margin:0.5rem 0 0;">
+              <li style="margin:0.3rem 0; color:var(--text-secondary); font-size:0.85rem;">Random puzzles from our archive</li>
+              <li style="margin:0.3rem 0; color:var(--text-secondary); font-size:0.85rem;">5 progressive clues per round</li>
+              <li style="margin:0.3rem 0; color:var(--text-secondary); font-size:0.85rem;">Wrong guess reveals next clue</li>
+              <li style="margin:0.3rem 0; color:var(--text-secondary); font-size:0.85rem;">Streak and stats tracked locally</li>
+              <li style="margin:0.3rem 0; color:var(--text-secondary); font-size:0.85rem;">Free, no sign-up required</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section section-gray" aria-labelledby="faq-heading">
+    <div class="container">
+      <h2 id="faq-heading" class="section-title" style="text-align:center; margin-bottom:1rem;">Frequently Asked Questions</h2>
+      <FaqAccordion client:load faqs={faqs} />
+    </div>
+  </section>
+
+  <!-- SEO Content Section -->
+  <section class="section section-white seo-content-section" aria-labelledby="seo-heading">
+    <div class="container">
+      <div class="seo-content-grid">
+        <div class="seo-content-main">
+          <h2 id="seo-heading">Your Daily Pinpoint Answer Today — All Clues, All Solutions, Full Explanations</h2>
+          <p>Looking for today's LinkedIn Pinpoint answer? You are in the right place. We publish the complete <strong>Pinpoint answer today</strong> with every clue explained in plain language, every valid alternative solution listed, and a detailed breakdown of how each clue connects to the category.</p>
+          <p>We built this site because we were tired of answer sites that give you the word and nothing else. No explanation, no context, no list of valid alternatives. Just "the answer is X" and a page full of ads. We do it differently: each puzzle gets a full <strong>Pinpoint clue</strong> analysis, a walkthrough of the solving process, and a lessons-learned section so you can spot similar patterns faster next time.</p>
+          <h3>What Makes a Great Pinpoint Clue?</h3>
+          <p>Each <strong>Pinpoint clue</strong> is designed to point toward a single connecting word or category. The first clue is intentionally vague — it could fit dozens of answers. As more clues are revealed, the possibilities narrow. By clue four or five, the answer becomes obvious to most players. The skill lies in recognizing the pattern early, and that's something you can practice.</p>
+          <h3>Browse Every Pinpoint Answer in Our Archive</h3>
+          <p>Our <strong>Pinpoint archive</strong> contains every past puzzle, organized by date with a convenient calendar view. Want to revisit last week's puzzle? Curious about how a particular clue was structured? The archive lets you browse any date, view all five clues, read the full explanation, and see every accepted <strong>Pinpoint answer</strong> — not just the primary solution but every word the game recognizes as correct.</p>
+          <h3>All Valid Pinpoint Answers, Not Just One</h3>
+          <p>One of the biggest frustrations players face is typing a perfectly reasonable answer that the game does not accept. That is because Pinpoint has a specific set of accepted <strong>Pinpoint answers</strong> for each puzzle, and sometimes your synonym or alternative phrasing is not in that list. We show you every single accepted word for each puzzle — sometimes there are dozens.</p>
+          <h3>Practice With Pinpoint Unlimited</h3>
+          <p>One daily puzzle not enough? Our <a href="/unlimited" style="color:var(--accent-600); text-decoration:underline;">Pinpoint Unlimited Game</a> lets you play random historical puzzles as many times as you want. Each round gives you five progressive clues — wrong guesses reveal the next one, just like the real game.</p>
+          <h3>Why Players Trust Our Answers</h3>
+          <p>We verify every answer before publishing. Our team plays each puzzle on LinkedIn, confirms the official answer, and cross-checks the full list of accepted solutions. The explanations are generated using AI but reviewed for accuracy and readability.</p>
+        </div>
+        <aside class="seo-content-sidebar">
+          <div class="sidebar-card">
+            <h3>Quick Access</h3>
+            <div style="display:flex; flex-direction:column; gap:0.4rem;">
+              <a href="/today" class="btn btn-secondary btn-sm">Today's Pinpoint Answer</a>
+              <a href="/archive" class="btn btn-secondary btn-sm">Pinpoint Archive</a>
+              <a href="/unlimited" class="btn btn-secondary btn-sm">Unlimited Practice</a>
+              <a href="/how-to-play" class="btn btn-secondary btn-sm">How to Play</a>
+            </div>
+          </div>
+          <div class="sidebar-card mt-2">
+            <h3>Why Players Trust Us</h3>
+            <ul style="padding-left:1rem; margin:0;">
+              <li>100% verified daily answers</li>
+              <li>All valid solutions listed</li>
+              <li>Detailed clue-by-clue explanations</li>
+              <li>Updated every day by early afternoon</li>
+              <li>Free access, no sign-up required</li>
+              <li>Spoiler-safe reveal buttons</li>
+              <li>Unlimited practice game</li>
+              <li>Errors corrected within the hour</li>
+            </ul>
+          </div>
+          <div class="sidebar-card mt-2">
+            <h3>Last Updated</h3>
+            <p style="font-size:0.82rem; color:var(--text-secondary); margin:0;">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0;">Answers verified against the official LinkedIn Pinpoint game.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

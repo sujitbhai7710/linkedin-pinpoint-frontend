@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { buildMeta, breadcrumbJsonLd, SITE_URL } from '../lib/seo';
+
+const seo = buildMeta({
+  title: 'Privacy Policy — Pinpoint Answer Today',
+  description: "Privacy policy for Pinpoint Answer Today. We collect minimal data, use no tracking cookies, and don't sell your information.",
+  keywords: 'privacy policy, Pinpoint Answer Today privacy, data collection, LinkedIn Pinpoint site privacy',
+  canonical: `${SITE_URL}/privacy`,
+  ogType: 'website',
+  jsonLd: [
+    breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Privacy Policy', url: `${SITE_URL}/privacy` }])
+  ]
+});
+---
+<BaseLayout {...seo}>
+  <div class="container">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="separator" aria-hidden="true">/</span>
+      <span class="current">Privacy Policy</span>
+    </nav>
+  </div>
+
+  <div class="content-page container">
+    <h1>Privacy Policy</h1>
+    <p class="page-desc">Last updated: May 2026. We keep this short because privacy policies shouldn't need a law degree to understand.</p>
+
+    <h2>What Data We Collect</h2>
+    <p>Honestly, not much. We don't have user accounts. We don't ask you to sign up. We don't track you across the internet. Here's what we do collect:</p>
+    <ul>
+      <li><strong>Server logs</strong> — Like every website, our hosting provider (Cloudflare) logs basic request data: IP address, browser type, page URL, and timestamp.</li>
+      <li><strong>Contact form submissions</strong> — If you use our contact email, we store the name, email, and message you provide.</li>
+    </ul>
+    <p>That's it. No cookies for tracking. No analytics beyond basic server logs. No ad pixels.</p>
+
+    <h2>What We Don't Do</h2>
+    <ul>
+      <li>Sell or share your personal data with anyone</li>
+      <li>Use tracking cookies or third-party analytics (no Google Analytics, no Facebook Pixel)</li>
+      <li>Build advertising profiles or audience segments</li>
+      <li>Send you emails unless you explicitly contact us first</li>
+      <li>Share data with data brokers, ad networks, or social media platforms</li>
+    </ul>
+
+    <h2>Cookies</h2>
+    <p>We use minimal cookies required for the site to function properly (session management, CSRF protection). We don't use tracking cookies, advertising cookies, or any third-party cookies.</p>
+
+    <h2>Third-Party Services</h2>
+    <p>Our site is hosted on Cloudflare Pages. Cloudflare processes requests to serve the site and may log basic request data per their own privacy policy. We also load Google Fonts from fonts.googleapis.com, which means Google's font CDN sees your IP address when your browser loads the font files.</p>
+
+    <h2>Data Retention</h2>
+    <p>Server logs are rotated and deleted automatically by our hosting provider after a short period (typically 30 days or less). Contact form submissions are deleted after we've addressed the inquiry.</p>
+
+    <h2>Your Rights</h2>
+    <p>Depending on where you live, you may have rights under data protection laws (GDPR, CCPA, etc.) to:</p>
+    <ul>
+      <li>Request access to any personal data we hold about you</li>
+      <li>Request deletion of your personal data</li>
+      <li>Object to processing of your personal data</li>
+      <li>Request a copy of your data in a portable format</li>
+    </ul>
+    <p>Since we collect minimal data, most of these rights are straightforward. Contact us via our <a href="/contact">contact page</a> and we'll sort it out.</p>
+
+    <h2>Children's Privacy</h2>
+    <p>Our site is a general-audience resource about a word puzzle game. We don't knowingly collect personal information from children under 13.</p>
+
+    <h2>Security</h2>
+    <p>We use HTTPS everywhere, our infrastructure runs on Cloudflare (which includes DDoS protection and TLS encryption), and we don't store sensitive user data.</p>
+
+    <h2>Changes to This Policy</h2>
+    <p>If we ever change this privacy policy, we'll update the "Last updated" date at the top of this page.</p>
+
+    <h2>Questions</h2>
+    <p>Anything we didn't cover? <a href="/contact">Ask us</a>.</p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,128 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AnswerReveal from '../components/AnswerReveal.svelte';
+import SolutionsLoader from '../components/SolutionsLoader.svelte';
+import { formatDate, renderExplanation } from '../lib/api';
+import { buildMeta, articleJsonLd, breadcrumbJsonLd, newsArticleJsonLd, SITE_URL } from '../lib/seo';
+import fs from 'fs';
+import path from 'path';
+
+let today: any = null;
+let yesterday: any = null;
+let error: string | null = null;
+
+try {
+  const todayPath = path.join(process.cwd(), 'public/data/today.json');
+  const raw = fs.readFileSync(todayPath, 'utf-8');
+  today = JSON.parse(raw);
+  if (!today || !today.number) today = null;
+} catch (e) {
+  error = 'Failed to load today\'s puzzle. Try refreshing the page.';
+}
+
+try {
+  const yesterdayPath = path.join(process.cwd(), 'public/data/yesterday.json');
+  const raw = fs.readFileSync(yesterdayPath, 'utf-8');
+  yesterday = JSON.parse(raw);
+  if (!yesterday || !yesterday.number) yesterday = null;
+} catch (e) { /* Not critical */ }
+
+const dateStr = today ? formatDate(today.date) : '';
+const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
+const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
+
+const title = today ? `LinkedIn Pinpoint #${today.number} Answer — ${shortDateStr}` : "Today's LinkedIn Pinpoint Answer";
+const descriptionText = today
+  ? `The answer to LinkedIn Pinpoint #${today.number} for ${shortDateStr}. Clues: ${clueWords}. See all 5 clues, read the full explanation${today.totalSolutions ? `, and browse ${today.totalSolutions} valid solutions` : ''}.`
+  : "Get today's LinkedIn Pinpoint answer with all clues and a detailed explanation.";
+
+const seo = buildMeta({
+  title,
+  description: descriptionText,
+  keywords: today ? `LinkedIn Pinpoint #${today.number}, ${today.answer}, today's pinpoint answer, pinpoint solution ${today.date}, LinkedIn puzzle answer ${shortDateStr}, pinpoint hints today, ${today.clues.join(', ')}` : "LinkedIn Pinpoint, today's answer, daily puzzle",
+  canonical: `${SITE_URL}/today`,
+  ogType: 'article',
+  jsonLd: [
+    articleJsonLd({ title, description: today ? `The answer to LinkedIn Pinpoint #${today.number} for ${shortDateStr} is ${today.answer}.` : "Today's LinkedIn Pinpoint answer", url: `${SITE_URL}/today`, datePublished: today?.date || new Date().toISOString().split('T')[0], answer: today?.answer || '', number: today?.number || 0 }),
+    newsArticleJsonLd({ title, description: today ? `LinkedIn Pinpoint #${today.number} answer for ${shortDateStr}: ${today.answer}.` : "Today's LinkedIn Pinpoint answer", url: `${SITE_URL}/today`, datePublished: today?.date || new Date().toISOString().split('T')[0], answer: today?.answer || '', number: today?.number || 0 }),
+    breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: "Today's Answer", url: `${SITE_URL}/today` }])
+  ]
+});
+---
+<BaseLayout {...seo} articlePublishedTime={today?.date}>
+  {error && !today ? (
+    <section class="section">
+      <div class="container">
+        <div class="error-state">
+          <h3>Couldn't load today's puzzle</h3>
+          <p>{error}</p>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">The site updates daily after 1:30 PM IST. If it's before that time, check back soon!</p>
+        </div>
+      </div>
+    </section>
+  ) : today && (
+    <div class="puzzle-page">
+      <div class="container">
+        <div style="max-width:720px; margin:0 auto;">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <span class="separator" aria-hidden="true">/</span>
+            <span class="current">Today's Answer</span>
+          </nav>
+
+          <div class="puzzle-header">
+            <span class="badge badge-primary">Daily Puzzle</span>
+            <h1>LinkedIn Pinpoint #{today.number} — {dateStr} Answer</h1>
+          </div>
+
+          <section aria-labelledby="clues-heading">
+            <h2 id="clues-heading" class="clues-heading">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              Pinpoint #{today.number} Clues
+            </h2>
+            <ul class="clues-list">
+              {today.clues.map((clue: string, i: number) => (
+                <li class="clue-item">
+                  <span class="clue-number">{i + 1}</span>
+                  <span class="clue-text">{clue}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <AnswerReveal client:load answer={today.answer} />
+
+          {today.explanation && (
+            <section class="explanation-section" aria-labelledby="explanation-heading">
+              <h2 id="explanation-heading">
+                <span class="icon-circle">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </span>
+                Explanation
+              </h2>
+              <div class="explanation-content" itemprop="articleBody">
+                <Fragment set:html={renderExplanation(today.explanation)} />
+              </div>
+            </section>
+          )}
+
+          <SolutionsLoader client:visible puzzleNumber={today.number} initialSolutions={today.solutions || []} totalSolutions={today.totalSolutions || 0} />
+
+          {yesterday && (
+            <div class="card mt-3" style="border-left: 3px solid var(--accent-500);">
+              <div style="display:inline-flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                <h3 style="font-size:0.85rem; font-weight:700; margin:0;">Previous Puzzle</h3>
+              </div>
+              <p style="font-size:0.85rem;">
+                <a href="/archive">
+                  Pinpoint #{yesterday.number} ({formatDate(yesterday.date)}) — Answer: <strong>{yesterday.answer}</strong>
+                </a>
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+</BaseLayout>

@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Calendar from '../components/Calendar.svelte';
+import { buildMeta, breadcrumbJsonLd, SITE_URL } from '../lib/seo';
+import type { PinpointSummary, PinpointPuzzle } from '../lib/types';
+import fs from 'fs';
+import path from 'path';
+
+let archiveSummary: PinpointSummary[] = [];
+let archiveFull: PinpointPuzzle[] = [];
+let puzzleDates: Record<string, any> = {};
+
+try {
+  const archivePath = path.join(process.cwd(), 'public/data/archive.json');
+  const raw = fs.readFileSync(archivePath, 'utf-8');
+  archiveSummary = JSON.parse(raw);
+  for (const p of archiveSummary) {
+    puzzleDates[p.date] = p;
+  }
+} catch (e) { /* Continue */ }
+
+try {
+  const fullPath = path.join(process.cwd(), 'public/data/archive-full.json');
+  const raw = fs.readFileSync(fullPath, 'utf-8');
+  archiveFull = JSON.parse(raw);
+} catch (e) { /* Continue */ }
+
+const seo = buildMeta({
+  title: 'LinkedIn Pinpoint Archive — All Past Answers',
+  description: 'Browse the complete archive of LinkedIn Pinpoint daily puzzle answers. Search by date, find past solutions, read explanations, and explore all valid answers for every puzzle ever published. Updated daily.',
+  keywords: 'LinkedIn Pinpoint archive, past puzzles, previous answers, puzzle history, old pinpoint solutions, all pinpoint answers, pinpoint clue archive, past pinpoint puzzles, daily puzzle archive',
+  canonical: `${SITE_URL}/archive`,
+  jsonLd: [
+    breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Archive', url: `${SITE_URL}/archive` }]),
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'LinkedIn Pinpoint Archive', description: 'Complete archive of LinkedIn Pinpoint daily puzzle answers with clues, explanations, and all valid solutions.', url: `${SITE_URL}/archive`, isPartOf: { '@type': 'WebSite', name: 'LinkedIn Pinpoint Answers', url: SITE_URL } }
+  ]
+});
+---
+<BaseLayout {...seo}>
+  <div class="container">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="separator" aria-hidden="true">/</span>
+      <span class="current">Archive</span>
+    </nav>
+  </div>
+
+  <section class="section" aria-labelledby="archive-heading">
+    <div class="container">
+      <div class="section-header">
+        <h1 id="archive-heading">LinkedIn Pinpoint Puzzle Archive</h1>
+        <p style="color:var(--text-secondary);">Browse every past LinkedIn Pinpoint puzzle by date. Find answers, clues, and explanations for any puzzle ever published.</p>
+      </div>
+
+      <div class="archive-seo-intro" style="max-width:720px; margin-bottom:1.5rem;">
+        <p style="line-height:1.75; color:var(--text-secondary); font-size:0.92rem;">Our complete <strong>Pinpoint archive</strong> lets you revisit any daily puzzle from the past. Select a date on the calendar to view all five <strong>Pinpoint clues</strong>, the category answer, a full explanation of how the clues connect, and every valid alternative <strong>Pinpoint answer</strong> the game accepts.</p>
+      </div>
+
+      <Calendar client:load puzzleDates={puzzleDates} archiveSummary={archiveSummary} archiveFull={archiveFull} />
+    </div>
+  </section>
+</BaseLayout>
