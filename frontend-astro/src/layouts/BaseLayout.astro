@@ -49,6 +49,8 @@ const navItems = [
   <meta property="og:site_name" content="Pinpoint Answer Today" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://www.googletagmanager.com" />
+  <link rel="preconnect" href="https://www.google-analytics.com" />
   <link rel="alternate" hreflang="en" href={props.canonical || `https://pinpointanswertoday.online${currentPath}`} />
   <link rel="alternate" hreflang="x-default" href={props.canonical || `https://pinpointanswertoday.online${currentPath}`} />
 
@@ -70,6 +72,14 @@ const navItems = [
   {props.twitterDescription && <meta name="twitter:description" content={props.twitterDescription} />}
   {props.twitterImage && <meta name="twitter:image" content={props.twitterImage} />}
   {props.jsonLdString && <script type="application/ld+json" set:html={props.jsonLdString} />}
+  <!-- Google Analytics (async, non-blocking) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3K8D06R3B9"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-3K8D06R3B9');
+  </script>
 </head>
 <body>
   <div style="display:flex; flex-direction:column; min-height:100vh;">
