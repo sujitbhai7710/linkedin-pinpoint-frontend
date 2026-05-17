@@ -6,5 +6,8 @@ export default defineConfig({
   integrations: [svelte()],
   build: {
     assets: '_astro'
+  },
+  redirects: {
+    '/guide': '/blog'
   }
 });
