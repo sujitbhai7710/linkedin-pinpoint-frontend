@@ -41,7 +41,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: frontend-astro/package-lock.json
 
@@ -51,8 +51,8 @@ jobs:
       - name: Fetch data from Worker API
         run: node scripts/fetch-data.js
         env:
-          API_BASE: ${{ secrets.API_BASE }}
-          API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
+          API_BASE: ${{ secrets.WORKER_API_URL }}
+          API_SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
       - name: Build static site (Astro SSG)
         run: npx astro build
