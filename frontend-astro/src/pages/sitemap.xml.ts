@@ -10,11 +10,11 @@ export const GET: APIRoute = async () => {
     { loc: `${SITE_URL}/today`, lastmod: today, changefreq: 'daily', priority: '0.9' },
     { loc: `${SITE_URL}/archive`, lastmod: today, changefreq: 'daily', priority: '0.8' },
     { loc: `${SITE_URL}/unlimited`, lastmod: today, changefreq: 'weekly', priority: '0.7' },
-    { loc: `${SITE_URL}/how-to-play`, lastmod: '2025-05-13', changefreq: 'monthly', priority: '0.6' },
+    { loc: `${SITE_URL}/how-to-play`, lastmod: '2026-05-13', changefreq: 'monthly', priority: '0.6' },
     { loc: `${SITE_URL}/blog`, lastmod: today, changefreq: 'weekly', priority: '0.6' },
-    { loc: `${SITE_URL}/about`, lastmod: '2025-05-01', changefreq: 'monthly', priority: '0.5' },
-    { loc: `${SITE_URL}/contact`, lastmod: '2025-05-01', changefreq: 'yearly', priority: '0.3' },
-    { loc: `${SITE_URL}/privacy`, lastmod: '2025-05-01', changefreq: 'yearly', priority: '0.3' }
+    { loc: `${SITE_URL}/about`, lastmod: '2026-05-01', changefreq: 'monthly', priority: '0.5' },
+    { loc: `${SITE_URL}/contact`, lastmod: '2026-05-01', changefreq: 'yearly', priority: '0.3' },
+    { loc: `${SITE_URL}/privacy`, lastmod: '2026-05-01', changefreq: 'yearly', priority: '0.3' }
   ];
 
   // Add blog post URLs

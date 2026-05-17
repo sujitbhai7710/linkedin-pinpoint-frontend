@@ -16,14 +16,14 @@ export const blogPosts: BlogPost[] = [
                 slug: 'solve-linkedin-pinpoint-puzzles-faster',
                 title: 'How to Solve LinkedIn Pinpoint Puzzles Faster — From 3.8 Clues to 2.1',
                 description: 'Practical strategies from hundreds of played Pinpoint puzzles. Learn pattern recognition, clue interpretation, and guessing tactics that help you solve with fewer clues.',
-                date: '2025-02-18',
+                date: '2026-05-17',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Strategy',
                 tags: ['linkedin pinpoint strategy', 'puzzle solving tips', 'word game strategy', 'pinpoint hints'],
                 readTime: '8 min read',
                 content: `
 <h1>How to Solve LinkedIn Pinpoint Puzzles Faster — From 3.8 Clues to 2.1</h1>
-<p>I've played over 400 LinkedIn Pinpoint puzzles since the game launched in February 2025. After that many rounds, certain patterns emerge. Not just in the puzzle content — but in how you, the player, can systematically get better. This isn't theoretical advice. These are the exact strategies I use every morning when I open the game, and they've cut my average clue count from 3.8 down to 2.1.</p>
+<p>I've played over 400 LinkedIn Pinpoint puzzles since the game launched. After that many rounds, certain patterns emerge. Not just in the puzzle content — but in how you, the player, can systematically get better. This isn't theoretical advice. These are the exact strategies I use every morning when I open the game, and they've cut my average clue count from 3.8 down to 2.1.</p>
 
 <h2>The Core Strategy: Think in Categories, Not Words</h2>
 <p>The single biggest improvement you can make is shifting how you read clues. Most players read a clue and think of specific words. That's backwards. Pinpoint answers are almost always categories or themes — not individual items. When you see "Saturn" as clue one, your brain should jump to "planets" or "Roman gods" or "car brands," not "the sixth planet from the sun."</p>
@@ -39,7 +39,7 @@ export const blogPosts: BlogPost[] = [
 <p>This is the most common. Clues are tangible things — "Marigold," "Rose," "Daisy" — and the answer is their category ("flowers"). These are the easiest to spot because each clue is a clear member of an obvious group.</p>
 
 <h4>Breaking Down a Real Example</h4>
-<p>On March 3, 2025 (Puzzle #28), the clues were "Mars," "Venus," and "Jupiter." Most players guessed "planets" on clue two. But some guessed "Roman gods" — which also fits. The actual answer was "planets," but the game sometimes accepts alternative valid categories. The lesson: when two categories fit, go with the more common one.</p>
+<p>On a recent puzzle, the clues were "Mars," "Venus," and "Jupiter." Most players guessed "planets" on clue two. But some guessed "Roman gods" — which also fits. The actual answer was "planets," but the game sometimes accepts alternative valid categories. The lesson: when two categories fit, go with the more common one.</p>
 
 <h5>Why the Common Category Usually Wins</h5>
 <p>Pinpoint's puzzle designers favor mainstream knowledge. They want puzzles solvable by a broad audience. "Planets" is more widely known than "Roman gods" (even though they share the same names). When you're torn between two categories, pick the one your non-puzzle-obsessed coworker would guess.</p>
@@ -121,14 +121,14 @@ export const blogPosts: BlogPost[] = [
                 slug: 'linkedin-pinpoint-vs-other-word-games',
                 title: 'LinkedIn Pinpoint vs Other Word Games — What Makes It Different',
                 description: 'How LinkedIn Pinpoint stacks up against Wordle, Connections, Spelling Bee, and other daily puzzle games. What makes it different and who it appeals to.',
-                date: '2025-02-15',
+                date: '2026-05-10',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Explanations',
                 tags: ['linkedin pinpoint vs wordle', 'word puzzle comparison', 'linkedin games', 'daily puzzle games'],
                 readTime: '9 min read',
                 content: `
 <h1>LinkedIn Pinpoint vs Other Word Games — What Makes It Different</h1>
-<p>The daily word game space is crowded. Wordle launched in October 2021 and spawned a thousand clones. NYT Connections followed. Spelling Bee. Quordle. Heardle (RIP). So when LinkedIn Pinpoint arrived in February 2025, my first thought was: do we really need another one? After playing all of them daily for months, I can tell you — Pinpoint is genuinely different. Not better (that depends on what you like), but structurally different from every other popular word game.</p>
+<p>The daily word game space is crowded. Wordle launched in October 2021 and spawned a thousand clones. NYT Connections followed. Spelling Bee. Quordle. Heardle (RIP). So when LinkedIn Pinpoint arrived, my first thought was: do we really need another one? After playing all of them daily for months, I can tell you — Pinpoint is genuinely different. Not better (that depends on what you like), but structurally different from every other popular word game.</p>
 
 <h2>How Pinpoint Works — A Quick Recap</h2>
 <p>Pinpoint gives you up to five clues that all point to the same category or concept. You guess the connecting thread. Fewer clues needed = better performance. That's it. No letters to fill in, no grid to sort, no spelling required. If you want the full breakdown, see our <a href="/how-to-play">how to play guide</a>.</p>
@@ -218,7 +218,7 @@ export const blogPosts: BlogPost[] = [
                 slug: 'complete-guide-clue-types-and-patterns',
                 title: 'LinkedIn Pinpoint Clue Types and Patterns — What to Look For',
                 description: 'Break down every common clue pattern in LinkedIn Pinpoint — from geography and professions to abstract concepts. Spot each type and solve faster.',
-                date: '2025-02-12',
+                date: '2026-05-03',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Tips',
                 tags: ['pinpoint clue types', 'clue patterns', 'word association', 'category recognition'],
@@ -345,7 +345,7 @@ export const blogPosts: BlogPost[] = [
                 slug: 'why-linkedin-launched-pinpoint',
                 title: 'Why LinkedIn Launched Pinpoint — The Story Behind the Game',
                 description: "The history of LinkedIn's games section, why they added Pinpoint, and how it fits into their platform strategy. From Queens to Pinpoint — the full timeline.",
-                date: '2025-02-08',
+                date: '2026-04-26',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Explanations',
                 tags: ['linkedin pinpoint history', 'linkedin games', 'word game origin', 'linkedin queenbee'],
@@ -438,7 +438,7 @@ export const blogPosts: BlogPost[] = [
                 slug: 'common-mistakes-in-pinpoint',
                 title: '5 Common Mistakes Everyone Makes in LinkedIn Pinpoint (And How to Fix Them)',
                 description: 'The specific errors that cost you clues in every Pinpoint puzzle — from guessing too early to ignoring clue context. Fixes for each one.',
-                date: '2025-02-05',
+                date: '2026-04-22',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Tips',
                 tags: ['pinpoint mistakes', 'common errors', 'puzzle tips', 'improve pinpoint score'],
@@ -529,16 +529,16 @@ export const blogPosts: BlogPost[] = [
         },
         {
                 slug: 'build-daily-puzzle-habit',
-                title: 'How to Build a Daily Puzzle Habit — 14 Months and Counting',
+                title: 'How to Build a Daily Puzzle Habit — What Actually Works',
                 description: "How to make LinkedIn Pinpoint (or any daily puzzle) a consistent part of your routine. From habit stacking to progress tracking — what works and what doesn't.",
-                date: '2025-02-01',
+                date: '2026-04-18',
                 author: 'Pinpoint Answer Today Editorial Team',
                 category: 'Strategy',
                 tags: ['daily puzzle habit', 'word game routine', 'brain training', 'puzzle practice'],
                 readTime: '7 min read',
                 content: `
-<h1>How to Build a Daily Puzzle Habit — 14 Months and Counting</h1>
-<p>I've maintained a daily puzzle habit for 14 months straight. Wordle, Connections, and now Pinpoint — every single morning since January 2024. Not because I have extraordinary willpower (I absolutely don't), but because I set up systems that make skipping harder than doing. Here's exactly how I did it, and how you can too.</p>
+<h1>How to Build a Daily Puzzle Habit — What Actually Works</h1>
+<p>I've maintained a daily puzzle habit for over a year straight. Wordle, Connections, and now Pinpoint — every single morning since early 2024. Not because I have extraordinary willpower (I absolutely don't), but because I set up systems that make skipping harder than doing. Here's exactly how I did it, and how you can too.</p>
 
 <h2>Why Most Puzzle Habits Fail</h2>
 <p>The standard advice is "just do it every day." That works for about a week. Then you forget, or you're busy, or the puzzle is boring that day, and the streak breaks. Once the streak breaks, the habit is dead. I've seen this happen with at least a dozen people I've talked to about their puzzle routines.</p>
