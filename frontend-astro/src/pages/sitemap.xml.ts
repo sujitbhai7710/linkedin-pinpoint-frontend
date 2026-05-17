@@ -32,30 +32,10 @@ export const GET: APIRoute = async () => {
     });
   }
 
-  // Fetch all puzzles from static JSON to generate permalink URLs
-  try {
-    const archivePath = path.join(process.cwd(), 'public/data/archive.json');
-    const raw = fs.readFileSync(archivePath, 'utf-8');
-    const allPuzzles = JSON.parse(raw);
-
-    for (const puzzle of allPuzzles) {
-      const date = new Date(puzzle.date + 'T00:00:00');
-      const monthName = MONTH_NAMES[date.getMonth()];
-      const day = date.getDate();
-      const year = date.getFullYear();
-
-      const permalink = `${SITE_URL}/linkedin-pinpoint-answer-for-${monthName}-${day}-${year}`;
-
-      urls.push({
-        loc: permalink,
-        lastmod: puzzle.date + 'T12:00:00+00:00',
-        changefreq: 'monthly',
-        priority: '0.7'
-      });
-    }
-  } catch (e) {
-    // If JSON fetch fails, continue with static URLs only
-  }
+  // Note: Permalink URLs (/linkedin-pinpoint-answer-for-*) are NOT included in the sitemap
+  // because they have noindex meta tags and redirect to /archive via JS.
+  // Including noindex pages in sitemaps is a SEO contradiction.
+  // Google will still discover these URLs through internal/external links.
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
