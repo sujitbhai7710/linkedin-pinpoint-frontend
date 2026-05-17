@@ -14,10 +14,15 @@ let error: string | null = null;
 try {
   const todayPath = path.join(process.cwd(), 'public/data/today.json');
   const raw = fs.readFileSync(todayPath, 'utf-8');
-  today = JSON.parse(raw);
-  if (!today || !today.number) today = null;
+  const parsed = JSON.parse(raw);
+  if (parsed && parsed.number && parsed.answer) {
+    today = parsed;
+  } else {
+    today = null;
+    error = 'Today\'s puzzle data is being updated. Please check back shortly.';
+  }
 } catch (e) {
-  error = 'Failed to load today\'s puzzle. Try refreshing the page.';
+  error = 'Today\'s puzzle data is being updated. Please check back shortly.';
 }
 
 try {
@@ -54,9 +59,13 @@ const seo = buildMeta({
     <section class="section">
       <div class="container">
         <div class="error-state">
-          <h3>Couldn't load today's puzzle</h3>
+          <h3>Today's Puzzle</h3>
           <p>{error}</p>
-          <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">The site updates daily after 1:30 PM IST. If it's before that time, check back soon!</p>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">New puzzles appear after 1:30 PM IST. If it is past that time, a site rebuild is likely in progress — check back in a few minutes.</p>
+          <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a href="/archive" class="btn btn-secondary btn-sm">Browse Archive</a>
+            <a href="/unlimited" class="btn btn-secondary btn-sm">Play Unlimited</a>
+          </div>
         </div>
       </div>
     </section>

@@ -219,7 +219,7 @@ async function main() {
     const monthNum = String(date.getMonth() + 1).padStart(2, '0');
     const dayPadded = String(day).padStart(2, '0');
     const dateStr = `${year}-${monthNum}-${dayPadded}`;
-    redirectLines.push(`/linkedin-pinpoint-answer-for-${monthName}-${day}-${year}  /archive?date=${dateStr}  301`);
+    redirectLines.push(`/linkedin-pinpoint-answer-for-${monthName}-${day}-${year}  /archive#${dateStr}  301`);
   }
   const redirectsPath = join(__dirname, '..', 'public', '_redirects');
   writeFileSync(redirectsPath, redirectLines.join('\n') + '\n');

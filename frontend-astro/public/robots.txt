@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /data/
+Disallow: /contact
+Disallow: /privacy
+Sitemap: https://linkedin-pinpoint-answers.pages.dev/sitemap.xml
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1

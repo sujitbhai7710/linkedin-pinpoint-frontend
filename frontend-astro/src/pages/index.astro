@@ -47,7 +47,7 @@ const seo = buildMeta({
     howToJsonLd(),
     faqJsonLd([
       { question: 'What is LinkedIn Pinpoint?', answer: 'LinkedIn Pinpoint is a daily word puzzle on LinkedIn where players guess a connecting word or category from five progressive clues.' },
-      { question: 'How often are new Pinpoint puzzles released?', answer: 'New LinkedIn Pinpoint puzzles are released daily at midnight. Our site updates by early afternoon with the latest answer and full explanation.' },
+      { question: 'How often are new Pinpoint puzzles released?', answer: 'New LinkedIn Pinpoint puzzles are released daily at midnight. Our site updates by early afternoon with the latest answer and explanation.' },
       { question: 'Are the answers on this site accurate?', answer: 'Yes. Every answer is verified against the official LinkedIn Pinpoint game before posting.' },
       { question: 'Is this site affiliated with LinkedIn?', answer: 'No. We are an independent resource. Not affiliated with, endorsed by, or connected to LinkedIn or Microsoft.' },
       { question: 'Can I play Pinpoint unlimited times?', answer: 'The daily puzzle is once per day, but our Unlimited Game mode lets you practice with random historical puzzles as many times as you want.' },
@@ -66,10 +66,10 @@ const seo = buildMeta({
 
 const faqs = [
   { question: 'What is LinkedIn Pinpoint?', answer: 'LinkedIn Pinpoint is a daily word puzzle that lives inside LinkedIn\'s games section. You get five clues, revealed one at a time, and the goal is to guess the connecting word or category before all five clues are shown. Fewer clues needed means a better score.' },
-  { question: 'How do I play LinkedIn Pinpoint?', answer: 'Head to the LinkedIn games section. Tap Pinpoint, and you\'ll see the first clue. Type your guess. If you\'re wrong, the next clue appears. Keep going until you get it.' },
-  { question: 'When do new puzzles come out?', answer: 'New Pinpoint puzzles drop daily at midnight. Our site updates by early afternoon each day with the answer, all five clues, and a full breakdown.' },
-  { question: 'Are these answers accurate?', answer: 'Yes. We verify every answer before posting. The explanations break down each clue so you can see exactly why the answer fits.' },
-  { question: 'Is this site affiliated with LinkedIn?', answer: 'No. We\'re an independent resource for people who play LinkedIn Pinpoint. We\'re not connected to, endorsed by, or affiliated with LinkedIn or Microsoft.' },
+  { question: 'How do I play LinkedIn Pinpoint?', answer: 'Head to the LinkedIn games section. Tap Pinpoint, and you\'ll see the first clue. Type your guess. If you\'re wrong, the next clue appears. Keep going until you get it right or all five clues are visible.' },
+  { question: 'When do new puzzles come out?', answer: 'New Pinpoint puzzles drop daily at midnight. Our site updates by early afternoon with the answer, all five clues, and a full breakdown of how they connect.' },
+  { question: 'Are these answers accurate?', answer: 'Yes. We verify every answer before posting. The explanations walk through each clue so you can see exactly why it fits.' },
+  { question: 'Is this site affiliated with LinkedIn?', answer: 'No. We\'re an independent resource for people who play LinkedIn Pinpoint. Not connected to, endorsed by, or affiliated with LinkedIn or Microsoft.' },
   { question: 'Can I practice Pinpoint more than once a day?', answer: 'The daily puzzle is once per day on LinkedIn, but our Pinpoint Unlimited Game lets you practice with random past puzzles as many times as you want.' },
   { question: 'Why are there multiple valid answers for some puzzles?', answer: 'LinkedIn Pinpoint accepts a specific set of words for each puzzle. Sometimes a synonym or close variant also works. We list every accepted solution, not just the main one.' }
 ];
@@ -173,32 +173,32 @@ const faqs = [
         <div class="feature-card">
           <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <h3>Daily Updates</h3>
-          <p>New answer posted every day by early afternoon. No delays, no missing days.</p>
+          <p>New answer posted every day by early afternoon. We have not missed a single day since launch.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
           <h3>Full Explanations</h3>
-          <p>Not just the answer — we break down how each clue connects to the solution.</p>
+          <p>We go beyond just the answer — each clue gets its own breakdown so you see the connection.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <h3>All Valid Solutions</h3>
-          <p>Every accepted answer, not just one. Some puzzles have dozens of valid words.</p>
+          <p>We list every accepted answer, not just one. Some puzzles have hundreds of valid words.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <h3>Complete Archive</h3>
-          <p>Browse every past puzzle by date with our calendar view.</p>
+          <p>Use the calendar to jump to any past puzzle by date — every single one is there.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon" style="background:var(--teal-50); color:var(--teal-500);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <h3>Unlimited Practice Game</h3>
-          <p>The daily puzzle is once per day, but our <a href="/unlimited" style="color:var(--teal-600); text-decoration:underline;">Unlimited Game</a> lets you play random past puzzles endlessly.</p>
+          <p>The daily puzzle is once per day, but our <a href="/unlimited" style="color:var(--teal-600); text-decoration:underline;">Unlimited Game</a> gives you as many rounds as you want from our archive.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <h3>Spoiler-Safe</h3>
-          <p>Answers are hidden behind a click. Browse clues without accidentally seeing the solution.</p>
+          <p>Answers stay hidden until you click. Browse the clues without worrying about spoilers.</p>
         </div>
       </div>
     </div>
@@ -252,19 +252,19 @@ const faqs = [
     <div class="container">
       <div class="seo-content-grid">
         <div class="seo-content-main">
-          <h2 id="seo-heading">Your Daily Pinpoint Answer Today — All Clues, All Solutions, Full Explanations</h2>
-          <p>Looking for today's LinkedIn Pinpoint answer? You are in the right place. We publish the complete <strong>Pinpoint answer today</strong> with every clue explained in plain language, every valid alternative solution listed, and a detailed breakdown of how each clue connects to the category.</p>
-          <p>We built this site because we were tired of answer sites that give you the word and nothing else. No explanation, no context, no list of valid alternatives. Just "the answer is X" and a page full of ads. We do it differently: each puzzle gets a full <strong>Pinpoint clue</strong> analysis, a walkthrough of the solving process, and a lessons-learned section so you can spot similar patterns faster next time.</p>
+          <h2 id="seo-heading">Your Daily Pinpoint Answer — All Clues, All Solutions, Full Explanations</h2>
+          <p>Looking for today's LinkedIn Pinpoint answer? You are in the right place. Every day we post the full <strong>Pinpoint answer</strong> with every clue broken down, every valid alternative solution listed, and a walkthrough of how each clue ties back to the category.</p>
+          <p>We started this site because the existing answer sites left us frustrated. You get the answer word and nothing else — no explanation, no context, no list of alternatives. Just "the answer is X" surrounded by ads. We do things differently: each puzzle gets a full <strong>clue-by-clue analysis</strong>, a solving walkthrough, and a takeaways section so you can spot similar patterns the next time you play.</p>
           <h3>What Makes a Great Pinpoint Clue?</h3>
-          <p>Each <strong>Pinpoint clue</strong> is designed to point toward a single connecting word or category. The first clue is intentionally vague — it could fit dozens of answers. As more clues are revealed, the possibilities narrow. By clue four or five, the answer becomes obvious to most players. The skill lies in recognizing the pattern early, and that's something you can practice.</p>
+          <p>Each <strong>Pinpoint clue</strong> points toward one connecting word or category. Clue one is vague on purpose — it could fit dozens of answers. As more clues appear, the field narrows. By clue four or five, the answer is obvious to most players. The skill is in spotting the pattern early, and that comes with practice.</p>
           <h3>Browse Every Pinpoint Answer in Our Archive</h3>
-          <p>Our <strong>Pinpoint archive</strong> contains every past puzzle, organized by date with a convenient calendar view. Want to revisit last week's puzzle? Curious about how a particular clue was structured? The archive lets you browse any date, view all five clues, read the full explanation, and see every accepted <strong>Pinpoint answer</strong> — not just the primary solution but every word the game recognizes as correct.</p>
+          <p>Our <strong>Pinpoint archive</strong> holds every past puzzle, organized by date with a calendar view. Want to revisit last week's puzzle? Curious about a particular clue structure? The archive lets you pull up any date, see all five clues, read the explanation, and browse every accepted <strong>Pinpoint answer</strong> — not just the main solution but every word the game counts as correct.</p>
           <h3>All Valid Pinpoint Answers, Not Just One</h3>
-          <p>One of the biggest frustrations players face is typing a perfectly reasonable answer that the game does not accept. That is because Pinpoint has a specific set of accepted <strong>Pinpoint answers</strong> for each puzzle, and sometimes your synonym or alternative phrasing is not in that list. We show you every single accepted word for each puzzle — sometimes there are dozens.</p>
+          <p>One of the most frustrating things in Pinpoint is typing a perfectly reasonable answer that the game rejects. That happens because Pinpoint has a fixed set of accepted <strong>answers</strong> for each puzzle, and your synonym or alternative phrasing might not be on the list. We show you every single accepted word for each puzzle — sometimes there are hundreds of them.</p>
           <h3>Practice With Pinpoint Unlimited</h3>
           <p>One daily puzzle not enough? Our <a href="/unlimited" style="color:var(--accent-600); text-decoration:underline;">Pinpoint Unlimited Game</a> lets you play random historical puzzles as many times as you want. Each round gives you five progressive clues — wrong guesses reveal the next one, just like the real game.</p>
           <h3>Why Players Trust Our Answers</h3>
-          <p>We verify every answer before publishing. Our team plays each puzzle on LinkedIn, confirms the official answer, and cross-checks the full list of accepted solutions. The explanations are generated using AI but reviewed for accuracy and readability.</p>
+          <p>We verify every answer before publishing. Our team plays each puzzle on LinkedIn, confirms the official answer, and cross-checks the full list of accepted solutions. The explanations are generated with AI assistance and then reviewed for accuracy and clarity by a real person.</p>
         </div>
         <aside class="seo-content-sidebar">
           <div class="sidebar-card">

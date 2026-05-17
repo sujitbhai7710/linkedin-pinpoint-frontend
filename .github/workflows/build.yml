@@ -1,7 +1,7 @@
 name: Build & Deploy Static Site (Astro)
 
 on:
-  # Triggered by the Cloudflare Worker after daily scrape (1:30 PM IST)
+  # Manual trigger from GitHub UI or API
   workflow_dispatch:
     inputs:
       puzzle_number:
@@ -12,6 +12,16 @@ on:
         description: 'Puzzle date (YYYY-MM-DD)'
         required: false
         default: ''
+
+  # Auto-deploy on push to main (code changes)
+  push:
+    branches: [main]
+    paths:
+      - 'frontend-astro/**'
+
+  # Daily scheduled build at 9:00 UTC (2:30 PM IST) to pick up new puzzle data
+  schedule:
+    - cron: '0 9 * * *'
 
 jobs:
   build-and-deploy:
@@ -44,7 +54,7 @@ jobs:
           API_BASE: ${{ secrets.API_BASE }}
           API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
 
-      - name: Build static site (Astro)
+      - name: Build static site (Astro SSG)
         run: npx astro build
 
       - name: Verify build output

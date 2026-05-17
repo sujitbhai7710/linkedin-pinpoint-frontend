@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../lib/seo';
+import { blogPosts } from '../lib/blog-data';
 import fs from 'fs';
 import path from 'path';
 
@@ -12,16 +13,24 @@ export const GET: APIRoute = async () => {
   const today = new Date().toISOString().split('T')[0];
 
   const urls: { loc: string; lastmod: string; changefreq: string; priority: string }[] = [
-    { loc: SITE_URL, lastmod: today + 'T12:00:00+00:00', changefreq: 'daily', priority: '1.0' },
-    { loc: `${SITE_URL}/today`, lastmod: today + 'T12:00:00+00:00', changefreq: 'daily', priority: '0.9' },
-    { loc: `${SITE_URL}/archive`, lastmod: today + 'T12:00:00+00:00', changefreq: 'daily', priority: '0.8' },
-    { loc: `${SITE_URL}/unlimited`, lastmod: today + 'T12:00:00+00:00', changefreq: 'weekly', priority: '0.7' },
-    { loc: `${SITE_URL}/how-to-play`, lastmod: '2026-05-13T12:00:00+00:00', changefreq: 'monthly', priority: '0.6' },
-    { loc: `${SITE_URL}/blog`, lastmod: today + 'T12:00:00+00:00', changefreq: 'weekly', priority: '0.6' },
-    { loc: `${SITE_URL}/about`, lastmod: '2026-05-01T12:00:00+00:00', changefreq: 'monthly', priority: '0.5' },
-    { loc: `${SITE_URL}/contact`, lastmod: '2026-05-01T12:00:00+00:00', changefreq: 'monthly', priority: '0.4' },
-    { loc: `${SITE_URL}/privacy`, lastmod: '2026-05-01T12:00:00+00:00', changefreq: 'yearly', priority: '0.3' }
+    { loc: SITE_URL, lastmod: today, changefreq: 'daily', priority: '1.0' },
+    { loc: `${SITE_URL}/today`, lastmod: today, changefreq: 'daily', priority: '0.9' },
+    { loc: `${SITE_URL}/archive`, lastmod: today, changefreq: 'daily', priority: '0.8' },
+    { loc: `${SITE_URL}/unlimited`, lastmod: today, changefreq: 'weekly', priority: '0.7' },
+    { loc: `${SITE_URL}/how-to-play`, lastmod: '2025-05-13', changefreq: 'monthly', priority: '0.6' },
+    { loc: `${SITE_URL}/blog`, lastmod: today, changefreq: 'weekly', priority: '0.6' },
+    { loc: `${SITE_URL}/about`, lastmod: '2025-05-01', changefreq: 'monthly', priority: '0.5' }
   ];
+
+  // Add blog post URLs
+  for (const post of blogPosts) {
+    urls.push({
+      loc: `${SITE_URL}/blog/${post.slug}`,
+      lastmod: post.date,
+      changefreq: 'monthly',
+      priority: '0.6'
+    });
+  }
 
   // Fetch all puzzles from static JSON to generate permalink URLs
   try {

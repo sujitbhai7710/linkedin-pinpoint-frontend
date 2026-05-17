@@ -73,8 +73,12 @@
     selectedError = null;
     loadingPuzzle = true;
 
-    if (typeof window !== 'undefined' && window.location.hash !== `#${dateStr}`) {
-      window.history.replaceState(null, '', `/archive#${dateStr}`);
+    // Update URL hash (no query params — SEO clean)
+    if (typeof window !== 'undefined') {
+      const targetPath = `/archive#${dateStr}`;
+      if (window.location.hash !== `#${dateStr}`) {
+        window.history.replaceState(null, '', targetPath);
+      }
     }
 
     try {
@@ -103,17 +107,28 @@
 
   import { onMount } from 'svelte';
   onMount(() => {
+    // Priority: 1) Hash fragment, 2) Query param ?date= (legacy redirect support)
     const hash = window.location.hash.slice(1);
     if (hash && /^\d{4}-\d{2}-\d{2}$/.test(hash)) {
       selectDate(hash);
     } else {
+      // Fallback: support ?date= from redirects (cleaned to hash via replaceState)
       const params = new URLSearchParams(window.location.search);
-      const dateParam = params.get('date');
-      if (dateParam) {
+      const dateParam = params.get('date') || params.get('d');
+      if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+        // Immediately replace URL: remove query params, use hash only
         window.history.replaceState(null, '', `/archive#${dateParam}`);
         selectDate(dateParam);
       }
     }
+
+    // Listen for hash changes (back/forward navigation)
+    window.addEventListener('hashchange', () => {
+      const newHash = window.location.hash.slice(1);
+      if (newHash && /^\d{4}-\d{2}-\d{2}$/.test(newHash) && newHash !== selectedDate) {
+        selectDate(newHash);
+      }
+    });
   });
 </script>
 
