@@ -122,6 +122,14 @@ export default {
       if (path === '') path = '/';
     }
 
+    // Check for API Key Bypass — only for /today endpoint (public access)
+    // Allows /today/BloggingIo@7 to be accessed by anyone without revealing SECRET_KEY
+    let isAuthorizedByApiKey = false;
+    if (path === `/today/${API_KEY}`) {
+      isAuthorizedByApiKey = true;
+      path = '/today';
+    }
+
     // CORS headers
     let corsHeaders = {
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -130,7 +138,7 @@ export default {
     };
 
     const requestApiKey = request.headers.get('X-API-Key');
-    const isAllowedOrigin = (origin && ALLOWED_ORIGINS.includes(origin)) || isAuthorizedBySecret || (requestApiKey === API_KEY);
+    const isAllowedOrigin = (origin && ALLOWED_ORIGINS.includes(origin)) || isAuthorizedBySecret || isAuthorizedByApiKey || (requestApiKey === API_KEY);
 
     if (isAllowedOrigin) {
       corsHeaders['Access-Control-Allow-Origin'] = origin || '*';
