@@ -113,10 +113,12 @@ export default {
     const origin = request.headers.get('Origin');
 
     // Check for Secret Key Bypass (Browser Access)
+    // NOTE: Skip for /full/ paths — the /full/ endpoint handles its own auth internally.
+    // Stripping the key from /full/ paths breaks the route pattern match.
     let isAuthorizedBySecret = false;
     const secretKey = env.SECRET_KEY;
 
-    if (secretKey && path.endsWith(`/${secretKey}`)) {
+    if (secretKey && path.endsWith(`/${secretKey}`) && !path.startsWith('/full')) {
       isAuthorizedBySecret = true;
       path = path.substring(0, path.length - (secretKey.length + 1));
       if (path === '') path = '/';
