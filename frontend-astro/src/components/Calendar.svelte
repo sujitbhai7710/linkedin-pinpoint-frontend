@@ -82,12 +82,27 @@
     }
 
     try {
+      // First try full archive (has explanation, solutions)
       const puzzle = archiveFull.find((p: any) => p.date === dateStr);
       if (puzzle) {
         selectedPuzzle = puzzle;
       } else {
-        selectedPuzzle = null;
-        selectedError = `No puzzle found for ${formatDate(dateStr)}`;
+        // Fallback to archive summary (has answer & clues, no explanation)
+        const summaryPuzzle = archiveSummary.find((p: any) => p.date === dateStr);
+        if (summaryPuzzle) {
+          selectedPuzzle = {
+            number: summaryPuzzle.number,
+            date: summaryPuzzle.date,
+            clues: summaryPuzzle.clues,
+            answer: summaryPuzzle.answer,
+            explanation: null,
+            solutions: [],
+            totalSolutions: 0
+          };
+        } else {
+          selectedPuzzle = null;
+          selectedError = `No puzzle found for ${formatDate(dateStr)}`;
+        }
       }
     } catch (e) {
       selectedPuzzle = null;

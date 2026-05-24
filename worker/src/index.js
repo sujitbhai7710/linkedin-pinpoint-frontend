@@ -260,7 +260,7 @@ export default {
 
         const offset = (page - 1) * limit;
         const results = await env.DB.prepare(
-          'SELECT number, date, clues FROM pinpoint_data ORDER BY number DESC LIMIT ? OFFSET ?'
+          'SELECT number, date, clues, answer FROM pinpoint_data ORDER BY number DESC LIMIT ? OFFSET ?'
         ).bind(limit, offset).all();
 
         return new Response(JSON.stringify({
@@ -271,7 +271,8 @@ export default {
           data: results.results.map(r => ({
             number: r.number,
             date: r.date,
-            clues: JSON.parse(r.clues)
+            clues: JSON.parse(r.clues),
+            answer: r.answer || null
           }))
         }), { headers: corsHeaders });
       }
