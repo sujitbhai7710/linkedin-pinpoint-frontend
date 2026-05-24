@@ -1,2 +1,1 @@
-# /guide redirects to /blog
-/guide /blog 301
+# Permalinks handled by src/pages/[...permalink].astro
