@@ -2,30 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import UnlimitedGame from '../components/UnlimitedGame.svelte';
 import { buildMeta, breadcrumbJsonLd, SITE_URL } from '../lib/seo';
-import fs from 'fs';
-import path from 'path';
-
-let allPuzzles: { number: number; date: string; clues: string[] }[] = [];
-let puzzleDataMap: Record<number, { answer: string; clues: string[] }> = {};
-
-try {
-  const archivePath = path.join(process.cwd(), 'public/data/archive.json');
-  const raw = fs.readFileSync(archivePath, 'utf-8');
-  const archiveData = JSON.parse(raw);
-  // archive.json has {number, date, clues, answer} — use it for both lists
-  allPuzzles = archiveData.map((p: any) => ({
-    number: p.number,
-    date: p.date,
-    clues: p.clues
-  }));
-  for (const puzzle of archiveData) {
-    if (puzzle.answer) {
-      puzzleDataMap[puzzle.number] = { answer: puzzle.answer, clues: puzzle.clues };
-    }
-  }
-} catch (e) {
-  console.error('Failed to load archive data for unlimited page:', e);
-}
 
 const seo = buildMeta({
   title: 'Pinpoint Unlimited — Practice Game',
@@ -48,5 +24,5 @@ const seo = buildMeta({
     </nav>
   </div>
 
-  <UnlimitedGame client:load allPuzzles={allPuzzles} puzzleDataMap={puzzleDataMap} />
+  <UnlimitedGame client:load />
 </BaseLayout>

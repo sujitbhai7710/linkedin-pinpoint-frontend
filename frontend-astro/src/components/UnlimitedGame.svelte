@@ -1,11 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  let { allPuzzles, puzzleDataMap }: {
-    allPuzzles: { number: number; date: string; clues: string[] }[];
-    puzzleDataMap: Record<number, { answer: string; clues: string[] }>;
-  } = $props();
-
   type RoundState = 'playing' | 'won' | 'lost';
 
   interface GameRound {
@@ -22,6 +17,13 @@
     bestStreak: number;
     solvedRounds: number;
     failedRounds: number;
+  }
+
+  interface PuzzleData {
+    number: number;
+    date: string;
+    clues: string[];
+    answer: string;
   }
 
   const STOP_WORDS = new Set(['a','an','the','that','which','most','likely','all','of','in','on','at','by','for','to','from','with','within','into']);
@@ -67,12 +69,17 @@
     return false;
   }
 
+  // Puzzle data - loaded client-side from static JSON
+  let allPuzzles: PuzzleData[] = [];
+  let dataLoaded = $state(false);
+  let dataError = $state('');
+
   // Deck management
-  let deck: { number: number; clues: string[] }[] = [];
+  let deck: PuzzleData[] = [];
   let deckIndex = 0;
 
   function shuffleDeck() {
-    const playablePuzzles = allPuzzles.filter(p => puzzleDataMap[p.number]);
+    const playablePuzzles = allPuzzles.filter(p => p.answer);
     if (playablePuzzles.length === 0) { deck = []; return; }
     deck = [...playablePuzzles];
     for (let i = deck.length - 1; i > 0; i--) {
@@ -106,7 +113,7 @@
 
   let currentRound = $state<GameRound | null>(null);
   let guessInput = $state('');
-  let loading = $state(false);
+  let loading = $state(true);
 
   function getAvgClues(): string {
     const total = sessionSolved;
@@ -117,25 +124,17 @@
   function startRound() {
     if (deckIndex >= deck.length) shuffleDeck();
     if (deck.length === 0) { currentRound = null; return; }
-    const puzzleSummary = deck[deckIndex++];
-    loading = true;
+    const puzzle = deck[deckIndex++];
 
-    let answer = '';
-    let clues = puzzleSummary.clues;
-    const puzzleData = puzzleDataMap[puzzleSummary.number];
-    if (puzzleData) {
-      answer = puzzleData.answer;
-      clues = puzzleData.clues;
-    } else {
-      loading = false;
+    if (!puzzle || !puzzle.answer) {
       startRound();
       return;
     }
 
     currentRound = {
-      number: puzzleSummary.number,
-      answer,
-      clues,
+      number: puzzle.number,
+      answer: puzzle.answer,
+      clues: puzzle.clues,
       revealedClues: 1,
       wrongGuesses: [],
       state: 'playing'
@@ -177,11 +176,20 @@
     if (e.key === 'Enter') submitGuess();
   }
 
-  // BUG FIX: Only initialize in onMount, NOT at module level
-  onMount(() => {
-    shuffleDeck();
+  // Load data client-side from static JSON
+  onMount(async () => {
     loadLocalStats();
-    startRound();
+    try {
+      const res = await fetch('/data/archive-full.json');
+      if (!res.ok) throw new Error(`Failed to load puzzle data: ${res.status}`);
+      allPuzzles = await res.json();
+      dataLoaded = true;
+      shuffleDeck();
+      startRound();
+    } catch (e: any) {
+      dataError = e.message || 'Failed to load puzzles';
+      loading = false;
+    }
   });
 </script>
 
@@ -205,7 +213,13 @@
   {#if loading}
     <div class="text-center" style="padding: 3rem 0;">
       <div class="loading-spinner" style="margin: 0 auto 0.75rem;"></div>
-      <p style="color:var(--text-secondary);">Loading puzzle...</p>
+      <p style="color:var(--text-secondary);">Loading puzzles...</p>
+    </div>
+  {:else if dataError}
+    <div class="text-center" style="padding: 3rem 0;">
+      <h3>Failed to load puzzles</h3>
+      <p style="color:var(--text-secondary);">{dataError}</p>
+      <button class="btn btn-primary" style="margin-top:1rem;" onclick={() => window.location.reload()}>Retry</button>
     </div>
   {:else if currentRound}
     <!-- Clues -->
