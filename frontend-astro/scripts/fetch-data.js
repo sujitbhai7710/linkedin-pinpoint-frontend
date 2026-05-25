@@ -168,10 +168,10 @@ async function main() {
     writeJson('yesterday.json', null);
   }
 
-  // ─── 6. FULL DATA FOR RECENT PUZZLES (top 5 for homepage/detail) ──
-  console.log('\n📦 Fetching full data for 5 most recent puzzles...');
+  // ─── 6. FULL DATA FOR ALL PUZZLES (for unlimited game + detail views) ──
+  console.log(`\n📦 Fetching full data for all ${allPuzzles.length} puzzles...`);
   const archiveFull = [];
-  const recentForFull = allPuzzles.slice(0, 5);
+  const recentForFull = allPuzzles;
 
   // Add today first if we have it
   if (todayFull) {
@@ -260,7 +260,7 @@ async function main() {
   console.log(`   Total puzzles: ${archiveSummary.length}`);
   console.log(`   Puzzles with answers: ${puzzlesWithAnswers}`);
   console.log(`   Full data fetched: ${archiveFull.length} recent puzzles`);
-  console.log(`   API calls made: ~${2 + recentForFull.length} (instead of ${archiveSummary.length + 2})\n`);
+  console.log(`   API calls made: ~${2 + recentForFull.length}\n`);
 }
 
 main().catch(err => {
