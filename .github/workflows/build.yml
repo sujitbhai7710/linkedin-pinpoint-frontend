@@ -82,9 +82,14 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Notify Google Indexing API
-        if: ${{ success() && secrets.GOOGLE_INDEXING_SERVICE_ACCOUNT_JSON != '' }}
+        if: ${{ success() }}
         continue-on-error: true
-        run: node scripts/notify-google-indexing.js
+        run: |
+          if [ -z "${GOOGLE_INDEXING_SERVICE_ACCOUNT_JSON}" ]; then
+            echo "GOOGLE_INDEXING_SERVICE_ACCOUNT_JSON is not set. Skipping Google indexing notification."
+            exit 0
+          fi
+          node scripts/notify-google-indexing.js
         env:
           GOOGLE_INDEXING_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_INDEXING_SERVICE_ACCOUNT_JSON }}
           GOOGLE_INDEXING_URLS: |
