@@ -95,3 +95,14 @@ jobs:
           GOOGLE_INDEXING_URLS: |
             https://pinpointanswertoday.online/
             https://pinpointanswertoday.online/today/
+
+      - name: Submit URLs to Bing IndexNow
+        if: ${{ success() }}
+        continue-on-error: true
+        run: node scripts/notify-indexnow.js
+        env:
+          INDEXNOW_KEY: e8bc65df06b546c8a729fef670f046ce
+          INDEXNOW_ENDPOINT: https://www.bing.com/indexnow
+          INDEXNOW_URLS: |
+            https://pinpointanswertoday.online/
+            https://pinpointanswertoday.online/today/
