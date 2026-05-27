@@ -16,6 +16,7 @@ import puppeteer from '@cloudflare/puppeteer';
 // NVIDIA_API_KEY should be set via `npx wrangler secret put NVIDIA_API_KEY`
 const NVIDIA_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const NVIDIA_MODEL = 'qwen/qwen3.5-122b-a10b';
+const MIN_EXPLANATION_WORDS = 1800;
 
 // Allowed Origins for Protected Endpoints
 const ALLOWED_ORIGINS = [
@@ -864,11 +865,26 @@ async function generateExplanation(clues, answer, env) {
 
   console.log('Starting generation with NVIDIA Qwen 3.5 122B');
 
-  const prompt = `You are a world-class educational analyst specializing in the LinkedIn Pinpoint game. Your goal is to provide a comprehensive, ultra-detailed, and human-like explanation for today's puzzle.
+  const prompt = `You are writing the main explanation article for today's LinkedIn Pinpoint puzzle.
 
-CRITICAL WORD COUNT REQUIREMENT: Your response MUST be AT LEAST 1200 words long. This is a hard minimum. Every section must be extensively detailed. Do not write short or brief content. Expand every point with examples, context, backstory, and real-world connections. Think of this as a full blog article, not a quick summary.
+CRITICAL LENGTH RULES:
+- Absolute minimum: 1800 words.
+- Ideal target: 2200 to 3000 words.
+- If your draft is under 1800 words, continue expanding with useful detail until it clears the minimum.
+- Do not pad with fluff. Add real context, clear explanation, memorable examples, and practical strategy.
 
-IMPORTANT: You MUST follow this exact structure. Do not use horizontal rules (*** or ---). Be extremely thorough and write in a normal daily talking way like a real human don't use very hard words for explanations, "article-deep-dive" tone.
+WRITING STYLE:
+- Sound like a smart human puzzle fan, not a bot.
+- Use natural everyday English, varied sentence lengths, and clean transitions.
+- Be warm, specific, confident, and easy to read.
+- Avoid robotic filler, generic AI phrasing, and repeated wording.
+- Do not mention AI, prompts, tokens, or word counts.
+- Do not use horizontal rules (*** or ---).
+
+SEO AND READABILITY RULES:
+- Naturally mention LinkedIn Pinpoint, today's puzzle, clue meanings, answer explanation, and solving strategy when it fits.
+- Keep keyword usage light and natural. Do not stuff repeated phrases.
+- Make every paragraph genuinely helpful to a human reader.
 
 Clues:
 ${clues.map((clue, i) => `${i + 1}. ${clue}`).join('\n')}
@@ -876,38 +892,47 @@ ${clues.map((clue, i) => `${i + 1}. ${clue}`).join('\n')}
 Answer: ${answer}
 
 ## Deep Clue Analysis
-For each clue, provide an in-depth explanation that goes beyond just the meaning. Include historical context, fun facts, why it's famous, and how it connects to the answer. Each clue analysis should be at least 80-100 words.
+For each clue, provide an in-depth explanation that goes beyond the basic meaning. Include background, cultural context, why the word or phrase is familiar, and exactly how it connects to the final answer. Each clue analysis must be at least 140 to 180 words.
 ${clues.map((clue, i) => `### ${clue}
-**The Meaning of the Clue**: [Provide a detailed explanation of what "${clue}" is - include background, origin, why it's well-known, and how it directly relates to the answer. Don't just define it - tell the story behind it in a conversational way. Aim for 80-100+ words per clue.]`).join('\n\n')}
+**The Meaning of the Clue**: [Explain what "${clue}" means in plain English, add helpful context, mention why readers would know it, and tie it clearly back to the answer. Do not stop at a dictionary definition. Tell the story behind it in a conversational way.]`).join('\n\n')}
 
 ## How we solved it based on the clues
-This section should be the longest part of your article - aim for 400+ words here. Write in vivid detail how you solved it step by step as an expert solver. Describe your thought process after seeing the first clue - what did you guess? What went wrong? Then the second clue appeared - how did your thinking shift? Did you try another wrong answer? Walk through every clue one by one, explaining your evolving reasoning. Describe the "aha moment" when the correct answer clicked. Write in multiple small paragraphs (3-5 sentences each), not in one big block. Make it feel like a real person narrating their puzzle-solving journey. Include wrong guesses you made along the way and why they seemed right at the time.
+This should be the longest section of the article, at least 700 words. Write it like a real solving journey from clue one to clue five. Describe your first instinct, the wrong paths that looked tempting, the turning point, and the exact "aha" moment when the answer clicked. Walk through each clue in order and show how the logic tightened. Use multiple smaller paragraphs, not one giant block.
 
-## Lessons Learned from this pinpoint
-Provide 4-5 detailed lessons that one learnt from this puzzle. For each lesson, explain the strategy, why it matters, and give a concrete example of how to apply it in future puzzles. Each lesson should be 60-80+ words. Format as:
-**Lesson [N]: [Lesson Title]** - [Detailed explanation with example]
+## Why the answer fits all the clues together
+Write 180 to 250 words that clearly explain the shared thread. This section should help a reader understand why the answer is not just correct, but the best possible category or phrase for the full clue set.
+
+## Tips and strategies you can reuse
+Provide 5 detailed tips that a reader can apply in future Pinpoint puzzles. Each tip should be at least 90 words and should include both the strategy and a concrete example from this puzzle. Format as:
+**Tip [N]: [Short Title]** - [Detailed explanation with example]
 
 ## Frequently Asked Questions
-Provide 5-6 high-quality, in-depth FAQs based on this pinpoint puzzle. Each answer should be comprehensive and informative - at least 60-80 words per answer. Don't give short one-line answers. Format exactly as:
+Provide 6 high-quality, in-depth FAQs based on this puzzle topic or gameplay. Each answer should be at least 90 words. Do not give short one-line answers. Format exactly as:
 **Q: [In-depth Question related to the puzzle topic or gameplay]**
-**A: [Comprehensive, detailed answer that provides real value - aim for 60-80+ words]**
+**A: [Comprehensive, detailed answer that provides real value]**
 
-Maintain a premium, expert tone throughout. Ensure every section is fully populated with rich, detailed content. This article MUST exceed 1200 words total.`;
+Final quality check before finishing:
+- Is the full article above 1800 words?
+- Does every clue have a real explanation, not filler?
+- Does the solving section feel human and specific?
+- Are the tips practical and reusable?
+- Are the FAQs substantial?
+If any answer is no, continue writing until everything is complete.`;
 
   const requestBody = {
     model: NVIDIA_MODEL,
     messages: [
       {
         role: 'system',
-        content: 'You are a world-class educational analyst and SEO content writer specializing in word games and puzzles. Write in a natural, conversational, human-like tone as if explaining to a friend. Use simple, everyday language. Avoid overly academic or robotic phrasing. Optimize content for search engines by naturally incorporating relevant keywords, LSI terms, and clear headings. Make every explanation feel personal, engaging, and genuinely helpful. CRITICAL: Every response you write MUST be at least 1200 words long. Never produce short or brief content. Always expand with examples, stories, context, and detailed explanations. Think of each response as a full-length blog article.'
+        content: 'You are a world-class educational analyst and SEO content writer specializing in word games and puzzles. Write like a real human expert who actually solved the puzzle. Use simple, everyday language, but keep the analysis sharp and specific. Sound warm, conversational, and confident. Avoid robotic phrasing, repeated sentence patterns, and keyword stuffing. Naturally reference LinkedIn Pinpoint, clue meanings, answer logic, and solving strategy where helpful. Every response must be a substantial long-form article, not a short summary.'
       },
       {
         role: 'user',
         content: prompt
       }
     ],
-    temperature: 0.60,
-    top_p: 0.95,
+    temperature: 0.68,
+    top_p: 0.92,
     max_tokens: 16384,
     stream: false,
     chat_template_kwargs: { enable_thinking: true }
@@ -915,6 +940,10 @@ Maintain a premium, expert tone throughout. Ensure every section is fully popula
 
   const maxRetries = 3;
   let lastError = null;
+
+  function countWords(text) {
+    return text.trim().split(/\s+/).filter(Boolean).length;
+  }
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     console.log(`[Attempt ${attempt}/${maxRetries}] Calling NVIDIA Qwen API...`);
@@ -966,8 +995,16 @@ Maintain a premium, expert tone throughout. Ensure every section is fully popula
         content = content.replace(/^\s+|\s+$/g, '');
         
         if (content.length > 0) {
-          console.log(`Successfully generated explanation via NVIDIA Qwen (${content.length} chars)`);
-          return content;
+          const wordCount = countWords(content);
+
+          if (wordCount >= MIN_EXPLANATION_WORDS) {
+            console.log(`Successfully generated explanation via NVIDIA Qwen (${content.length} chars, ${wordCount} words)`);
+            return content;
+          }
+
+          console.warn(`Generated explanation too short (${wordCount} words). Retrying...`);
+          lastError = new Error(`Generated explanation below minimum word count (${wordCount}/${MIN_EXPLANATION_WORDS})`);
+          continue;
         }
       }
 

@@ -32,25 +32,67 @@ try {
   if (!yesterday || !yesterday.number) yesterday = null;
 } catch (e) { /* Not critical */ }
 
-const dateStr = today ? formatDate(today.date) : '';
-const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
-const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
+const shortDateStr = today
+  ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  : 'Today';
+const keywordDateStr = today ? shortDateStr.toLowerCase() : '';
+const explanationWordCount = today?.explanation
+  ? today.explanation.trim().split(/\s+/).filter(Boolean).length
+  : undefined;
 
-const title = today ? `LinkedIn Pinpoint #${today.number} Answer — ${shortDateStr}` : "Today's LinkedIn Pinpoint Answer";
-const descriptionText = today
-  ? `The answer to LinkedIn Pinpoint #${today.number} for ${shortDateStr}. Clues: ${clueWords}. See all 5 clues, read the full explanation${today.totalSolutions ? `, and browse ${today.totalSolutions} valid solutions` : ''}.`
-  : "Get today's LinkedIn Pinpoint answer with all clues and a full explanation.";
+const title = today
+  ? `LinkedIn Pinpoint answer today (${shortDateStr} and #${today.number})`
+  : 'LinkedIn Pinpoint answer today';
+const descriptionText = "Get the fastest today's LinkedIn Pinpoint answer with clues along with explanations and meaning of the words and tips and strategies and archive.";
+const introText = today
+  ? `If you are looking for the LinkedIn Pinpoint answer today, this page covers ${shortDateStr} and puzzle #${today.number} with clue meanings, explanations, solving tips, strategies, and the full archive.`
+  : "If you are looking for the LinkedIn Pinpoint answer today, this page gives you the clues, explanations, solving tips, strategies, and archive in one place.";
+const keywords = today
+  ? [
+      'linkedin pinpoint answer today',
+      `linkedin pinpoint answer for ${keywordDateStr}`,
+      `pinpoint answer for ${today.number}`,
+      "today's linkedin pinpoint answer"
+    ].join(', ')
+  : "linkedin pinpoint answer today, today's linkedin pinpoint answer";
 
 const seo = buildMeta({
   title,
   description: descriptionText,
-  keywords: today ? `LinkedIn Pinpoint #${today.number}, ${today.answer}, today's pinpoint answer, pinpoint solution ${today.date}, LinkedIn puzzle answer ${shortDateStr}, pinpoint hints today, ${today.clues.join(', ')}` : "LinkedIn Pinpoint, today's answer, daily puzzle",
+  keywords,
   canonical: `${SITE_URL}/today`,
   ogType: 'article',
   jsonLd: [
-    articleJsonLd({ title, description: today ? `The answer to LinkedIn Pinpoint #${today.number} for ${shortDateStr} is ${today.answer}.` : "Today's LinkedIn Pinpoint answer", url: `${SITE_URL}/today`, datePublished: today?.date || new Date().toISOString().split('T')[0], answer: today?.answer || '', number: today?.number || 0 }),
-    newsArticleJsonLd({ title, description: today ? `LinkedIn Pinpoint #${today.number} answer for ${shortDateStr}: ${today.answer}.` : "Today's LinkedIn Pinpoint answer", url: `${SITE_URL}/today`, datePublished: today?.date || new Date().toISOString().split('T')[0], answer: today?.answer || '', number: today?.number || 0 }),
-    breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: "Today's Answer", url: `${SITE_URL}/today` }])
+    articleJsonLd({
+      title,
+      description: today
+        ? `LinkedIn Pinpoint answer today for ${shortDateStr} and puzzle #${today.number}, with clues, explanations, word meanings, tips, strategies, and archive access.`
+        : "Today's LinkedIn Pinpoint answer",
+      url: `${SITE_URL}/today`,
+      datePublished: today?.date || new Date().toISOString().split('T')[0],
+      answer: today?.answer || '',
+      number: today?.number || 0,
+      wordCount: explanationWordCount
+    }),
+    newsArticleJsonLd({
+      title,
+      description: today
+        ? `LinkedIn Pinpoint answer today for ${shortDateStr} and puzzle #${today.number}: ${today.answer}.`
+        : "Today's LinkedIn Pinpoint answer",
+      url: `${SITE_URL}/today`,
+      datePublished: today?.date || new Date().toISOString().split('T')[0],
+      answer: today?.answer || '',
+      number: today?.number || 0,
+      wordCount: explanationWordCount
+    }),
+    breadcrumbJsonLd([
+      { name: 'Home', url: SITE_URL },
+      { name: "Today's Answer", url: `${SITE_URL}/today` }
+    ])
   ]
 });
 ---
@@ -61,7 +103,7 @@ const seo = buildMeta({
         <div class="error-state">
           <h3>Today's Puzzle</h3>
           <p>{error}</p>
-          <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">New puzzles appear after 1:30 PM IST. If it is past that time, a site rebuild is likely in progress — check back in a few minutes.</p>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">New puzzles appear after 1:30 PM IST. If it is past that time, a site rebuild is likely in progress - check back in a few minutes.</p>
           <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
             <a href="/archive" class="btn btn-secondary btn-sm">Browse Archive</a>
             <a href="/unlimited" class="btn btn-secondary btn-sm">Play Unlimited</a>
@@ -81,7 +123,8 @@ const seo = buildMeta({
 
           <div class="puzzle-header">
             <span class="badge badge-primary">Daily Puzzle</span>
-            <h1>LinkedIn Pinpoint #{today.number} — {dateStr} Answer</h1>
+            <h1>{title}</h1>
+            <p style="margin:0.65rem 0 0; color:var(--text-secondary); font-size:0.95rem; line-height:1.7;">{introText}</p>
           </div>
 
           <section aria-labelledby="clues-heading">
@@ -125,7 +168,7 @@ const seo = buildMeta({
               </div>
               <p style="font-size:0.85rem;">
                 <a href="/archive">
-                  Pinpoint #{yesterday.number} ({formatDate(yesterday.date)}) — Answer: <strong>{yesterday.answer}</strong>
+                  Pinpoint #{yesterday.number} ({formatDate(yesterday.date)}) - Answer: <strong>{yesterday.answer}</strong>
                 </a>
               </p>
             </div>

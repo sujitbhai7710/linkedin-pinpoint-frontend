@@ -151,6 +151,7 @@ export function articleJsonLd(data: {
         datePublished: string;
         answer: string;
         number: number;
+        wordCount?: number;
 }): object {
         return {
                 '@context': 'https://schema.org',
@@ -184,7 +185,7 @@ export function articleJsonLd(data: {
                         name: `LinkedIn Pinpoint #${data.number}`,
                         description: `The answer is: ${data.answer}`
                 },
-                wordCount: 500,
+                wordCount: data.wordCount || 500,
                 articleSection: 'Word Games',
                 inLanguage: 'en-US'
         };
@@ -225,6 +226,7 @@ export function newsArticleJsonLd(data: {
         datePublished: string;
         answer: string;
         number: number;
+        wordCount?: number;
 }): object {
         return {
                 '@context': 'https://schema.org',
@@ -253,7 +255,7 @@ export function newsArticleJsonLd(data: {
                         '@id': data.url
                 },
                 articleSection: 'Daily Puzzle Answer',
-                wordCount: 600,
+                wordCount: data.wordCount || 600,
                 inLanguage: 'en-US'
         };
 }
