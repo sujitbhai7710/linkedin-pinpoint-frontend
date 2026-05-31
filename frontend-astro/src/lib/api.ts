@@ -10,14 +10,52 @@
 
 import type { PinpointPuzzle, PinpointSummary, CheckResult, SolutionsResponse } from './types';
 
+export interface ExplanationHeading {
+        id: string;
+        text: string;
+        level: number;
+}
+
+function slugifyHeading(text: string): string {
+        return text
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-') || 'section';
+}
+
+function createHeadingIdFactory() {
+        const counts = new Map<string, number>();
+
+        return (text: string) => {
+                const base = slugifyHeading(text);
+                const count = counts.get(base) || 0;
+                counts.set(base, count + 1);
+                return count === 0 ? base : `${base}-${count + 1}`;
+        };
+}
+
+export function getExplanationHeadings(text: string): ExplanationHeading[] {
+        if (!text) return [];
+
+        const getId = createHeadingIdFactory();
+        return Array.from(text.matchAll(/^(#{1,3})\s+(.+)$/gm)).map((match) => ({
+                level: match[1].length,
+                text: match[2].trim(),
+                id: getId(match[2].trim())
+        }));
+}
+
 /** Convert markdown-like text to HTML */
 export function renderExplanation(text: string): string {
         if (!text) return '';
+        const getId = createHeadingIdFactory();
         let html = text
                 // Headings
-                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                .replace(/^### (.+)$/gm, (_, heading: string) => `<h3 id="${getId(heading.trim())}">${heading.trim()}</h3>`)
+                .replace(/^## (.+)$/gm, (_, heading: string) => `<h2 id="${getId(heading.trim())}">${heading.trim()}</h2>`)
+                .replace(/^# (.+)$/gm, (_, heading: string) => `<h1 id="${getId(heading.trim())}">${heading.trim()}</h1>`)
                 // FAQ Q: and A: patterns — style them differently BEFORE generic bold
                 .replace(/\*\*Q:\s*(.+?)\*\*/g, '<span class="faq-q">Q: $1</span>')
                 .replace(/\*\*A:\s*\*\*/g, '<span class="faq-a">A:</span>')

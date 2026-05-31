@@ -13,7 +13,7 @@
 {:else}
   <div class="answer-reveal-wrapper">
     <div class="answer-card">
-      <p class="answer-label">Today's Answer</p>
+      <p class="answer-label">Today's Pinpoint Answer</p>
       <p class="answer-word">{answer}</p>
     </div>
   </div>

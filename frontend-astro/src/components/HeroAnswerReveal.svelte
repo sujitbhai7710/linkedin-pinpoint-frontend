@@ -10,7 +10,7 @@
   </button>
 {:else}
   <div class="answer-card">
-    <p class="answer-label">Today's Answer</p>
+    <p class="answer-label">Today's Pinpoint Answer</p>
     <p class="answer-word">{answer}</p>
   </div>
   <a href="/today" class="hero-read-explanation">

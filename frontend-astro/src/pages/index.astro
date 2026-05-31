@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroAnswerReveal from '../components/HeroAnswerReveal.svelte';
 import FaqAccordion from '../components/FaqAccordion.svelte';
 import { formatDate, formatDateShort } from '../lib/api';
-import { buildMeta, websiteJsonLd, organizationJsonLd, authorJsonLd, reviewerJsonLd, faqJsonLd, howToJsonLd, itemListJsonLd, SITE_NAME, SITE_URL } from '../lib/seo';
+import { buildMeta, websiteJsonLd, organizationJsonLd, authorJsonLd, reviewerJsonLd, faqJsonLd, howToJsonLd, itemListJsonLd, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import type { PinpointPuzzle, PinpointSummary } from '../lib/types';
 import fs from 'fs';
 import path from 'path';
@@ -28,16 +28,18 @@ try {
 
 const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
 const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
+const heroDateStr = shortDateStr;
 
 const seo = buildMeta({
   title: today
-    ? `LinkedIn Pinpoint Answer Today — #${today.number} (${shortDateStr})`
+    ? `Linkedin pinpoint answer today for ${shortDateStr}, game ${today.number}`
     : 'LinkedIn Pinpoint Answer Today — Daily Puzzle Solutions',
   description: today
     ? `Get today's LinkedIn Pinpoint #${today.number} answer for ${shortDateStr}. Clues: ${clueWords}. Explanations and all valid alternative solutions. Updated daily.`
     : `Get today's LinkedIn Pinpoint answer with all 5 clues and explanations. Browse the archive and practice with unlimited games. Updated daily.`,
   keywords: `LinkedIn Pinpoint answers, pinpoint answer today, daily puzzle solution, LinkedIn word game, Pinpoint clues, Pinpoint hints, pinpoint answer today, LinkedIn Pinpoint solution, pinpoint archive, pinpoint answers, pinpoint clue, LinkedIn Pinpoint game${today ? `, Pinpoint #${today.number}, ${today.answer}` : ''}`,
   canonical: SITE_URL,
+  ogImage: TODAY_FEATURED_IMAGE,
   ogType: 'website',
   jsonLd: [
     organizationJsonLd(),
@@ -82,11 +84,11 @@ const faqs = [
         <div>
           <div class="hero-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            Daily Puzzle Answer
+            {today ? `Updated for Game ${today.number}` : 'Daily Puzzle Answer'}
           </div>
-          <h1>Today's LinkedIn Pinpoint {today ? `#${today.number}` : ''} Answer</h1>
+          <h1>Linkedin pinpoint answer today {today ? `(${heroDateStr})` : ''}</h1>
           <div class="hero-accent"></div>
-          <p class="hero-desc">Get today's Pinpoint answer with all clues and an explanation for each one. See how every clue connects to the solution — the more puzzles you read through, the faster you spot patterns.</p>
+          <p class="hero-desc">{today ? `See the answer for ${heroDateStr}, game ${today.number}, with all clues, explanations, and valid solutions in one place.` : `Get today's Pinpoint answer with all clues and an explanation for each one. See how every clue connects to the solution — the more puzzles you read through, the faster you spot patterns.`}</p>
           <div class="hero-buttons">
             <a href="/today" class="btn btn-primary btn-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
@@ -139,7 +141,7 @@ const faqs = [
     <section class="section section-white" aria-labelledby="recent-heading">
       <div class="container">
         <div class="section-header">
-          <h2 id="recent-heading" class="section-title">Recent Puzzles</h2>
+          <h2 id="recent-heading" class="section-title">Recent pinpoint puzzles with answers</h2>
           <a href="/archive" class="btn btn-ghost btn-sm">View All →</a>
         </div>
         <div class="archive-cards">

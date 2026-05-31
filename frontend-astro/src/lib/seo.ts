@@ -12,6 +12,7 @@ export interface SEOData {
 const SITE_NAME = 'Pinpoint Answer Today';
 const SITE_URL = 'https://pinpointanswertoday.online';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
+const TODAY_FEATURED_IMAGE = `${SITE_URL}${encodeURI('/linkedin pinpoint ANSWER TODAY.webp')}`;
 
 export function buildMeta(seo: SEOData) {
         const canonical = seo.canonical || SITE_URL;
@@ -315,4 +316,4 @@ export function itemListJsonLd(items: { name: string; url: string; date: string 
         };
 }
 
-export { SITE_NAME, SITE_URL };
+export { SITE_NAME, SITE_URL, TODAY_FEATURED_IMAGE };
