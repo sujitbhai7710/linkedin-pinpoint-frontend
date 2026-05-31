@@ -6,10 +6,12 @@
   let answerRevealed = $state(false);
   let allSolutions: string[] = $state(puzzle.solutions ?? []);
   let totalSolutions: number = $state(puzzle.totalSolutions ?? 0);
-  let displayedCount: number = $state(10);
+  const INITIAL_SOLUTIONS_SHOW = 20;
+  const SOLUTIONS_BATCH = 20;
+
+  let displayedCount: number = $state(Math.min(allSolutions.length, INITIAL_SOLUTIONS_SHOW));
   let loadingSolutions = $state(false);
   let solutionsLoaded = $state(false);
-  const SOLUTIONS_BATCH = 200;
 
   let displayedSolutions = $derived(allSolutions.slice(0, displayedCount));
   let hasMoreSolutions = $derived(displayedCount < allSolutions.length);
@@ -22,7 +24,7 @@
       const resp = await loadSolutionsFromJson(puzzle.number);
       allSolutions = resp.solutions;
       totalSolutions = resp.total;
-      displayedCount = Math.min(allSolutions.length, 10 + SOLUTIONS_BATCH);
+      displayedCount = Math.min(allSolutions.length, displayedCount + SOLUTIONS_BATCH);
       solutionsLoaded = true;
     } catch (e) {
       console.error('Failed to load solutions:', e);
@@ -35,10 +37,6 @@
     displayedCount = Math.min(displayedCount + SOLUTIONS_BATCH, allSolutions.length);
   }
 
-  function showAllSolutions() {
-    if (needsSolutionsLoad) { loadAllSolutions(); return; }
-    displayedCount = allSolutions.length;
-  }
 </script>
 
 <article class="card mt-3" aria-labelledby="selected-puzzle-heading">
@@ -120,15 +118,12 @@
             <span style="color:var(--text-secondary);">Loading solutions...</span>
           {:else if needsSolutionsLoad}
             <button class="btn btn-secondary btn-sm" onclick={loadAllSolutions}>
-              Load All {totalSolutions} Solutions
+              Load 20 More
             </button>
           {:else}
             <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
               <button class="btn btn-secondary btn-sm" onclick={showMoreSolutions}>
-                Show More ({allSolutions.length - displayedCount} remaining)
-              </button>
-              <button class="btn btn-ghost btn-sm" onclick={showAllSolutions}>
-                Show All {allSolutions.length}
+                Load 20 More ({allSolutions.length - displayedCount} remaining)
               </button>
             </div>
           {/if}
