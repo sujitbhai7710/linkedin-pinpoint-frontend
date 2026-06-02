@@ -45,19 +45,31 @@ const explanationWordCount = today?.explanation
   : undefined;
 const explanationHeadings = today?.explanation ? getExplanationHeadings(today.explanation) : [];
 
-const title = 'Linkedin pinpoint answer today - Updated';
-const descriptionText = "Get the fastest today's LinkedIn Pinpoint answer with clues along with explanations and meaning of the words and tips and strategies and archive.";
+const title = 'Linked pinpoint answer , meaning and full explanation for today';
+const descriptionText = today
+  ? `Linkedin pinpoint answer today - Updated with ${shortDateStr} clues, full explanation, valid solutions, and archive access for puzzle #${today.number}.`
+  : "Linkedin pinpoint answer today - Updated with today's clues, full explanation, valid solutions, and archive access.";
 const introText = today
   ? `If you are looking for the LinkedIn Pinpoint answer today, this page covers ${shortDateStr} and puzzle #${today.number} with clue meanings, explanations, solving tips, strategies, and the full archive.`
   : "If you are looking for the LinkedIn Pinpoint answer today, this page gives you the clues, explanations, solving tips, strategies, and archive in one place.";
 const keywords = today
   ? [
+      'linkedin pinpoint answer today - updated',
       'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions',
       `linkedin pinpoint answer for ${keywordDateStr}`,
       `pinpoint answer for ${today.number}`,
       "today's linkedin pinpoint answer"
     ].join(', ')
-  : "linkedin pinpoint answer today, today's linkedin pinpoint answer";
+  : [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions'
+    ].join(', ');
 
 const seo = buildMeta({
   title,

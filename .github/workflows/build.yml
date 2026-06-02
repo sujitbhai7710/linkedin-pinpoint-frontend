@@ -92,6 +92,9 @@ jobs:
           node scripts/notify-google-indexing.js
         env:
           GOOGLE_INDEXING_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_INDEXING_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SEARCH_CONSOLE_SITE_URL: sc-domain:pinpointanswertoday.online
+          GOOGLE_SITEMAP_URLS: |
+            https://pinpointanswertoday.online/sitemap.xml
           GOOGLE_INDEXING_URLS: |
             https://pinpointanswertoday.online/
             https://pinpointanswertoday.online/today/

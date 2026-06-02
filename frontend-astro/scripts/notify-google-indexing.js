@@ -5,9 +5,15 @@ const DEFAULT_URLS = [
   'https://pinpointanswertoday.online/today/'
 ];
 
-const INDEXING_SCOPE = 'https://www.googleapis.com/auth/indexing';
+const GOOGLE_SCOPES = [
+  'https://www.googleapis.com/auth/indexing',
+  'https://www.googleapis.com/auth/webmasters'
+];
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const PUBLISH_URL = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
+const DEFAULT_SITEMAP_URL = 'https://pinpointanswertoday.online/sitemap.xml';
+const DEFAULT_SITE_URL = 'sc-domain:pinpointanswertoday.online';
+const SEARCH_CONSOLE_API_BASE = 'https://www.googleapis.com/webmasters/v3/sites';
 const MAX_RETRIES = 3;
 
 function base64UrlEncode(value) {
@@ -61,6 +67,25 @@ function parseUrls() {
     .filter(Boolean);
 
   return urls.length > 0 ? urls : DEFAULT_URLS;
+}
+
+function parseSitemaps() {
+  const raw = process.env.GOOGLE_SITEMAP_URLS;
+
+  if (!raw) {
+    return [DEFAULT_SITEMAP_URL];
+  }
+
+  const sitemaps = raw
+    .split(/[\r\n,]+/)
+    .map(value => value.trim())
+    .filter(Boolean);
+
+  return sitemaps.length > 0 ? sitemaps : [DEFAULT_SITEMAP_URL];
+}
+
+function parseSearchConsoleSiteUrl() {
+  return process.env.GOOGLE_SEARCH_CONSOLE_SITE_URL?.trim() || DEFAULT_SITE_URL;
 }
 
 function formatApiError(status, bodyText) {
@@ -132,7 +157,7 @@ function createJwtAssertion(credentials) {
 
   const payload = {
     iss: credentials.client_email,
-    scope: INDEXING_SCOPE,
+    scope: GOOGLE_SCOPES.join(' '),
     aud: credentials.token_uri || TOKEN_URL,
     exp: expiresAt,
     iat: issuedAt
@@ -202,9 +227,26 @@ async function publishNotification(accessToken, url) {
   return response?.urlNotificationMetadata?.latestUpdate?.notifyTime || null;
 }
 
+async function submitSitemap(accessToken, siteUrl, sitemapUrl) {
+  const endpoint = `${SEARCH_CONSOLE_API_BASE}/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(sitemapUrl)}`;
+
+  await fetchWithRetries(
+    endpoint,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    },
+    `Sitemap submission for ${sitemapUrl}`
+  );
+}
+
 async function main() {
   const credentials = parseCredentials();
   const urls = parseUrls();
+  const sitemaps = parseSitemaps();
+  const searchConsoleSiteUrl = parseSearchConsoleSiteUrl();
 
   console.log(`Submitting Google indexing notifications for ${urls.length} URL(s)...`);
 
@@ -222,11 +264,23 @@ async function main() {
     }
   }
 
+  console.log(`Submitting ${sitemaps.length} sitemap(s) to Search Console for ${searchConsoleSiteUrl}...`);
+
+  for (const sitemapUrl of sitemaps) {
+    try {
+      await submitSitemap(accessToken, searchConsoleSiteUrl, sitemapUrl);
+      console.log(`Submitted sitemap ${sitemapUrl}`);
+    } catch (error) {
+      failures.push({ url: sitemapUrl, error });
+      console.error(`Failed sitemap submission for ${sitemapUrl}: ${error.message}`);
+    }
+  }
+
   if (failures.length > 0) {
     throw new Error(`Failed indexing request(s): ${failures.map(item => item.url).join(', ')}`);
   }
 
-  console.log('Google indexing notifications completed successfully.');
+  console.log('Google indexing notifications and sitemap submission completed successfully.');
 }
 
 main().catch(error => {

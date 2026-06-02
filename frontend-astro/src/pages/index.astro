@@ -29,15 +29,32 @@ try {
 const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
 const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
 const heroDateStr = shortDateStr;
+const title = 'Linkedin pinpoint answer today - Updated';
+const description = today
+  ? `Linkedin pinpoint answer today - Updated with ${shortDateStr} clues, full explanation, valid solutions, and archive access for puzzle #${today.number}.`
+  : "Linkedin pinpoint answer today - Updated with today's clues, full explanation, valid solutions, and archive access.";
+const keywords = today
+  ? [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions',
+      `linkedin pinpoint ${shortDateStr.toLowerCase()}`,
+      `pinpoint puzzle ${today.number}`
+    ].join(', ')
+  : [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions'
+    ].join(', ');
 
 const seo = buildMeta({
-  title: today
-    ? `Linkedin pinpoint answer today for ${shortDateStr}, game ${today.number}`
-    : 'LinkedIn Pinpoint Answer Today — Daily Puzzle Solutions',
-  description: today
-    ? `Get today's LinkedIn Pinpoint #${today.number} answer for ${shortDateStr}. Clues: ${clueWords}. Explanations and all valid alternative solutions. Updated daily.`
-    : `Get today's LinkedIn Pinpoint answer with all 5 clues and explanations. Browse the archive and practice with unlimited games. Updated daily.`,
-  keywords: `LinkedIn Pinpoint answers, pinpoint answer today, daily puzzle solution, LinkedIn word game, Pinpoint clues, Pinpoint hints, pinpoint answer today, LinkedIn Pinpoint solution, pinpoint archive, pinpoint answers, pinpoint clue, LinkedIn Pinpoint game${today ? `, Pinpoint #${today.number}, ${today.answer}` : ''}`,
+  title,
+  description,
+  keywords,
   canonical: SITE_URL,
   ogImage: TODAY_FEATURED_IMAGE,
   ogType: 'website',
