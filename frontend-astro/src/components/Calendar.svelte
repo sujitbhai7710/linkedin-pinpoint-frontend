@@ -15,6 +15,9 @@
   let selectedError = $state<string | null>(null);
   let loadingPuzzle = $state(false);
 
+  // Archive now links to dedicated per-puzzle pages.
+  // Keep these states only for progressive enhancement/legacy behavior.
+
   const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -68,44 +71,10 @@
   }
 
   function selectDate(dateStr: string) {
+    // Legacy fallback: navigate to the dedicated page.
     selectedDate = dateStr;
-    selectedError = null;
-    loadingPuzzle = true;
-
-    // Keep URL clean — just /archive (no hash, no query params)
-    // This avoids duplicate content SEO issues
-    if (typeof window !== 'undefined') {
-      if (window.location.hash || window.location.search) {
-        window.history.replaceState(null, '', '/archive');
-      }
-    }
-
-    try {
-      const summaryPuzzle = archiveSummary.find((p: any) => p.date === dateStr);
-      if (summaryPuzzle) {
-        selectedPuzzle = {
-          number: summaryPuzzle.number,
-          date: summaryPuzzle.date,
-          clues: summaryPuzzle.clues,
-          answer: summaryPuzzle.answer,
-          explanation: null,
-          solutions: [],
-          totalSolutions: 0
-        };
-      } else {
-        selectedPuzzle = null;
-        selectedError = `No puzzle found for ${formatDate(dateStr)}`;
-      }
-    } catch (e) {
-      selectedPuzzle = null;
-      selectedError = `No puzzle found for ${formatDate(dateStr)}`;
-    } finally {
-      loadingPuzzle = false;
-      setTimeout(() => {
-        const heading = document.getElementById('selected-puzzle-heading');
-        if (heading) heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 150);
-    }
+    const target = puzzlePath(dateStr);
+    if (typeof window !== 'undefined') window.location.href = target;
   }
 
   function isToday(dateStr: string): boolean {
@@ -120,51 +89,31 @@
 
   import { onMount } from 'svelte';
   onMount(() => {
-    // Priority: 1) sessionStorage (from permalink redirect), 2) Hash fragment, 3) Query param
+    // If /archive is opened with a legacy hash/query/date, redirect to the dedicated page.
     let dateToOpen: string | null = null;
 
-    // Check sessionStorage first (set by permalink redirect pages)
     try {
       const stored = sessionStorage.getItem('pinpoint-open-date');
       if (stored && /^\d{4}-\d{2}-\d{2}$/.test(stored)) {
         dateToOpen = stored;
-        sessionStorage.removeItem('pinpoint-open-date'); // Clean up
+        sessionStorage.removeItem('pinpoint-open-date');
       }
-    } catch (e) { /* sessionStorage not available */ }
+    } catch (e) {}
 
-    // Check hash fragment
     if (!dateToOpen) {
       const hash = window.location.hash.slice(1);
-      if (hash && /^\d{4}-\d{2}-\d{2}$/.test(hash)) {
-        dateToOpen = hash;
-      }
+      if (hash && /^\d{4}-\d{2}-\d{2}$/.test(hash)) dateToOpen = hash;
     }
 
-    // Check query params (legacy support)
     if (!dateToOpen) {
       const params = new URLSearchParams(window.location.search);
       const dateParam = params.get('date') || params.get('d');
-      if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
-        dateToOpen = dateParam;
-      }
+      if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) dateToOpen = dateParam;
     }
 
-    // Open the date if found, and clean up the URL
     if (dateToOpen) {
-      // Clean URL: remove any hash or query params, show just /archive
-      if (window.location.hash || window.location.search) {
-        window.history.replaceState(null, '', '/archive');
-      }
-      selectDate(dateToOpen);
+      window.location.replace(puzzlePath(dateToOpen));
     }
-
-    // Listen for hash changes (back/forward navigation)
-    window.addEventListener('hashchange', () => {
-      const newHash = window.location.hash.slice(1);
-      if (newHash && /^\d{4}-\d{2}-\d{2}$/.test(newHash) && newHash !== selectedDate) {
-        selectDate(newHash);
-      }
-    });
   });
 </script>
 
@@ -192,7 +141,7 @@
               role="gridcell"
               aria-label="{formatDate(day.date)}{day.hasPuzzle ? ' - Puzzle available' : ''}"
               disabled={!day.hasPuzzle}
-              onclick={() => day.hasPuzzle && selectDate(day.date)}
+              onclick={() => day.hasPuzzle && (window.location.href = puzzlePath(day.date))}
             >
               {day.day}
             </button>
