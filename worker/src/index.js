@@ -98,10 +98,19 @@ export default {
         };
       }
 
-      // Trigger GitHub Actions build workflow if configured
+      // Trigger GitHub Actions build workflow if configured.
+      // We use ctx.waitUntil so the cron response isn't blocked, but we still
+      // log the result loudly. The trigger function now throws on persistent
+      // failure (e.g. revoked GITHUB_TOKEN) instead of failing silently.
       if (dataToCommit && env.GITHUB_TOKEN) {
         console.log('Triggering GitHub Actions build workflow...');
-        await triggerBuildWorkflow(dataToCommit, env);
+        ctx.waitUntil(
+          triggerBuildWorkflow(dataToCommit, env).catch(err => {
+            console.error('!!! GitHub Actions trigger FAILED after retries:', err.message);
+          })
+        );
+      } else if (!env.GITHUB_TOKEN) {
+        console.warn('GITHUB_TOKEN secret is NOT set on the worker — frontend will NOT auto-rebuild.');
       }
     } catch (error) {
       console.error('Error in scheduled task:', error);
@@ -489,6 +498,60 @@ export default {
             success: false,
             error: err.message
           }), { status: 500, headers: corsHeaders });
+        }
+      }
+
+      // GET /trigger-build/{secretkey} - Manually trigger the GitHub Actions
+      // build workflow (uses the latest stored puzzle). Useful for testing that
+      // the GITHUB_TOKEN secret works end-to-end without waiting for the cron.
+      const triggerBuildMatch = path.match(/^\/trigger-build(?:\/(\d+))?\/(.+)$/);
+      if (triggerBuildMatch) {
+        const [, numberStr, providedKey] = triggerBuildMatch;
+        const number = numberStr ? parseInt(numberStr) : null;
+
+        if (providedKey !== env.SECRET_KEY && !isAuthorizedBySecret) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Unauthorized',
+            message: 'Invalid or missing secret key'
+          }), { status: 401, headers: corsHeaders });
+        }
+
+        try {
+          // Fetch the puzzle to trigger for
+          let puzzleRow;
+          if (number) {
+            puzzleRow = await env.DB.prepare(
+              'SELECT number, date FROM pinpoint_data WHERE number = ?'
+            ).bind(number).first();
+          } else {
+            puzzleRow = await env.DB.prepare(
+              'SELECT number, date FROM pinpoint_data ORDER BY number DESC LIMIT 1'
+            ).first();
+          }
+
+          if (!puzzleRow) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: 'No puzzle data available to trigger a build for'
+            }), { status: 404, headers: corsHeaders });
+          }
+
+          // Trigger the workflow. Because this is a manual HTTP request we
+          // await it (no ctx.waitUntil) so the caller sees the real result.
+          const result = await triggerBuildWorkflow(puzzleRow, env);
+          return new Response(JSON.stringify({
+            success: true,
+            message: `Triggered GitHub Actions build for Pinpoint #${puzzleRow.number}`,
+            puzzle: puzzleRow,
+            github: result
+          }), { headers: corsHeaders });
+        } catch (err) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'GitHub trigger failed',
+            message: err.message
+          }), { status: 502, headers: corsHeaders });
         }
       }
 
@@ -1027,8 +1090,13 @@ If any answer is no, continue writing until everything is complete.`;
 
 
 /**
- * Trigger GitHub Actions build workflow after new puzzle data is available
- * This tells the frontend repo to rebuild its static site with the latest data
+ * Trigger GitHub Actions build workflow after new puzzle data is available.
+ * This tells the frontend repo to rebuild its static site with the latest data.
+ *
+ * HARDENED: retries up to 4 times with exponential backoff on transient errors
+ * (5xx, 429, network). On non-retriable failures (e.g. 401/403 from a revoked
+ * or expired GITHUB_TOKEN) it THROWS so the caller can surface the problem
+ * instead of silently swallowing it (which was the original silent-failure bug).
  */
 async function triggerBuildWorkflow(data, env) {
   const REPO_OWNER = env.GH_REPO_OWNER || 'sujitbhai7710';
@@ -1037,39 +1105,76 @@ async function triggerBuildWorkflow(data, env) {
   const token = env.GITHUB_TOKEN;
 
   if (!token) {
-    console.log('No GITHUB_TOKEN set, skipping workflow trigger');
-    return;
+    throw new Error('GITHUB_TOKEN secret is NOT set on the worker — cannot trigger build.');
   }
 
   const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_ID}/dispatches`;
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'User-Agent': 'Cloudflare-Worker',
-    'Accept': 'application/vnd.github+json'
-  };
-
-  try {
-    const body = {
-      ref: 'main',
-      inputs: {
-        puzzle_number: String(data.number),
-        puzzle_date: data.date
-      }
-    };
-
-    const res = await fetch(apiUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body)
-    });
-
-    if (res.ok || res.status === 204) {
-      console.log(`Successfully triggered GitHub Actions build for Pinpoint #${data.number}`);
-    } else {
-      const errorText = await res.text();
-      console.error(`GitHub Actions trigger failed: ${res.status} - ${errorText}`);
+  const body = JSON.stringify({
+    ref: 'main',
+    inputs: {
+      puzzle_number: String(data.number),
+      puzzle_date: data.date
     }
-  } catch (e) {
-    console.error('GitHub Actions trigger error:', e);
+  });
+
+  const MAX_ATTEMPTS = 4;
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      console.log(`[GitHub dispatch ${attempt}/${MAX_ATTEMPTS}] Pinpoint #${data.number} -> ${apiUrl}`);
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'User-Agent': 'Cloudflare-Worker'
+        },
+        body
+      });
+
+      // 204 No Content is the documented success response for workflow_dispatch
+      if (res.status === 204 || (res.ok && res.status >= 200 && res.status < 300)) {
+        console.log(`✅ Successfully triggered GitHub Actions build for Pinpoint #${data.number} (HTTP ${res.status})`);
+        return { success: true, status: res.status };
+      }
+
+      const errorText = await res.text().catch(() => '');
+      console.error(`GitHub dispatch HTTP ${res.status}: ${errorText}`);
+
+      // Non-retriable auth/permission errors — token is bad or lacks scope.
+      if (res.status === 401 || res.status === 403 || res.status === 404 || res.status === 422) {
+        lastError = new Error(`GitHub dispatch failed (HTTP ${res.status}). Most likely the GITHUB_TOKEN secret is revoked, expired, or missing 'repo'+'workflow' scopes. Body: ${errorText}`);
+        break; // do not retry auth errors
+      }
+
+      // Retriable: rate limit & server errors
+      if (res.status === 429 || res.status >= 500) {
+        lastError = new Error(`GitHub dispatch transient failure (HTTP ${res.status}). Body: ${errorText}`);
+        if (attempt < MAX_ATTEMPTS) {
+          const wait = Math.pow(2, attempt) * 1500;
+          console.log(`Retrying in ${wait}ms...`);
+          await new Promise(r => setTimeout(r, wait));
+          continue;
+        }
+      }
+
+      // Any other unexpected status
+      lastError = new Error(`GitHub dispatch unexpected status HTTP ${res.status}. Body: ${errorText}`);
+      break;
+    } catch (e) {
+      console.error(`GitHub dispatch network error (attempt ${attempt}):`, e.message);
+      lastError = e;
+      if (attempt < MAX_ATTEMPTS) {
+        const wait = Math.pow(2, attempt) * 1500;
+        await new Promise(r => setTimeout(r, wait));
+        continue;
+      }
+    }
   }
+
+  // If we reach here the dispatch never succeeded.
+  console.error('❌ GitHub Actions trigger FAILED after all retries:', lastError?.message);
+  throw lastError || new Error('GitHub Actions trigger failed for unknown reasons.');
 }
