@@ -4,7 +4,7 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
-  keywords?: string;
+
   canonical?: string;
   ogTitle?: string;
   ogDescription?: string;
@@ -19,6 +19,7 @@ interface Props {
   jsonLdString?: string;
   articlePublishedTime?: string;
   noindex?: boolean;
+  allowAds?: boolean;
 }
 
 const props = Astro.props;
@@ -30,7 +31,6 @@ const navItems = [
   { href: '/archive', label: 'Archive' },
   { href: '/unlimited', label: 'Unlimited Game' },
   { href: '/how-to-play', label: 'How to Play' },
-  { href: '/blog', label: 'Blog' },
   { href: '/about', label: 'About' }
 ];
 ---
@@ -51,14 +51,11 @@ const navItems = [
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://www.googletagmanager.com" />
   <link rel="preconnect" href="https://www.google-analytics.com" />
-  <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
-  <link rel="preconnect" href="https://td.doubleclick.net" />
-  <link rel="alternate" hreflang="en" href={props.canonical || `https://pinpointanswertoday.online${currentPath}`} />
-  <link rel="alternate" hreflang="x-default" href={props.canonical || `https://pinpointanswertoday.online${currentPath}`} />
+  {props.allowAds && <link rel="preconnect" href="https://pagead2.googlesyndication.com" />}
+  {props.allowAds && <link rel="preconnect" href="https://googleads.g.doubleclick.net" />}
 
   {props.title && <title>{props.title}</title>}
   {props.description && <meta name="description" content={props.description} />}
-  {props.keywords && <meta name="keywords" content={props.keywords} />}
   {props.canonical && <link rel="canonical" href={props.canonical} />}
   {props.ogTitle && <meta property="og:title" content={props.ogTitle} />}
   {props.ogDescription && <meta property="og:description" content={props.ogDescription} />}
@@ -82,8 +79,9 @@ const navItems = [
     gtag('js', new Date());
     gtag('config', 'G-3K8D06R3B9');
   </script>
-  <!-- Google AdSense Auto Ads -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6802279151192550" crossorigin="anonymous"></script>
+  {props.allowAds && !props.noindex && (
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6802279151192550" crossorigin="anonymous"></script>
+  )}
 </head>
 <body>
   <div style="display:flex; flex-direction:column; min-height:100vh;">
@@ -148,10 +146,12 @@ const navItems = [
           <div class="footer-section">
             <h4>Resources</h4>
             <a href="/how-to-play">How to Play</a>
-            <a href="/blog">Blog</a>
             <a href="/about">About</a>
             <a href="/contact">Contact</a>
             <a href="/privacy">Privacy Policy</a>
+            <a href="/editorial-policy">Editorial Policy</a>
+            <a href="/terms">Terms of Use</a>
+            <a href="/disclaimer">Disclaimer</a>
           </div>
           <div class="footer-section">
             <h4>Site</h4>

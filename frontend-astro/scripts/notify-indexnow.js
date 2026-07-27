@@ -7,6 +7,13 @@ const DEFAULT_URLS = [
   'https://pinpointanswertoday.online/today/'
 ];
 
+function puzzleUrl(dateString) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString || '')) return null;
+  const date = new Date(`${dateString}T00:00:00Z`);
+  const month = date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }).toLowerCase();
+  return `https://pinpointanswertoday.online/linkedin-pinpoint-answer-for-${month}-${date.getUTCDate()}-${date.getUTCFullYear()}`;
+}
+
 function parseUrls() {
   const raw = process.env.INDEXNOW_URLS;
 
@@ -19,7 +26,10 @@ function parseUrls() {
     .map(value => value.trim())
     .filter(Boolean);
 
-  return urls.length > 0 ? urls : DEFAULT_URLS;
+  const datedPuzzleUrl = puzzleUrl(process.env.PUZZLE_DATE);
+  if (datedPuzzleUrl) urls.push(datedPuzzleUrl);
+
+  return [...new Set(urls.length > 0 ? urls : DEFAULT_URLS)];
 }
 
 function getHost(urls) {

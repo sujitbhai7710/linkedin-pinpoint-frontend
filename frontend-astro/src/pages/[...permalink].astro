@@ -1,75 +1,133 @@
 ---
-/**
- * Permalink redirect pages for SEO-friendly URLs like:
- * /linkedin-pinpoint-answer-for-may-17-2026
- *
- * These pages:
- * - Have noindex + canonical to /archive (avoid duplicate content)
- * - Use sessionStorage to pass the date to /archive
- * - Redirect to clean /archive URL via JS
- * - Show a brief loading state for users without JS
- */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { buildMeta, breadcrumbJsonLd, SITE_URL } from '../lib/seo';
+import AnswerReveal from '../components/AnswerReveal.svelte';
+import SolutionsLoader from '../components/SolutionsLoader.svelte';
+import { formatDate, renderExplanation } from '../lib/api';
+import { articleJsonLd, breadcrumbJsonLd, buildMeta, puzzlePermalink, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import fs from 'fs';
 import path from 'path';
 
-export function getStaticPaths() {
-  const MONTH_NAMES = ['january','february','march','april','may','june','july','august','september','october','november','december'];
-  const archivePath = path.join(process.cwd(), 'public/data/archive.json');
-  let archiveData: { number: number; date: string; clues: string[]; answer: string | null }[] = [];
-  try {
-    const raw = fs.readFileSync(archivePath, 'utf-8');
-    archiveData = JSON.parse(raw);
-  } catch (e) {
-    console.error(`[permalink] Failed to read archive.json:`, e.message);
-  }
-
-  const paths = [];
-  for (const puzzle of archiveData) {
-    const date = new Date(puzzle.date + 'T00:00:00');
-    const monthName = MONTH_NAMES[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    const slug = `linkedin-pinpoint-answer-for-${monthName}-${day}-${year}`;
-    paths.push({
-      params: { permalink: slug },
-      props: { date: puzzle.date, number: puzzle.number, answer: puzzle.answer, clues: puzzle.clues }
-    });
-  }
-  console.log(`[permalink] Generated ${paths.length} permalink pages`);
-  return paths;
+interface Puzzle {
+  number: number;
+  date: string;
+  clues: string[];
+  answer: string | null;
+  explanation?: string | null;
+  solutions?: string[];
+  totalSolutions?: number;
 }
 
-const { date, number, answer, clues } = Astro.props;
-const shortDateStr = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+export function getStaticPaths() {
+  const archivePath = path.join(process.cwd(), 'public/data/archive.json');
+  const fullPath = path.join(process.cwd(), 'public/data/archive-full.json');
+  let archive: Puzzle[] = [];
+  let fullArchive: Puzzle[] = [];
+
+  try {
+    archive = JSON.parse(fs.readFileSync(archivePath, 'utf-8'));
+    fullArchive = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+  } catch (error: any) {
+    console.error(`[permalink] Failed to read archive data: ${error.message}`);
+  }
+
+  const fullByNumber = new Map(fullArchive.map(puzzle => [puzzle.number, puzzle]));
+  return archive
+    .filter(puzzle => puzzle.answer)
+    .map(puzzle => ({
+      params: { permalink: puzzlePermalink(puzzle.date).slice(1) },
+      props: { puzzle: { ...puzzle, ...fullByNumber.get(puzzle.number) } }
+    }));
+}
+
+const { puzzle } = Astro.props as { puzzle: Puzzle };
+const answer = puzzle.answer || 'Answer unavailable';
+const dateLabel = formatDate(puzzle.date);
+const canonicalPath = puzzlePermalink(puzzle.date);
+const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+const explanationWordCount = puzzle.explanation?.trim().split(/\s+/).filter(Boolean).length || 0;
+const title = `LinkedIn Pinpoint #${puzzle.number} Answer for ${dateLabel}: ${answer}`;
+const description = `The LinkedIn Pinpoint answer for ${dateLabel}, puzzle #${puzzle.number}, is ${answer}. Review all five clues and the detailed connection explanation.`;
 
 const seo = buildMeta({
-  title: `LinkedIn Pinpoint #${number} Answer — ${shortDateStr}`,
-  description: `The answer to LinkedIn Pinpoint #${number} for ${shortDateStr} is ${answer || 'available in our archive'}. See all clues, explanations, and valid solutions.`,
-  keywords: `LinkedIn Pinpoint #${number}, ${answer}, pinpoint answer ${date}, LinkedIn puzzle`,
-  canonical: `${SITE_URL}/archive`,
-  noindex: true,
+  title,
+  description,
+  canonical: canonicalUrl,
+  ogImage: TODAY_FEATURED_IMAGE,
+  ogType: 'article',
   jsonLd: [
+    articleJsonLd({
+      title,
+      description,
+      url: canonicalUrl,
+      datePublished: puzzle.date,
+      answer,
+      number: puzzle.number,
+      wordCount: explanationWordCount
+    }),
     breadcrumbJsonLd([
       { name: 'Home', url: SITE_URL },
-      { name: 'Archive', url: `${SITE_URL}/archive` }
+      { name: 'Archive', url: `${SITE_URL}/archive` },
+      { name: `Puzzle #${puzzle.number}`, url: canonicalUrl }
     ])
   ]
 });
 ---
-<BaseLayout {...seo}>
-  <div class="container" style="padding: 4rem 1rem; text-align: center;">
-    <div class="loading-spinner" style="margin: 0 auto 1rem;"></div>
-    <h1>LinkedIn Pinpoint #{number} — {shortDateStr}</h1>
-    <p style="color: var(--text-secondary); margin: 0.5rem 0 1.5rem;">Redirecting to the archive...</p>
-    <a href="/archive" class="btn btn-primary">Go to Archive</a>
-  </div>
-  <script define:vars={{ date }}>
-    // Pass the date to the archive page via sessionStorage, then redirect
-    try {
-      sessionStorage.setItem('pinpoint-open-date', date);
-    } catch(e) {}
-    window.location.replace('/archive');
-  </script>
+<BaseLayout {...seo} articlePublishedTime={puzzle.date} allowAds={explanationWordCount >= 500}>
+  <article class="puzzle-page">
+    <div class="container">
+      <div style="max-width:720px; margin:0 auto;">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span class="separator" aria-hidden="true">/</span>
+          <a href="/archive">Archive</a>
+          <span class="separator" aria-hidden="true">/</span>
+          <span class="current">Puzzle #{puzzle.number}</span>
+        </nav>
+
+        <header class="puzzle-header">
+          <span class="badge badge-primary">Archive guide</span>
+          <h1>LinkedIn Pinpoint #{puzzle.number} Answer for {dateLabel}</h1>
+          <p class="puzzle-date-row"><time datetime={puzzle.date}>{dateLabel}</time></p>
+          <p>This dated guide records every clue, the spoiler-protected answer, and an explanation of the connection for puzzle #{puzzle.number}.</p>
+        </header>
+
+        <section aria-labelledby="clues-heading">
+          <h2 id="clues-heading" class="clues-heading">Puzzle #{puzzle.number} Clues</h2>
+          <ol class="clues-list">
+            {puzzle.clues.map((clue, index) => (
+              <li class="clue-item">
+                <span class="clue-number">{index + 1}</span>
+                <span class="clue-text">{clue}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <AnswerReveal client:load answer={answer} />
+
+        {puzzle.explanation ? (
+          <section class="explanation-section" aria-labelledby="explanation-heading">
+            <h2 id="explanation-heading">Why {answer} Connects the Clues</h2>
+            <div class="explanation-content" itemprop="articleBody">
+              <Fragment set:html={renderExplanation(puzzle.explanation)} />
+            </div>
+          </section>
+        ) : (
+          <section class="card mt-3" aria-labelledby="connection-summary-heading">
+            <h2 id="connection-summary-heading">Connection Summary</h2>
+            <p>The answer recorded for this puzzle is <strong>{answer}</strong>. Compare it with the five clues above to see the shared category or phrase pattern. A longer clue-by-clue explanation is not yet available for this archived entry.</p>
+          </section>
+        )}
+
+        {(puzzle.totalSolutions || 0) > 0 && (
+          <SolutionsLoader client:visible puzzleNumber={puzzle.number} initialSolutions={puzzle.solutions || []} totalSolutions={puzzle.totalSolutions || 0} />
+        )}
+
+        <aside class="card mt-3">
+          <h2>About This Guide</h2>
+          <p>Pinpoint Answer Today is an independent puzzle resource and is not affiliated with, endorsed by, or sponsored by LinkedIn or Microsoft. See our <a href="/editorial-policy">editorial policy</a> for sourcing and corrections.</p>
+        </aside>
+      </div>
+    </div>
+  </article>
 </BaseLayout>

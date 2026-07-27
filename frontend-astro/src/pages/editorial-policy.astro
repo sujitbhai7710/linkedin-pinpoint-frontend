@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { breadcrumbJsonLd, buildMeta, SITE_URL } from '../lib/seo';
+
+const seo = buildMeta({
+  title: 'Editorial Policy and Corrections',
+  description: 'How Pinpoint Answer Today sources puzzle facts, prepares explanations, labels independence, and handles corrections.',
+  canonical: `${SITE_URL}/editorial-policy`,
+  jsonLd: [breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Editorial Policy', url: `${SITE_URL}/editorial-policy` }])]
+});
+---
+<BaseLayout {...seo}>
+  <div class="content-page container">
+    <h1>Editorial Policy and Corrections</h1>
+    <p class="page-desc">Effective July 28, 2026. This page documents the standards used for daily and archived puzzle guides.</p>
+
+    <h2>Scope and Independence</h2>
+    <p>Pinpoint Answer Today is an independent reference site. It is not affiliated with, endorsed by, or sponsored by LinkedIn or Microsoft. Product and company names belong to their respective owners and are used only to identify the game discussed.</p>
+
+    <h2>Source Material</h2>
+    <p>Each dated guide identifies a puzzle by number and date and records its clues and answer. Explanatory sections add context by describing the category, phrase pattern, or association that connects those clues. We distinguish the underlying puzzle facts from our own explanatory material.</p>
+
+    <h2>Publication Standards</h2>
+    <ul>
+      <li>Dates and puzzle numbers must remain attached to the correct clue set.</li>
+      <li>The answer must be present in crawlable HTML while remaining visually spoiler-protected.</li>
+      <li>Explanations should address the clues shown on that page rather than repeat a generic description.</li>
+      <li>Unconfirmed biographical credentials, personal identities, reviews, and social profiles are not published.</li>
+      <li>Pages without a substantial explanation do not load advertising.</li>
+    </ul>
+
+    <h2>Corrections</h2>
+    <p>To report an incorrect clue, answer, date, broken link, or misleading explanation, email <a href="mailto:contact@pinpointanswertoday.online">contact@pinpointanswertoday.online</a> and include the page URL or puzzle number. Valid corrections are applied to the affected guide. Material changes update the page through the site's next deployment.</p>
+
+    <h2>Advertising Separation</h2>
+    <p>Advertising does not determine answers, explanations, rankings, or correction decisions. Ad code is excluded from contact, privacy, terms, disclaimer, and other policy pages.</p>
+  </div>
+</BaseLayout>

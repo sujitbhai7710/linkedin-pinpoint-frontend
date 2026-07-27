@@ -2,12 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Calendar from '../components/Calendar.svelte';
 import { buildMeta, breadcrumbJsonLd, SITE_URL } from '../lib/seo';
-import type { PinpointSummary, PinpointPuzzle } from '../lib/types';
+import type { PinpointSummary } from '../lib/types';
 import fs from 'fs';
 import path from 'path';
 
 let archiveSummary: PinpointSummary[] = [];
-let archiveFull: PinpointPuzzle[] = [];
 let puzzleDates: Record<string, any> = {};
 
 try {
@@ -19,11 +18,6 @@ try {
   }
 } catch (e) { /* Continue */ }
 
-try {
-  const fullPath = path.join(process.cwd(), 'public/data/archive-full.json');
-  const raw = fs.readFileSync(fullPath, 'utf-8');
-  archiveFull = JSON.parse(raw);
-} catch (e) { /* Continue */ }
 
 const seo = buildMeta({
   title: 'LinkedIn Pinpoint Archive — All Past Answers',
@@ -56,7 +50,7 @@ const seo = buildMeta({
         <p style="line-height:1.75; color:var(--text-secondary); font-size:0.92rem;">Revisit any daily puzzle from the past in our <strong>Pinpoint archive</strong>. Select a date on the calendar to view all five <strong>Pinpoint clues</strong>, the category answer, a full explanation of how the clues connect, and every valid alternative <strong>Pinpoint answer</strong> the game accepts.</p>
       </div>
 
-      <Calendar client:load puzzleDates={puzzleDates} archiveSummary={archiveSummary} archiveFull={archiveFull} />
+      <Calendar client:load puzzleDates={puzzleDates} archiveSummary={archiveSummary} />
     </div>
   </section>
 </BaseLayout>

@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "build": "node scripts/fetch-data.js && astro build",
     "build-only": "astro build",
+    "validate:seo": "node scripts/validate-seo-build.js",
     "preview": "astro preview",
     "fetch-data": "node scripts/fetch-data.js"
   },
@@ -14,5 +15,8 @@
     "astro": "^6.0.0",
     "marked": "^12.0.0",
     "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2"
   }
 }

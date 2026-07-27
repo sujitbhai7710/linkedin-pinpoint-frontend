@@ -66,18 +66,16 @@
     </ul>
   </section>
 
-  <!-- REVEAL ANSWER BUTTON -->
   <div class="answer-reveal-wrapper">
+    <div class="answer-card archive-spoiler" class:revealed={answerRevealed} aria-live="polite">
+      <p class="answer-label">Answer</p>
+      <p class="answer-word">{puzzle.answer}</p>
+    </div>
     {#if !answerRevealed}
-      <button class="answer-reveal-btn" onclick={() => answerRevealed = true}>
+      <button class="answer-reveal-btn" onclick={() => answerRevealed = true} aria-label={`Reveal answer for puzzle ${puzzle.number}`}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        <div>Reveal Answer</div>
+        <span>Reveal Answer</span>
       </button>
-    {:else}
-      <div class="answer-card">
-        <p class="answer-label">Answer</p>
-        <p class="answer-word">{puzzle.answer}</p>
-      </div>
     {/if}
   </div>
 
@@ -138,3 +136,7 @@
     </section>
   {/if}
 </article>
+
+<style>
+  .archive-spoiler:not(.revealed) .answer-word { filter: blur(9px); user-select: none; }
+</style>

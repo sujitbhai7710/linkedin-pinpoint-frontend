@@ -16,7 +16,7 @@ import puppeteer from '@cloudflare/puppeteer';
 // NVIDIA_API_KEY should be set via `npx wrangler secret put NVIDIA_API_KEY`
 const NVIDIA_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const NVIDIA_MODEL = 'qwen/qwen3.5-122b-a10b';
-const MIN_EXPLANATION_WORDS = 1800;
+const MIN_EXPLANATION_WORDS = 900;
 
 // Allowed Origins for Protected Endpoints
 const ALLOWED_ORIGINS = [
@@ -930,18 +930,18 @@ async function generateExplanation(clues, answer, env) {
 
   const prompt = `You are writing the main explanation article for today's LinkedIn Pinpoint puzzle.
 
-CRITICAL LENGTH RULES:
-- Absolute minimum: 1800 words.
-- Ideal target: 2200 to 3000 words.
-- If your draft is under 1800 words, continue expanding with useful detail until it clears the minimum.
-- Do not pad with fluff. Add real context, clear explanation, memorable examples, and practical strategy.
+LENGTH AND VALUE RULES:
+- Absolute minimum: 900 words.
+- Ideal target: 1100 to 1600 words.
+- Add only context that helps explain this specific clue set or teaches a reusable solving method.
+- Do not pad, repeat the answer, or create generic sections merely to reach a length target.
 
-WRITING STYLE:
-- Sound like a smart human puzzle fan, not a bot.
+WRITING STYLE AND INTEGRITY:
 - Use natural everyday English, varied sentence lengths, and clean transitions.
-- Be warm, specific, confident, and easy to read.
-- Avoid robotic filler, generic AI phrasing, and repeated wording.
-- Do not mention AI, prompts, tokens, or word counts.
+- Be warm, specific, careful, and easy to read.
+- Do not claim first-person experience, personal testing, human review, credentials, interviews, or sources that were not supplied.
+- Do not invent a solving history, reader statistics, publication process, or certainty about facts not established by the clues.
+- Do not discuss the production process, prompts, tokens, or word counts.
 - Do not use horizontal rules (*** or ---).
 
 SEO AND READABILITY RULES:
@@ -955,31 +955,31 @@ ${clues.map((clue, i) => `${i + 1}. ${clue}`).join('\n')}
 Answer: ${answer}
 
 ## Deep Clue Analysis
-For each clue, provide an in-depth explanation that goes beyond the basic meaning. Include background, cultural context, why the word or phrase is familiar, and exactly how it connects to the final answer. Each clue analysis must be at least 140 to 180 words.
+For each clue, explain its plain meaning and exactly how it connects to the final answer. Add background only when it is well established and directly useful. Each clue analysis should usually be 90 to 140 words.
 ${clues.map((clue, i) => `### ${clue}
 **The Meaning of the Clue**: [Explain what "${clue}" means in plain English, add helpful context, mention why readers would know it, and tie it clearly back to the answer. Do not stop at a dictionary definition. Tell the story behind it in a conversational way.]`).join('\n\n')}
 
-## How we solved it based on the clues
-This should be the longest section of the article, at least 700 words. Write it like a real solving journey from clue one to clue five. Describe your first instinct, the wrong paths that looked tempting, the turning point, and the exact "aha" moment when the answer clicked. Walk through each clue in order and show how the logic tightened. Use multiple smaller paragraphs, not one giant block.
+## A reasoning path through the clues
+Walk through the clues in order and explain how a player could narrow the possibilities. Discuss plausible interpretations as possibilities, not as personal experiences. Identify which clue most strongly resolves ambiguity and why. Use multiple short paragraphs.
 
 ## Why the answer fits all the clues together
-Write 180 to 250 words that clearly explain the shared thread. This section should help a reader understand why the answer is not just correct, but the best possible category or phrase for the full clue set.
+Write 150 to 220 words that clearly explain the shared thread and any limits or ambiguity visible in the clue set.
 
 ## Tips and strategies you can reuse
-Provide 5 detailed tips that a reader can apply in future Pinpoint puzzles. Each tip should be at least 90 words and should include both the strategy and a concrete example from this puzzle. Format as:
+Provide 3 to 5 practical tips that a reader can apply in future puzzles. Each tip should include a concrete example from this clue set.
 **Tip [N]: [Short Title]** - [Detailed explanation with example]
 
 ## Frequently Asked Questions
-Provide 6 high-quality, in-depth FAQs based on this puzzle topic or gameplay. Each answer should be at least 90 words. Do not give short one-line answers. Format exactly as:
+Provide 3 to 5 useful FAQs based on this puzzle topic or gameplay. Answer directly and avoid repeating earlier sections.
 **Q: [In-depth Question related to the puzzle topic or gameplay]**
 **A: [Comprehensive, detailed answer that provides real value]**
 
 Final quality check before finishing:
-- Is the full article above 1800 words?
-- Does every clue have a real explanation, not filler?
-- Does the solving section feel human and specific?
+- Is the full article above 900 words?
+- Does every clue have a specific explanation grounded in the supplied puzzle?
+- Are all claims supportable without invented personal experience or credentials?
 - Are the tips practical and reusable?
-- Are the FAQs substantial?
+- Do the FAQs add information rather than repeat it?
 If any answer is no, continue writing until everything is complete.`;
 
   const requestBody = {
@@ -987,7 +987,7 @@ If any answer is no, continue writing until everything is complete.`;
     messages: [
       {
         role: 'system',
-        content: 'You are a world-class educational analyst and SEO content writer specializing in word games and puzzles. Write like a real human expert who actually solved the puzzle. Use simple, everyday language, but keep the analysis sharp and specific. Sound warm, conversational, and confident. Avoid robotic phrasing, repeated sentence patterns, and keyword stuffing. Naturally reference LinkedIn Pinpoint, clue meanings, answer logic, and solving strategy where helpful. Every response must be a substantial long-form article, not a short summary.'
+        content: 'Write a careful, evidence-bound educational explanation of the supplied word puzzle. Use simple language and keep the analysis specific to the clues. Do not invent first-person experience, credentials, human review, sources, statistics, or facts that cannot be supported by the supplied puzzle. Avoid repeated patterns and keyword stuffing. Prefer accuracy, clear reasoning, and useful context over length.'
       },
       {
         role: 'user',

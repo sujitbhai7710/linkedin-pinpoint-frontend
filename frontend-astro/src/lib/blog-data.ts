@@ -17,7 +17,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'How to Solve LinkedIn Pinpoint Puzzles Faster — From 3.8 Clues to 2.1',
                 description: 'Practical strategies from hundreds of played Pinpoint puzzles. Learn pattern recognition, clue interpretation, and guessing tactics that help you solve with fewer clues.',
                 date: '2026-05-17',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Strategy',
                 tags: ['linkedin pinpoint strategy', 'puzzle solving tips', 'word game strategy', 'pinpoint hints'],
                 readTime: '8 min read',
@@ -122,7 +122,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'LinkedIn Pinpoint vs Other Word Games — What Makes It Different',
                 description: 'How LinkedIn Pinpoint stacks up against Wordle, Connections, Spelling Bee, and other daily puzzle games. What makes it different and who it appeals to.',
                 date: '2026-05-10',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Explanations',
                 tags: ['linkedin pinpoint vs wordle', 'word puzzle comparison', 'linkedin games', 'daily puzzle games'],
                 readTime: '9 min read',
@@ -219,7 +219,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'LinkedIn Pinpoint Clue Types and Patterns — What to Look For',
                 description: 'Break down every common clue pattern in LinkedIn Pinpoint — from geography and professions to abstract concepts. Spot each type and solve faster.',
                 date: '2026-05-03',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['pinpoint clue types', 'clue patterns', 'word association', 'category recognition'],
                 readTime: '10 min read',
@@ -346,7 +346,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'Why LinkedIn Launched Pinpoint — The Story Behind the Game',
                 description: "The history of LinkedIn's games section, why they added Pinpoint, and how it fits into their platform strategy. From Queens to Pinpoint — the full timeline.",
                 date: '2026-04-26',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Explanations',
                 tags: ['linkedin pinpoint history', 'linkedin games', 'word game origin', 'linkedin queenbee'],
                 readTime: '7 min read',
@@ -439,7 +439,7 @@ export const blogPosts: BlogPost[] = [
                 title: '5 Common Mistakes Everyone Makes in LinkedIn Pinpoint (And How to Fix Them)',
                 description: 'The specific errors that cost you clues in every Pinpoint puzzle — from guessing too early to ignoring clue context. Fixes for each one.',
                 date: '2026-04-22',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['pinpoint mistakes', 'common errors', 'puzzle tips', 'improve pinpoint score'],
                 readTime: '8 min read',
@@ -532,7 +532,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'How to Build a Daily Puzzle Habit — What Actually Works',
                 description: "How to make LinkedIn Pinpoint (or any daily puzzle) a consistent part of your routine. From habit stacking to progress tracking — what works and what doesn't.",
                 date: '2026-04-18',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Strategy',
                 tags: ['daily puzzle habit', 'word game routine', 'brain training', 'puzzle practice'],
                 readTime: '7 min read',
@@ -643,7 +643,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'How LinkedIn Pinpoint Scoring Actually Works (And How to Game It)',
                 description: 'A complete breakdown of LinkedIn Pinpoint scoring — fewer clues means better results, specificity matters, and correct answers are not all equal. Strategies to optimize every guess.',
                 date: '2026-04-28',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['pinpoint scoring', 'puzzle score optimization', 'linkedin game tips', 'fewer clues strategy'],
                 readTime: '9 min read',
@@ -757,7 +757,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'The Hardest LinkedIn Pinpoint Puzzles We Have Ever Seen — And What Makes Them Brutal',
                 description: 'An analysis of the most difficult Pinpoint puzzles from the archive — cross-domain traps, obscure categories, and ambiguous clues that stump everyone. Strategies for when you encounter them.',
                 date: '2026-05-04',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['hardest pinpoint puzzles', 'difficult word puzzles', 'puzzle solving strategies', 'linkedin game challenges'],
                 readTime: '10 min read',
@@ -856,7 +856,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'How to Build the General Knowledge Base That Makes Pinpoint Puzzles Easy',
                 description: 'The specific knowledge areas that come up most in LinkedIn Pinpoint, how to study them efficiently, and resources for expanding your category knowledge to solve with fewer clues.',
                 date: '2026-05-10',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['general knowledge for puzzles', 'pinpoint categories', 'trivia knowledge base', 'word game preparation'],
                 readTime: '9 min read',
@@ -978,7 +978,7 @@ export const blogPosts: BlogPost[] = [
                 title: "The Hidden Strategy Behind Pinpoint's Clue Order — And How to Exploit It",
                 description: "How LinkedIn Pinpoint orders its clues from easier to harder, what the 5th clue usually reveals, and how to use clue progression patterns to narrow your answer faster than other players.",
                 date: '2026-05-16',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['pinpoint clue strategy', 'clue order patterns', 'puzzle optimization', 'linkedin game mechanics'],
                 readTime: '8 min read',
@@ -1070,7 +1070,7 @@ export const blogPosts: BlogPost[] = [
                 title: '7 Quick Wins That Instantly Improve Your LinkedIn Pinpoint Score',
                 description: 'Seven simple, actionable tips that take 5 minutes to implement but make a noticeable difference in your Pinpoint performance. Things you can do right now.',
                 date: '2026-05-21',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['pinpoint quick tips', 'improve puzzle score', 'word game tricks', 'linkedin game hacks'],
                 readTime: '8 min read',
@@ -1199,7 +1199,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'How to Maintain a Long Pinpoint Streak — Strategies That Actually Work',
                 description: 'Practical strategies for maintaining your LinkedIn Pinpoint streak without missing a day. From habit stacking to backup routines, here is what keeps a streak alive.',
                 date: '2026-05-22',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Strategy',
                 tags: ['pinpoint streak', 'daily puzzle habit', 'linkedin games streak', 'word game consistency'],
                 readTime: '8 min read',
@@ -1275,65 +1275,46 @@ export const blogPosts: BlogPost[] = [
         },
         {
                 slug: 'pinpoint-answer-verification',
-                title: 'How We Verify Every LinkedIn Pinpoint Answer Before Publishing',
-                description: 'Our step-by-step process for verifying Pinpoint answers, from playing the puzzle ourselves to cross-checking all accepted solutions. Why accuracy matters and how we catch errors.',
+                title: 'How Pinpoint Answer Today Publishes and Corrects Puzzle Guides',
+                description: 'A clear look at how dated puzzle facts, clue explanations, stable archive pages, and reader corrections fit together.',
                 date: '2026-05-19',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Explanations',
-                tags: ['pinpoint answer verification', 'accurate puzzle answers', 'how we verify', 'pinpoint solutions accuracy'],
-                readTime: '7 min read',
+                tags: ['pinpoint answer corrections', 'puzzle publishing standards', 'pinpoint archive', 'answer guide accuracy'],
+                readTime: '5 min read',
                 content: `
-<h1>How We Verify Every LinkedIn Pinpoint Answer Before Publishing</h1>
-<p>When you look up a Pinpoint answer, you expect it to be correct. Every single time. We take that expectation seriously. This is not a site where answers are scraped by bots and published without review. Every answer on our site goes through a multi-step verification process before it goes live. Here is exactly how we do it, why it matters, and what happens when we get it wrong (because occasionally, we do).</p>
+<h1>How Pinpoint Answer Today Publishes and Corrects Puzzle Guides</h1>
+<p>A useful answer guide needs more than a solution word. It should identify the exact puzzle, preserve the clues, explain their shared connection, and offer a clear way to report a mistake. This article describes the standards visible on our published pages without claiming an error rate, review team, or process that readers cannot verify.</p>
 
-<h2>Step 1: We Play the Puzzle Ourselves</h2>
-<p>Every morning, at least two members of our team play the daily Pinpoint puzzle independently. We solve it the same way you do — reading clues, guessing categories, and noting how many clues it took. If our answers match, great. If they do not, we investigate. This first step catches the most obvious errors: typos in the answer field, misidentified categories, and cases where we accidentally grabbed the wrong puzzle number from the API.</p>
-<p>Playing the puzzle ourselves also gives us context for the explanation. We know what it feels like to see the clues fresh, which clues were most misleading, and where a solver is likely to get stuck. That empathy shows up in our explanations — they are written from the perspective of someone who actually played the puzzle, not someone who just looked up the answer.</p>
+<h2>Keep Puzzle Facts Attached to a Date and Number</h2>
+<p>Each entry stores the puzzle number, publication date, clue set, and answer together. That association matters because a correct answer attached to the wrong date is still misleading. The same fields appear in the page title, heading, metadata, and dated archive URL so readers and search engines can identify the guide consistently.</p>
 
-<h3>Why Two Players, Not One</h3>
-<p>A single player can make mistakes. You might misread "bass" as the fish when the answer is about music. Two players independently reduces this risk dramatically. When both of us arrive at the same answer through different reasoning paths, the confidence level is very high. When we disagree, we bring in a third person as a tiebreaker.</p>
+<h2>Show the Evidence on the Page</h2>
+<p>The five clues appear in server-rendered HTML rather than only inside an interactive widget. The answer is also present in the page markup, although it is blurred until a visitor chooses to reveal it. This lets readers compare the answer with the supplied clues while preserving spoiler protection.</p>
+<p>The explanation should focus on that exact clue set. Each clue needs a direct connection to the answer, and uncertain interpretations should be described as possibilities rather than facts. Generic strategy material cannot substitute for explaining the puzzle in front of the reader.</p>
 
-<h2>Step 2: We Cross-Check Against the Official Game</h2>
-<p>After solving, we verify our answer against the official LinkedIn Pinpoint game. This means actually opening LinkedIn, navigating to the puzzle, and confirming that the answer the game accepts matches what we plan to publish. This step catches cases where our answer is technically correct but not in the game\'s accepted solution list.</p>
-<p>LinkedIn Pinpoint has a specific set of accepted answers for each puzzle, and sometimes a perfectly valid synonym is not on that list. If we write "dog breeds" and the game only accepts "breeds of dog," our answer is wrong in the game\'s context even though it is semantically correct. Cross-checking against the official game eliminates this type of error.</p>
+<h2>Separate Large Supporting Lists</h2>
+<p>Some entries include a large list of accepted answer variants. Those lists are loaded separately instead of being embedded in every article. This keeps the main guide readable and prevents one archive page from becoming several megabytes of repeated data.</p>
 
-<h2>Step 3: We Pull the Full Solution List</h2>
-<p>Through our API integration, we retrieve the complete list of accepted solutions for each puzzle. Some puzzles have 50 accepted answers; others have over 3,000. We review the top 10-20 solutions to understand the range of what the game considers correct. This step is crucial for our <a href="/today">daily answer page</a>, where we list the most common alternatives.</p>
-<p>Understanding the full solution list also helps us write better explanations. If the accepted answers include "citrus fruits," "oranges and lemons," and "vitamin C sources," we know the category is broader than a simple label. Our explanation then covers why multiple framings are valid.</p>
+<h2>Use Stable Archive Pages</h2>
+<p>Historical puzzles have permanent dated URLs with their own title, canonical URL, clues, answer, and explanation. The <a href="/archive">archive</a> links to recent guides, and the sitemap lists every dated guide that has an answer. Stable pages make corrections more precise because a report can point to one puzzle rather than a temporary calendar state.</p>
 
-<h3>How We Handle Ambiguous Answers</h3>
-<p>Some puzzles have genuinely ambiguous answers. Puzzle #382 had clues "Mercury," "Venus," "Mars," "Jupiter," and "Saturn." The answer could be "planets" or "Roman gods" — both fit perfectly. The official answer was "planets," but "Roman gods" was also in the accepted solution list. We note these ambiguities in our explanations so you understand the full picture, not just the primary answer.</p>
-
-<h2>Step 4: We Generate and Review the Explanation</h2>
-<p>Our explanations are generated with AI assistance and then reviewed by a human editor. The AI produces a detailed clue-by-clue breakdown, but a human checks it for accuracy, tone, and relevance. We specifically look for factual errors, over-claims, and sections that feel robotic or generic. If the explanation for clue "Oregano" talks about its use in Italian cooking but the puzzle is about "things that are green," we rewrite it to focus on the green aspect.</p>
-<p>The review process takes 5-10 minutes per puzzle. It is the most time-consuming step, but it is also what separates us from answer sites that just dump the answer word and move on. A good explanation teaches you something. A bad one wastes your time.</p>
-
-<h2>Step 5: We Publish and Monitor</h2>
-<p>Once verified, the answer goes live on our site. But verification does not stop at publication. We monitor user feedback, comments, and email for reported errors. When someone tells us we got something wrong, we investigate immediately. In the past six months, we have received 23 error reports. Of those, 4 were actual errors that we corrected within an hour. The rest were cases where the user had a different interpretation that was also valid — we added those as notes in the explanation.</p>
-
-<h3>Our Error Rate</h3>
-<p>Since launch, our verified error rate is under 0.5%. That means fewer than 1 in 200 published answers contained a factual mistake. When errors do occur, they are typically minor — a missing alternative answer or a slightly off explanation — not a completely wrong primary answer. We are proud of this record, and we work to maintain it every day.</p>
-
-<h2>Why Verification Matters</h2>
-<p>You might wonder why we go to all this trouble for a word game. The answer is trust. If you look up a Pinpoint answer and it is wrong, you lose confidence in the entire site. One bad answer makes you question every answer. We would rather publish 10 minutes later and be right than publish instantly and risk being wrong. The <a href="/archive">full archive</a> of verified answers is our most valuable asset, and we protect it accordingly.</p>
-<p>If you ever spot an error, email us or use the contact form on our <a href="/about">about page</a>. We take every report seriously and usually respond within an hour during business hours.</p>
+<h2>Provide a Public Correction Channel</h2>
+<p>If you find a wrong clue, date, answer, broken link, or misleading explanation, email <a href="mailto:contact@pinpointanswertoday.online">contact@pinpointanswertoday.online</a> and include the page URL or puzzle number. A valid correction is applied to the affected guide through the next site deployment.</p>
+<p>We do not publish an unsupported accuracy percentage or promise an exact response time. The standards and correction process are maintained on the <a href="/editorial-policy">editorial policy</a> page, while the <a href="/disclaimer">disclaimer</a> explains the site's independence from LinkedIn and Microsoft.</p>
 `,
                 faqs: [
                         {
-                                question: 'How accurate are the answers on this site?',
-                                answer: 'Our verified error rate is under 0.5%. Every answer goes through a multi-step verification process: two team members solve independently, we cross-check against the official game, we review the full solution list, and a human editor reviews the AI-generated explanation. Errors are corrected within an hour of being reported.'
+                                question: 'How can I report an incorrect puzzle guide?',
+                                answer: 'Email contact@pinpointanswertoday.online and include the dated page URL or puzzle number, along with the clue, answer, or explanation you believe needs correction.'
                         },
                         {
-                                question: 'What happens when you get a Pinpoint answer wrong?',
-                                answer: 'We investigate immediately and correct it within an hour. We also add a note explaining what changed. In the past six months, we have corrected 4 errors out of 23 user reports. The rest were valid alternative interpretations that we added as notes.'
+                                question: 'Why is the answer present in the page source?',
+                                answer: 'The answer is rendered in HTML for accessibility and crawlability but blurred visually until the reveal control is used. Visitors who want to avoid spoilers should not inspect the page source.'
                         },
                         {
-                                question: 'Do you use AI to generate Pinpoint answers?',
-                                answer: 'We use AI to generate the detailed explanations, but every explanation is reviewed and edited by a human before publication. The primary answer itself is verified by playing the actual game and cross-checking against official data. AI assists but does not replace human verification.'
-                        },
-                        {
-                                question: 'How many alternative solutions does each Pinpoint puzzle have?',
-                                answer: 'It varies widely. Some puzzles have as few as 50 accepted solutions, while others have over 3,000. We list the most common alternatives on each answer page and provide the full count. You can browse all solutions on our archive pages.'
+                                question: 'Where can I read the full publishing standards?',
+                                answer: 'The editorial policy page documents sourcing, page standards, correction handling, and the separation between editorial content and advertising.'
                         }
                 ]
         },
@@ -1342,7 +1323,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'Complete Guide to All LinkedIn Games: Queens, Pinpoint, Crossclimb, and Tango',
                 description: 'Everything you need to know about all four LinkedIn games — Queens, Pinpoint, Crossclimb, and Tango. How each works, which one suits you, and how to get started.',
                 date: '2026-04-14',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Explanations',
                 tags: ['linkedin games guide', 'linkedin queens', 'linkedin crossclimb', 'linkedin tango', 'linkedin pinpoint'],
                 readTime: '9 min read',
@@ -1426,7 +1407,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'Pinpoint vs Queens: Which LinkedIn Game Should You Play?',
                 description: 'A detailed comparison of LinkedIn Pinpoint and LinkedIn Queens — mechanics, skills tested, difficulty, and which one suits different types of puzzle solvers.',
                 date: '2026-04-15',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Analysis',
                 tags: ['pinpoint vs queens', 'linkedin games comparison', 'word games vs logic games', 'linkedin puzzle comparison'],
                 readTime: '8 min read',
@@ -1510,7 +1491,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'The History of Word Association Games: From Party Games to LinkedIn Pinpoint',
                 description: 'How word association games evolved from Victorian parlor games through psychology research, board games, and digital apps to become LinkedIn Pinpoint.',
                 date: '2026-04-20',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Explanations',
                 tags: ['word association games history', 'word game evolution', 'linkedin pinpoint origin', 'word association psychology'],
                 readTime: '8 min read',
@@ -1585,7 +1566,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'How Pinpoint Unlimited Practice Makes You Better at the Daily Puzzle',
                 description: 'Why unlimited practice mode is the fastest way to improve at LinkedIn Pinpoint. How volume, repetition, and deliberate practice transform your category recognition skills.',
                 date: '2026-04-25',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Strategy',
                 tags: ['pinpoint unlimited practice', 'pinpoint practice mode', 'improve pinpoint skills', 'daily puzzle practice'],
                 readTime: '8 min read',
@@ -1660,7 +1641,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'LinkedIn Pinpoint for Complete Beginners: Start Here',
                 description: 'Never played LinkedIn Pinpoint? This beginner-friendly guide walks you through every aspect of the game from your first puzzle to consistent daily play.',
                 date: '2026-04-27',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['linkedin pinpoint beginners', 'how to start pinpoint', 'pinpoint guide for new players', 'first time playing pinpoint'],
                 readTime: '9 min read',
@@ -1759,7 +1740,7 @@ export const blogPosts: BlogPost[] = [
                 title: '7 Sneaky Clue Tricks LinkedIn Pinpoint Uses to Confuse You',
                 description: 'The clever techniques Pinpoint puzzle designers use to make clues harder — from cross-domain traps to ambiguity tricks. Learn to spot them and fight back.',
                 date: '2026-04-29',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['pinpoint clue tricks', 'pinpoint difficulty', 'clue ambiguity', 'word puzzle tricks'],
                 readTime: '8 min read',
@@ -1837,7 +1818,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'Does Playing LinkedIn Pinpoint Actually Improve Your Brain? What Science Says',
                 description: 'A science-backed look at whether daily word association games like LinkedIn Pinpoint actually improve cognitive function, memory, and vocabulary.',
                 date: '2026-05-01',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Analysis',
                 tags: ['pinpoint brain training', 'word games cognitive benefits', 'puzzle games and brain health', 'cognitive training science'],
                 readTime: '10 min read',
@@ -1904,7 +1885,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'LinkedIn Pinpoint Update History: Every Change Since Launch',
                 description: 'A complete timeline of every LinkedIn Pinpoint update, from the February 2025 launch through all feature additions, UI changes, and category adjustments.',
                 date: '2026-05-06',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Explanations',
                 tags: ['linkedin pinpoint updates', 'pinpoint update history', 'pinpoint changelog', 'linkedin game updates'],
                 readTime: '7 min read',
@@ -1992,7 +1973,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'How to Play LinkedIn Pinpoint With Friends: Group Strategies and Competitions',
                 description: 'Turn LinkedIn Pinpoint into a social activity with friends and coworkers. Group strategies, competition formats, and ways to make the daily puzzle more fun together.',
                 date: '2026-05-08',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Strategy',
                 tags: ['pinpoint with friends', 'pinpoint group play', 'puzzle competitions', 'linkedin games social'],
                 readTime: '8 min read',
@@ -2076,7 +2057,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'Why Pinpoint Accepts Multiple Answers (And How to Find Them All)',
                 description: 'LinkedIn Pinpoint often accepts several different phrasings for the same category. Here is why that happens and how to use alternative answers to your advantage.',
                 date: '2026-05-11',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['pinpoint alternative answers', 'pinpoint accepted answers', 'multiple category answers', 'pinpoint answer variations'],
                 readTime: '8 min read',
@@ -2166,7 +2147,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'The 10 Best Daily Puzzle Apps in 2026 (And Where Pinpoint Ranks)',
                 description: 'A ranked comparison of the top 10 daily puzzle apps in 2026, including LinkedIn Pinpoint, NYT Games, and more. Features, pricing, and honest assessments.',
                 date: '2026-05-13',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Analysis',
                 tags: ['best puzzle apps 2026', 'daily puzzle games', 'puzzle app comparison', 'linkedin pinpoint ranking'],
                 readTime: '9 min read',
@@ -2249,7 +2230,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'Are LinkedIn Pinpoint Puzzles Getting Harder? A Data Analysis',
                 description: 'I analyzed 400+ LinkedIn Pinpoint puzzles to find out if difficulty is trending upward. The data reveals surprising patterns about category complexity and clue design.',
                 date: '2026-05-15',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Analysis',
                 tags: ['pinpoint difficulty trends', 'pinpoint data analysis', 'linkedin puzzle difficulty', 'pinpoint statistics'],
                 readTime: '10 min read',
@@ -2328,7 +2309,7 @@ export const blogPosts: BlogPost[] = [
                 title: 'LinkedIn Pinpoint Etiquette: How to Share Your Score Without Being Annoying',
                 description: 'The unwritten rules of sharing your LinkedIn Pinpoint results professionally. How to celebrate good scores, respond to others, and avoid being that person.',
                 date: '2026-05-20',
-                author: 'Pinpoint Answer Today Editorial Team',
+                author: 'Pinpoint Answer Today',
                 category: 'Tips',
                 tags: ['linkedin pinpoint etiquette', 'sharing puzzle scores', 'professional social sharing', 'linkedin games etiquette'],
                 readTime: '7 min read',

@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { breadcrumbJsonLd, buildMeta, SITE_URL } from '../lib/seo';
+const seo = buildMeta({ title: 'Independence and Trademark Disclaimer', description: 'Independence, trademark, spoiler, and accuracy disclaimer for Pinpoint Answer Today.', canonical: `${SITE_URL}/disclaimer`, jsonLd: [breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Disclaimer', url: `${SITE_URL}/disclaimer` }])] });
+---
+<BaseLayout {...seo}>
+  <div class="content-page container">
+    <h1>Independence and Trademark Disclaimer</h1>
+    <p class="page-desc">Last updated July 28, 2026.</p>
+    <h2>Independent Resource</h2>
+    <p>Pinpoint Answer Today is an independent fan-created reference site. It is not affiliated with, endorsed by, sponsored by, or operated by LinkedIn or Microsoft.</p>
+    <h2>Trademarks</h2>
+    <p>LinkedIn, Microsoft, Pinpoint, and related names or marks are property of their respective owners. References are descriptive and identify the game covered by each guide. The site does not use an official LinkedIn logo or claim official status.</p>
+    <h2>Spoilers and Accuracy</h2>
+    <p>Pages contain puzzle answers and spoilers. Reveal controls obscure answers visually, but answers remain in page markup for accessibility and crawlability. Although we maintain a correction process, no guarantee is made that every entry is error-free.</p>
+    <h2>Contact</h2>
+    <p>Rights holders and readers may report concerns at <a href="mailto:contact@pinpointanswertoday.online">contact@pinpointanswertoday.online</a>.</p>
+  </div>
+</BaseLayout>

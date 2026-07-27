@@ -6,7 +6,6 @@ const DEFAULT_URLS = [
 ];
 
 const GOOGLE_SCOPES = [
-  'https://www.googleapis.com/auth/indexing',
   'https://www.googleapis.com/auth/webmasters'
 ];
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -244,25 +243,12 @@ async function submitSitemap(accessToken, siteUrl, sitemapUrl) {
 
 async function main() {
   const credentials = parseCredentials();
-  const urls = parseUrls();
   const sitemaps = parseSitemaps();
   const searchConsoleSiteUrl = parseSearchConsoleSiteUrl();
-
-  console.log(`Submitting Google indexing notifications for ${urls.length} URL(s)...`);
 
   const accessToken = await getAccessToken(credentials);
   const failures = [];
 
-  for (const url of urls) {
-    try {
-      const notifyTime = await publishNotification(accessToken, url);
-      const suffix = notifyTime ? ` (notifyTime: ${notifyTime})` : '';
-      console.log(`Submitted indexing request for ${url}${suffix}`);
-    } catch (error) {
-      failures.push({ url, error });
-      console.error(`Failed indexing request for ${url}: ${error.message}`);
-    }
-  }
 
   console.log(`Submitting ${sitemaps.length} sitemap(s) to Search Console for ${searchConsoleSiteUrl}...`);
 
@@ -277,10 +263,10 @@ async function main() {
   }
 
   if (failures.length > 0) {
-    throw new Error(`Failed indexing request(s): ${failures.map(item => item.url).join(', ')}`);
+    throw new Error(`Failed sitemap submission(s): ${failures.map(item => item.url).join(', ')}`);
   }
 
-  console.log('Google indexing notifications and sitemap submission completed successfully.');
+  console.log('Google sitemap submission completed successfully.');
 }
 
 main().catch(error => {

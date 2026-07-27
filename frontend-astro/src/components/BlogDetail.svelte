@@ -124,7 +124,7 @@
         <div class="blog-author-avatar">P</div>
         <div class="blog-author-info">
           <h4>{post.author}</h4>
-          <p>We play LinkedIn Pinpoint every day, verify the answers ourselves, and write clue-by-clue explanations so you can see exactly how each puzzle works.</p>
+          <p>Independent puzzle guides, strategy articles, and clue-by-clue explanations published under the standards in our editorial policy.</p>
         </div>
       </div>
 

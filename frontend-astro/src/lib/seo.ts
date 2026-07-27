@@ -12,7 +12,13 @@ export interface SEOData {
 const SITE_NAME = 'Pinpoint Answer Today';
 const SITE_URL = 'https://pinpointanswertoday.online';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
-const TODAY_FEATURED_IMAGE = `${SITE_URL}${encodeURI('/linkedin pinpoint ANSWER TODAY.webp')}`;
+const TODAY_FEATURED_IMAGE = `${SITE_URL}/pinpoint-answer-today.webp`;
+
+export function puzzlePermalink(dateString: string): string {
+        const date = new Date(`${dateString}T00:00:00Z`);
+        const month = date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }).toLowerCase();
+        return `/linkedin-pinpoint-answer-for-${month}-${date.getUTCDate()}-${date.getUTCFullYear()}`;
+}
 
 export function buildMeta(seo: SEOData) {
         const canonical = seo.canonical || SITE_URL;
@@ -31,7 +37,6 @@ export function buildMeta(seo: SEOData) {
         return {
                 title: titleWithSite,
                 description: seo.description,
-                keywords: seo.keywords || 'LinkedIn Pinpoint, Pinpoint answers, word puzzle, daily puzzle, LinkedIn game answers, Pinpoint solution today',
                 canonical,
                 ogTitle: seo.title,
                 ogDescription: seo.description,
@@ -57,14 +62,7 @@ export function websiteJsonLd(): object {
                 url: SITE_URL,
                 description: 'Daily answers and explanations for LinkedIn Pinpoint. Updated every day with solutions, clue breakdowns, and a full puzzle archive.',
                 inLanguage: 'en-US',
-                potentialAction: {
-                        '@type': 'SearchAction',
-                        target: {
-                                '@type': 'EntryPoint',
-                                urlTemplate: `${SITE_URL}/archive`
-                        },
-                        'query-input': 'required name=search_term_string'
-                }
+
         };
 }
 
@@ -80,7 +78,6 @@ export function organizationJsonLd(): object {
                 },
                 description: 'Daily answers, explanations, and a full puzzle archive for the LinkedIn Pinpoint word game.',
                 foundingDate: '2025',
-                sameAs: [],
                 contactPoint: {
                         '@type': 'ContactPoint',
                         contactType: 'customer support',
@@ -96,54 +93,14 @@ export function organizationJsonLd(): object {
         };
 }
 
-/**
- * E-E-A-T Author schema — signals expertise in word puzzles
- */
-export function authorJsonLd(): object {
+export function organizationAuthorJsonLd(): object {
         return {
-                '@context': 'https://schema.org',
-                '@type': 'Person',
-                name: 'Pinpoint Answer Today Editorial Team',
-                jobTitle: 'Word Puzzle Analyst',
-                worksFor: {
-                        '@type': 'Organization',
-                        name: SITE_NAME,
-                        url: SITE_URL
-                },
-                knowsAbout: [
-                        'LinkedIn Pinpoint',
-                        'word association puzzles',
-                        'daily word games',
-                        'category recognition',
-                        'vocabulary building'
-                ],
-                description: 'We play LinkedIn Pinpoint every day, verify the answers ourselves, and write detailed clue-by-clue explanations.',
+                '@type': 'Organization',
+                name: SITE_NAME,
                 url: `${SITE_URL}/about`
         };
 }
 
-/**
- * E-E-A-T Reviewer schema — signals trust through review process
- */
-export function reviewerJsonLd(): object {
-        return {
-                '@context': 'https://schema.org',
-                '@type': 'Person',
-                name: 'Pinpoint Answer Today Review Board',
-                jobTitle: 'Answer Verification Specialist',
-                worksFor: {
-                        '@type': 'Organization',
-                        name: SITE_NAME,
-                        url: SITE_URL
-                },
-                knowsAbout: [
-                        'LinkedIn Pinpoint',
-                        'puzzle verification',
-                        'answer validation'
-                ],
-                description: 'Our verification team cross-checks every published answer against the official LinkedIn Pinpoint game before it goes live.',
-        };
-}
 
 export function articleJsonLd(data: {
         title: string;
@@ -162,16 +119,7 @@ export function articleJsonLd(data: {
                 url: data.url,
                 datePublished: data.datePublished,
                 dateModified: data.datePublished,
-                author: {
-                        '@type': 'Person',
-                        name: 'Pinpoint Answer Today Editorial Team',
-                        url: `${SITE_URL}/about`
-                },
-                reviewer: {
-                        '@type': 'Person',
-                        name: 'Pinpoint Answer Today Review Board',
-                        description: 'Verified against the official LinkedIn Pinpoint game'
-                },
+                author: organizationAuthorJsonLd(),
                 publisher: {
                         '@type': 'Organization',
                         name: SITE_NAME,
@@ -220,46 +168,7 @@ export function faqJsonLd(faqs: { question: string; answer: string }[]): object 
         };
 }
 
-export function newsArticleJsonLd(data: {
-        title: string;
-        description: string;
-        url: string;
-        datePublished: string;
-        answer: string;
-        number: number;
-        wordCount?: number;
-}): object {
-        return {
-                '@context': 'https://schema.org',
-                '@type': 'NewsArticle',
-                headline: data.title,
-                description: data.description,
-                url: data.url,
-                datePublished: data.datePublished,
-                dateModified: data.datePublished,
-                author: {
-                        '@type': 'Person',
-                        name: 'Pinpoint Answer Today Editorial Team',
-                        url: `${SITE_URL}/about`
-                },
-                publisher: {
-                        '@type': 'Organization',
-                        name: SITE_NAME,
-                        url: SITE_URL,
-                        logo: {
-                                '@type': 'ImageObject',
-                                url: `${SITE_URL}/favicon.png`
-                        }
-                },
-                mainEntityOfPage: {
-                        '@type': 'WebPage',
-                        '@id': data.url
-                },
-                articleSection: 'Daily Puzzle Answer',
-                wordCount: data.wordCount || 600,
-                inLanguage: 'en-US'
-        };
-}
+
 
 export function howToJsonLd(): object {
         return {
@@ -268,11 +177,7 @@ export function howToJsonLd(): object {
                 name: 'How to Solve LinkedIn Pinpoint Puzzles',
                 description: 'Step-by-step guide to solving LinkedIn Pinpoint puzzles faster and more accurately.',
                 totalTime: 'PT3M',
-                author: {
-                        '@type': 'Person',
-                        name: 'Pinpoint Answer Today Editorial Team',
-                        url: `${SITE_URL}/about`
-                },
+                author: organizationAuthorJsonLd(),
                 step: [
                         {
                                 '@type': 'HowToStep',

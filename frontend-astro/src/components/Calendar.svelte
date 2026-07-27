@@ -2,10 +2,9 @@
   import { formatDate, formatDateShort } from '../lib/api';
   import ArchivePuzzleDetail from './ArchivePuzzleDetail.svelte';
 
-  let { puzzleDates, archiveSummary, archiveFull }: {
+  let { puzzleDates, archiveSummary }: {
     puzzleDates: Record<string, any>;
     archiveSummary: any[];
-    archiveFull: any[];
   } = $props();
 
   const today = new Date();
@@ -82,27 +81,20 @@
     }
 
     try {
-      // First try full archive (has explanation, solutions)
-      const puzzle = archiveFull.find((p: any) => p.date === dateStr);
-      if (puzzle) {
-        selectedPuzzle = puzzle;
+      const summaryPuzzle = archiveSummary.find((p: any) => p.date === dateStr);
+      if (summaryPuzzle) {
+        selectedPuzzle = {
+          number: summaryPuzzle.number,
+          date: summaryPuzzle.date,
+          clues: summaryPuzzle.clues,
+          answer: summaryPuzzle.answer,
+          explanation: null,
+          solutions: [],
+          totalSolutions: 0
+        };
       } else {
-        // Fallback to archive summary (has answer & clues, no explanation)
-        const summaryPuzzle = archiveSummary.find((p: any) => p.date === dateStr);
-        if (summaryPuzzle) {
-          selectedPuzzle = {
-            number: summaryPuzzle.number,
-            date: summaryPuzzle.date,
-            clues: summaryPuzzle.clues,
-            answer: summaryPuzzle.answer,
-            explanation: null,
-            solutions: [],
-            totalSolutions: 0
-          };
-        } else {
-          selectedPuzzle = null;
-          selectedError = `No puzzle found for ${formatDate(dateStr)}`;
-        }
+        selectedPuzzle = null;
+        selectedError = `No puzzle found for ${formatDate(dateStr)}`;
       }
     } catch (e) {
       selectedPuzzle = null;
@@ -118,6 +110,12 @@
 
   function isToday(dateStr: string): boolean {
     return dateStr === today.toISOString().split('T')[0];
+  }
+
+  function puzzlePath(dateStr: string): string {
+    const date = new Date(`${dateStr}T00:00:00Z`);
+    const month = date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }).toLowerCase();
+    return `/linkedin-pinpoint-answer-for-${month}-${date.getUTCDate()}-${date.getUTCFullYear()}`;
   }
 
   import { onMount } from 'svelte';
@@ -222,10 +220,10 @@
         <h2 style="margin-bottom: 0.75rem;">Recent Puzzles</h2>
         <div class="archive-cards">
           {#each archiveSummary.slice(0, 10) as puzzle}
-            <button
+            <a
               class="archive-card"
-              onclick={() => selectDate(puzzle.date)}
-              style="cursor: pointer; border: 1px solid var(--border-light); text-align: left; width: 100%; background: white;"
+              href={puzzlePath(puzzle.date)}
+              style="border: 1px solid var(--border-light); text-align: left; width: 100%; background: white;"
             >
               <div class="archive-card-header">
                 <span class="archive-card-number">#{puzzle.number}</span>
@@ -237,9 +235,9 @@
                 {/each}
               </div>
               <div class="archive-card-link">
-                View Answer →
+                Answer: <span class="archive-answer-preview">{puzzle.answer}</span> — Read guide →
               </div>
-            </button>
+            </a>
           {/each}
         </div>
       </div>
@@ -251,14 +249,14 @@
       <h2>Recent Puzzles</h2>
       <div style="display:flex; flex-direction:column; gap:0.3rem;">
         {#each archiveSummary.slice(0, 10) as puzzle}
-          <button
+          <a
             class="btn btn-ghost btn-sm"
             style="justify-content: flex-start; text-align: left;"
-            onclick={() => selectDate(puzzle.date)}
+            href={puzzlePath(puzzle.date)}
           >
             <span class="puzzle-number" style="margin-right: 0.4rem;">#{puzzle.number}</span>
             {formatDateShort(puzzle.date)}
-          </button>
+          </a>
         {/each}
       </div>
     </div>
@@ -282,3 +280,9 @@
     </div>
   </aside>
 </div>
+
+<style>
+  .archive-answer-preview { filter: blur(5px); user-select: none; }
+  .archive-card:hover .archive-answer-preview,
+  .archive-card:focus .archive-answer-preview { filter: blur(3px); }
+</style>

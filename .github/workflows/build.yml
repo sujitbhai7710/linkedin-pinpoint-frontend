@@ -61,6 +61,9 @@ jobs:
       - name: Build static site (Astro SSG)
         run: npx astro build
 
+      - name: Validate SEO build output
+        run: npm run validate:seo
+
       - name: Verify build output
         run: |
           echo "Build output:"
@@ -84,7 +87,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Notify Google Indexing API
+      - name: Submit sitemap to Google Search Console
         if: ${{ success() }}
         continue-on-error: true
         run: |
@@ -98,9 +101,7 @@ jobs:
           GOOGLE_SEARCH_CONSOLE_SITE_URL: sc-domain:pinpointanswertoday.online
           GOOGLE_SITEMAP_URLS: |
             https://pinpointanswertoday.online/sitemap.xml
-          GOOGLE_INDEXING_URLS: |
-            https://pinpointanswertoday.online/
-            https://pinpointanswertoday.online/today/
+
 
       - name: Submit URLs to Bing IndexNow
         if: ${{ success() }}
@@ -112,3 +113,4 @@ jobs:
           INDEXNOW_URLS: |
             https://pinpointanswertoday.online/
             https://pinpointanswertoday.online/today/
+          PUZZLE_DATE: ${{ inputs.puzzle_date }}

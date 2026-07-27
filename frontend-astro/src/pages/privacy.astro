@@ -4,11 +4,10 @@ import { buildMeta, breadcrumbJsonLd, SITE_URL } from '../lib/seo';
 
 const seo = buildMeta({
   title: 'Privacy Policy — Pinpoint Answer Today',
-  description: "Privacy policy for Pinpoint Answer Today. We collect minimal data, use no tracking cookies, and don't sell your information.",
+  description: 'Privacy policy for Pinpoint Answer Today, including hosting, analytics, advertising, cookies, retention, and privacy rights.',
   keywords: 'privacy policy, Pinpoint Answer Today privacy, data collection, LinkedIn Pinpoint site privacy',
   canonical: `${SITE_URL}/privacy`,
   ogType: 'website',
-  noindex: true,
   jsonLd: [
     breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Privacy Policy', url: `${SITE_URL}/privacy` }])
   ]
@@ -25,33 +24,26 @@ const seo = buildMeta({
 
   <div class="content-page container">
     <h1>Privacy Policy</h1>
-    <p class="page-desc">Last updated: May 2026. We keep this short because privacy policies shouldn't need a law degree to understand.</p>
+    <p class="page-desc">Last updated: July 28, 2026. This policy explains the data processed when you use this site.</p>
 
     <h2>What Data We Collect</h2>
-    <p>Honestly, not much. We don't have user accounts. We don't ask you to sign up. We don't track you across the internet. Here's what we do collect:</p>
+    <p>We do not offer user accounts or request registration. The following information may still be processed when you visit or contact us:</p>
     <ul>
       <li><strong>Server logs</strong> — Like every website, our hosting provider (Cloudflare) logs basic request data: IP address, browser type, page URL, and timestamp.</li>
-      <li><strong>Contact form submissions</strong> — If you use our contact email, we store the name, email, and message you provide.</li>
+      <li><strong>Email messages</strong> — If you contact us, the email address, message, and other information you choose to provide are processed so we can respond.</li>
+      <li><strong>Analytics data</strong> — Google Analytics may process device, browser, approximate location, referral, and site-usage information.</li>
+      <li><strong>Advertising data</strong> — On eligible content pages, Google AdSense may use cookies or similar technologies to deliver, measure, and protect advertising.</li>
     </ul>
-    <p>That's it. No cookies for tracking. No analytics beyond basic server logs. No ad pixels.</p>
-
-    <h2>What We Don't Do</h2>
-    <ul>
-      <li>Sell or share your personal data with anyone</li>
-      <li>Use tracking cookies or third-party analytics (no Google Analytics, no Facebook Pixel)</li>
-      <li>Build advertising profiles or audience segments</li>
-      <li>Send you emails unless you explicitly contact us first</li>
-      <li>Share data with data brokers, ad networks, or social media platforms</li>
-    </ul>
+    <p>We do not directly sell personal information, require an account, or send marketing email. Google and Cloudflare process data under their own terms and privacy policies.</p>
 
     <h2>Cookies</h2>
-    <p>We use minimal cookies required for the site to function properly (session management, CSRF protection). We don't use tracking cookies, advertising cookies, or any third-party cookies.</p>
+    <p>The site itself does not use account or session cookies. Google Analytics and, on pages where advertising is enabled, Google AdSense may set or read cookies and similar identifiers. You can manage cookies through your browser and review Google's advertising controls at <a href="https://myadcenter.google.com/" rel="noopener noreferrer">My Ad Center</a>.</p>
 
     <h2>Third-Party Services</h2>
-    <p>Our site is hosted on Cloudflare Pages. Cloudflare processes requests to serve the site and may log basic request data per their own privacy policy. We also load Google Fonts from fonts.googleapis.com, which means Google's font CDN sees your IP address when your browser loads the font files.</p>
+    <p>Cloudflare hosts and secures the site. Google provides Analytics, fonts, and advertising services. These providers may process request, device, usage, and advertising data under their own policies. Learn more in the <a href="https://policies.google.com/privacy" rel="noopener noreferrer">Google Privacy Policy</a> and <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener noreferrer">Cloudflare Privacy Policy</a>.</p>
 
     <h2>Data Retention</h2>
-    <p>Server logs are rotated and deleted automatically by our hosting provider after a short period (typically 30 days or less). Contact form submissions are deleted after we've addressed the inquiry.</p>
+    <p>Service providers retain data according to their own retention settings and policies. Email correspondence is retained only as long as reasonably needed to address the request, maintain correction records, or meet legal obligations.</p>
 
     <h2>Your Rights</h2>
     <p>Depending on where you live, you may have rights under data protection laws (GDPR, CCPA, etc.) to:</p>

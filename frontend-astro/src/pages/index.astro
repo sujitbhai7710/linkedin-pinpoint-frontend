@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroAnswerReveal from '../components/HeroAnswerReveal.svelte';
 import FaqAccordion from '../components/FaqAccordion.svelte';
 import { formatDate, formatDateShort } from '../lib/api';
-import { buildMeta, websiteJsonLd, organizationJsonLd, authorJsonLd, reviewerJsonLd, faqJsonLd, howToJsonLd, itemListJsonLd, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
+import { buildMeta, websiteJsonLd, organizationJsonLd, faqJsonLd, howToJsonLd, itemListJsonLd, puzzlePermalink, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import type { PinpointPuzzle, PinpointSummary } from '../lib/types';
 import fs from 'fs';
 import path from 'path';
@@ -26,48 +26,27 @@ try {
   recent = JSON.parse(recentRaw);
 } catch (e) { /* Not critical */ }
 
-const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
+
 const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
 const heroDateStr = shortDateStr;
-const title = 'Linkedin pinpoint answer today - Updated';
-const description = today
-  ? `Linkedin pinpoint answer today - Updated with ${shortDateStr} clues, full explanation, valid solutions, and archive access for puzzle #${today.number}.`
-  : "Linkedin pinpoint answer today - Updated with today's clues, full explanation, valid solutions, and archive access.";
-const keywords = today
-  ? [
-      'linkedin pinpoint answer today - updated',
-      'linkedin pinpoint answer today',
-      'daily linkedin pinpoint answer',
-      'linkedin pinpoint clues',
-      'linkedin pinpoint solutions',
-      `linkedin pinpoint ${shortDateStr.toLowerCase()}`,
-      `pinpoint puzzle ${today.number}`
-    ].join(', ')
-  : [
-      'linkedin pinpoint answer today - updated',
-      'linkedin pinpoint answer today',
-      'daily linkedin pinpoint answer',
-      'linkedin pinpoint clues',
-      'linkedin pinpoint solutions'
-    ].join(', ');
+const title = 'Pinpoint Answer Today — Daily Puzzle Guides';
+const description = 'Independent Pinpoint puzzle guides with daily clues, detailed answer explanations, a dated archive, and unlimited practice.';
+
 
 const seo = buildMeta({
   title,
   description,
-  keywords,
   canonical: SITE_URL,
   ogImage: TODAY_FEATURED_IMAGE,
   ogType: 'website',
   jsonLd: [
     organizationJsonLd(),
     websiteJsonLd(),
-    authorJsonLd(),
-    reviewerJsonLd(),
     howToJsonLd(),
     faqJsonLd([
       { question: 'What is LinkedIn Pinpoint?', answer: 'LinkedIn Pinpoint is a daily word puzzle on LinkedIn where players guess a connecting word or category from five progressive clues.' },
       { question: 'How often are new Pinpoint puzzles released?', answer: 'New LinkedIn Pinpoint puzzles are released daily at midnight. Our site updates by early afternoon with the latest answer and explanation.' },
-      { question: 'Are the answers on this site accurate?', answer: 'Yes. Every answer is verified against the official LinkedIn Pinpoint game before posting.' },
+      { question: 'How are corrections handled?', answer: 'Readers can report an issue through the contact page. Published corrections are applied to the relevant dated guide.' },
       { question: 'Is this site affiliated with LinkedIn?', answer: 'No. We are an independent resource. Not affiliated with, endorsed by, or connected to LinkedIn or Microsoft.' },
       { question: 'Can I play Pinpoint unlimited times?', answer: 'The daily puzzle is once per day, but our Unlimited Game mode lets you practice with random historical puzzles as many times as you want.' },
       { question: 'What time does the new Pinpoint puzzle come out?', answer: 'New LinkedIn Pinpoint puzzles are released at midnight Eastern Time. Our answers are typically posted by early afternoon each day.' },
@@ -76,7 +55,7 @@ const seo = buildMeta({
     itemListJsonLd(
       recent.slice(0, 10).map(p => ({
         name: `LinkedIn Pinpoint #${p.number} — ${new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
-        url: `${SITE_URL}/archive`,
+        url: `${SITE_URL}${puzzlePermalink(p.date)}`,
         date: p.date
       }))
     )
@@ -87,7 +66,7 @@ const faqs = [
   { question: 'What is LinkedIn Pinpoint?', answer: 'LinkedIn Pinpoint is a daily word puzzle that lives inside LinkedIn\'s games section. You get five clues, revealed one at a time, and the goal is to guess the connecting word or category before all five clues are shown. Fewer clues needed means a better score.' },
   { question: 'How do I play LinkedIn Pinpoint?', answer: 'Head to the LinkedIn games section. Tap Pinpoint, and you\'ll see the first clue. Type your guess. If you\'re wrong, the next clue appears. Keep going until you get it right or all five clues are visible.' },
   { question: 'When do new puzzles come out?', answer: 'New Pinpoint puzzles drop daily at midnight. Our site updates by early afternoon with the answer, all five clues, and a full breakdown of how they connect.' },
-  { question: 'Are these answers accurate?', answer: 'Yes. We verify every answer before posting. The explanations walk through each clue so you can see exactly why it fits.' },
+  { question: 'How can I report an incorrect answer?', answer: 'Use the contact page and include the puzzle number or date. We will check the report and correct the dated guide when needed.' },
   { question: 'Is this site affiliated with LinkedIn?', answer: 'No. We\'re an independent resource for people who play LinkedIn Pinpoint. Not connected to, endorsed by, or affiliated with LinkedIn or Microsoft.' },
   { question: 'Can I practice Pinpoint more than once a day?', answer: 'The daily puzzle is once per day on LinkedIn, but our Pinpoint Unlimited Game lets you practice with random past puzzles as many times as you want.' },
   { question: 'Why are there multiple valid answers for some puzzles?', answer: 'LinkedIn Pinpoint accepts a specific set of words for each puzzle. Sometimes a synonym or close variant also works. We list every accepted solution, not just the main one.' }
@@ -103,7 +82,7 @@ const faqs = [
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             {today ? `Updated for Game ${today.number}` : 'Daily Puzzle Answer'}
           </div>
-          <h1>Linkedin pinpoint answer today {today ? `(${heroDateStr})` : ''}</h1>
+          <h1>Daily Pinpoint Puzzle Guides and Explanations</h1>
           <div class="hero-accent"></div>
           <p class="hero-desc">{today ? `See the answer for ${heroDateStr}, game ${today.number}, with all clues, explanations, and valid solutions in one place.` : `Get today's Pinpoint answer with all clues and an explanation for each one. See how every clue connects to the solution — the more puzzles you read through, the faster you spot patterns.`}</p>
           <div class="hero-buttons">
@@ -118,7 +97,7 @@ const faqs = [
           </div>
           <div class="hero-stats">
             <div class="hero-stat"><div class="hero-stat-value">Daily</div><div class="hero-stat-label">Updates</div></div>
-            <div class="hero-stat"><div class="hero-stat-value">100%</div><div class="hero-stat-label">Verified</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">Detailed</div><div class="hero-stat-label">Clue Guides</div></div>
             <div class="hero-stat"><div class="hero-stat-value">Free</div><div class="hero-stat-label">Access</div></div>
           </div>
         </div>
@@ -163,7 +142,7 @@ const faqs = [
         </div>
         <div class="archive-cards">
           {recent.map((puzzle: any) => (
-            <a href="/archive" class="archive-card">
+            <a href={puzzlePermalink(puzzle.date)} class="archive-card">
               <div class="archive-card-header">
                 <span class="archive-card-number">#{puzzle.number}</span>
                 <span class="archive-card-date">{formatDateShort(puzzle.date)}</span>
@@ -186,7 +165,7 @@ const faqs = [
     <div class="container">
       <div style="text-align:center; margin-bottom:1.25rem;">
         <h2 id="features-heading">Why Pinpoint Answer Today?</h2>
-        <p style="color:var(--text-muted); max-width:540px; margin:0.4rem auto 0; font-size:0.9rem;">We play this game every day, just like you. Here's what we built that other answer sites don't bother with.</p>
+        <p style="color:var(--text-muted); max-width:540px; margin:0.4rem auto 0; font-size:0.9rem;">Each dated guide combines the puzzle clues with a connection-by-connection explanation and links to related resources.</p>
       </div>
       <div class="feature-grid">
         <div class="feature-card">
@@ -282,8 +261,8 @@ const faqs = [
           <p>One of the most frustrating things in Pinpoint is typing a perfectly reasonable answer that the game rejects. That happens because Pinpoint has a fixed set of accepted <strong>answers</strong> for each puzzle, and your synonym or alternative phrasing might not be on the list. We show you every single accepted word for each puzzle — sometimes there are hundreds of them.</p>
           <h3>Practice With Pinpoint Unlimited</h3>
           <p>One daily puzzle not enough? Our <a href="/unlimited" style="color:var(--accent-600); text-decoration:underline;">Pinpoint Unlimited Game</a> lets you play random historical puzzles as many times as you want. Each round gives you five progressive clues — wrong guesses reveal the next one, just like the real game.</p>
-          <h3>How We Verify Answers</h3>
-          <p>We verify every answer before publishing. Our team plays each puzzle on LinkedIn, confirms the official answer, and cross-checks the full list of accepted solutions. The explanations are generated with AI assistance and then reviewed for accuracy and clarity by a real person.</p>
+          <h3>How We Publish and Correct Guides</h3>
+          <p>Each guide records the puzzle number, publication date, clues, and answer together so readers can check the connection for themselves. The explanation then examines how every clue relates to the result. If a reader finds an error, the <a href="/contact">contact page</a> provides a direct correction channel, and our <a href="/editorial-policy">editorial policy</a> explains how updates are handled.</p>
         </div>
         <aside class="seo-content-sidebar">
           <div class="sidebar-card">
@@ -298,20 +277,20 @@ const faqs = [
           <div class="sidebar-card mt-2">
             <h3>Why Players Trust Us</h3>
             <ul style="padding-left:1rem; margin:0;">
-              <li>100% verified daily answers</li>
+              <li>Dated, puzzle-specific answer guides</li>
               <li>All valid solutions listed</li>
               <li>Clue-by-clue explanations</li>
               <li>Updated every day by early afternoon</li>
               <li>Free access, no sign-up required</li>
               <li>Spoiler-safe reveal buttons</li>
               <li>Unlimited practice game</li>
-              <li>Errors corrected within the hour</li>
+              <li>Public correction and contact process</li>
             </ul>
           </div>
           <div class="sidebar-card mt-2">
             <h3>Last Updated</h3>
             <p style="font-size:0.82rem; color:var(--text-secondary); margin:0;">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0;">Answers verified against the official LinkedIn Pinpoint game.</p>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0;">See our editorial policy for sourcing and corrections.</p>
           </div>
         </aside>
       </div>
