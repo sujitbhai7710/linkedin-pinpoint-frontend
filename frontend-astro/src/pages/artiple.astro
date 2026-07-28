@@ -1,0 +1,123 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { buildMeta, breadcrumbJsonLd, itemListJsonLd, SITE_URL } from '../lib/seo';
+import { articles, getArticleCategories } from '../lib/article-data';
+
+const categories = getArticleCategories();
+
+const seo = buildMeta({
+  title: 'LinkedIn Games & Pinpoint Articles — Guides, Strategies & Reviews',
+  description: 'In-depth articles about LinkedIn Pinpoint and LinkedIn games. Player-written guides, strategy breakdowns, game comparisons, and honest reviews from hundreds of hours of play.',
+  keywords: 'LinkedIn Pinpoint articles, linkedin games guide, pinpoint strategy articles, word game guides, linkedin pinpoint tips, daily puzzle articles',
+  canonical: `${SITE_URL}/artiple`,
+  ogType: 'website',
+  jsonLd: [
+    breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Articles', url: `${SITE_URL}/artiple` }]),
+    itemListJsonLd(articles.map(a => ({ name: a.title, url: `${SITE_URL}/artiple/${a.slug}`, date: a.date })))
+  ]
+});
+---
+
+<div class="artiple-page">
+  <section class="blog-hero">
+    <div class="container">
+      <div class="blog-hero-inner">
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Articles
+        </div>
+        <h1>LinkedIn Games &amp; Pinpoint Articles</h1>
+        <p>In-depth guides, strategies, and honest reviews from hundreds of hours of play.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div id="artiple-search" style="margin-bottom:1.5rem;">
+        <input
+          type="text"
+          id="artiple-search-input"
+          class="blog-search-input"
+          placeholder="Search articles..."
+          aria-label="Search articles"
+        />
+      </div>
+
+      <div id="artiple-filters" class="blog-filters" role="tablist" aria-label="Filter by category">
+        {categories.map(category => (
+          <button
+            class="blog-filter-btn artiple-filter-btn"
+            data-category={category}
+            role="tab"
+            aria-selected={category === 'All'}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      <div id="artiple-grid" class="blog-grid">
+        {articles.map((article) => (
+          <a href={`/artiple/${article.slug}`} class="blog-card artiple-card" data-category={article.category} data-searchable={`${article.title} ${article.description} ${article.tags.join(' ')}`.toLowerCase()}>
+            <span class="blog-card-badge {article.category}">{article.category}</span>
+            <h3>{article.title}</h3>
+            <p>{article.description}</p>
+            <div class="blog-card-meta">
+              <span>{new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <span>·</span>
+              <span>{article.readTime}</span>
+            </div>
+            <span class="blog-card-read-more">
+              Read Article
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </span>
+          </a>
+        ))}
+      </div>
+
+      <div id="artiple-no-results" class="blog-no-results" style="display:none;">
+        <h3>No articles found</h3>
+        <p>Try a different search term or category filter.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const searchInput = document.getElementById('artiple-search-input');
+  const filterBtns = document.querySelectorAll('.artiple-filter-btn');
+  const cards = document.querySelectorAll('.artiple-card');
+  const noResults = document.getElementById('artiple-no-results');
+  let activeCategory = 'All';
+
+  function filterCards() {
+    const query = (searchInput?.value || '').toLowerCase().trim();
+    let visibleCount = 0;
+    cards.forEach(card => {
+      const cat = card.getAttribute('data-category');
+      const searchable = card.getAttribute('data-searchable') || '';
+      const matchesCat = activeCategory === 'All' || cat === activeCategory;
+      const matchesSearch = !query || searchable.includes(query);
+      const visible = matchesCat && matchesSearch;
+      card.style.display = visible ? '' : 'none';
+      if (visible) visibleCount++;
+    });
+    if (noResults) noResults.style.display = visibleCount === 0 ? '' : 'none';
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategory = btn.getAttribute('data-category') || 'All';
+      filterBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      filterCards();
+    });
+  });
+
+  searchInput?.addEventListener('input', filterCards);
+</script>
