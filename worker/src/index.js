@@ -123,12 +123,15 @@ export default {
     const origin = request.headers.get('Origin');
 
     // Check for Secret Key Bypass (Browser Access)
-    // NOTE: Skip for /full/ paths — the /full/ endpoint handles its own auth internally.
-    // Stripping the key from /full/ paths breaks the route pattern match.
+    // NOTE: Skip for /full/ AND /trigger-build/ paths — these endpoints handle
+    // their own auth internally by reading the key from the path. Stripping the
+    // key from these paths breaks their route pattern match (the regex requires
+    // the key to be present as the final path segment).
     let isAuthorizedBySecret = false;
     const secretKey = env.SECRET_KEY;
 
-    if (secretKey && path.endsWith(`/${secretKey}`) && !path.startsWith('/full')) {
+    const skipStrip = path.startsWith('/full') || path.startsWith('/trigger-build');
+    if (secretKey && path.endsWith(`/${secretKey}`) && !skipStrip) {
       isAuthorizedBySecret = true;
       path = path.substring(0, path.length - (secretKey.length + 1));
       if (path === '') path = '/';
@@ -695,11 +698,16 @@ export default {
           'GET /',
           'GET /today',
           'GET /yesterday',
+          'GET /last/{limit}/{page}',
           'GET /full/{secretkey}',
           'GET /full/{number}/{secretkey}',
+          'GET /solutions/{number}/{offset}/{limit}',
+          'GET /check/{number}/{word}',
           'GET /scrape',
           'GET /add/{number}/{secretkey}',
           'GET /delete/{number}/{secretkey}',
+          'GET /trigger-build/{secretkey}',
+          'GET /trigger-build/{number}/{secretkey}',
           'GET /search/clue?q={query}',
           'GET /search/answer?q={query}',
           'GET /search/number/{number}',
