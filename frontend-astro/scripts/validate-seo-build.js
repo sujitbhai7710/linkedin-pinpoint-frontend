@@ -37,9 +37,8 @@ for (const route of ['privacy', 'contact', 'editorial-policy', 'terms', 'disclai
   assert(!html.includes('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'), `${route} loads AdSense`);
 }
 
-const blog = read(join('blog', 'index.html'));
-assert(blog.includes('noindex'), 'Legacy blog index should remain noindex until editorial review');
-assert(!blog.includes('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'), 'Legacy blog index loads AdSense');
+// Blog pages are now indexed for AdSense approval
+// No longer enforcing noindex, no-ads, or sitemap exclusion on blog
 
 const today = read(join('today', 'index.html'));
 assert(today.includes('/pinpoint-answer-today.webp'), 'Today page does not use the normalized featured-image filename');
@@ -50,7 +49,6 @@ assert(!today.includes('Pinpoint Answer Today Editorial Team'), 'Fake person att
 
 const sitemap = read('sitemap.xml');
 assert(sitemap.includes('/linkedin-pinpoint-answer-for-'), 'Sitemap has no dated puzzle pages');
-assert(!sitemap.includes('/blog/'), 'Sitemap includes quarantined legacy blog articles');
 
 if (existsSync(dist)) {
   const puzzlePage = readdirSync(dist).find(name => name.startsWith('linkedin-pinpoint-answer-for-'));
