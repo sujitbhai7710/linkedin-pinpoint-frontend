@@ -23,7 +23,7 @@ const seo = buildMeta({
   keywords: post.tags.join(', '),
   canonical: `${SITE_URL}/blog/${post.slug}`,
   ogType: 'article',
-  noindex: true,
+  allowAds: true,
   jsonLd: [
     breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Blog', url: `${SITE_URL}/blog` }, { name: post.title, url: `${SITE_URL}/blog/${post.slug}` }]),
     faqJsonLd(post.faqs),

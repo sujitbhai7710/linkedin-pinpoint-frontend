@@ -12,7 +12,7 @@ const seo = buildMeta({
   keywords: 'LinkedIn Pinpoint blog, pinpoint strategy, word puzzle tips, pinpoint clue types, daily puzzle habit, LinkedIn games explained',
   canonical: `${SITE_URL}/blog`,
   ogType: 'website',
-  noindex: true,
+  allowAds: true,
   jsonLd: [
     breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Blog', url: `${SITE_URL}/blog` }]),
     itemListJsonLd(blogPosts.map(post => ({ name: post.title, url: `${SITE_URL}/blog/${post.slug}`, date: post.date })))
