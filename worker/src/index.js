@@ -33,15 +33,34 @@ const API_KEY = 'BloggingIo@7';
 
 export default {
 
-  // Scheduled Trigger Handler (cron at 8:00 UTC = 1:30 PM IST)
+  // Scheduled Trigger Handler
+  //   cron "0 8 * * *"  -> main scrape at 1:30 PM IST (8:00 UTC)
+  //   cron "30 8 * * *"  -> 30-min safety retry in case the 8:00 trigger failed
+  //   cron "0 9 * * *"   -> 1-hour safety retry (catches token-rotation issues)
   async scheduled(event, env, ctx) {
     console.log('Scheduled event triggered at', new Date().toISOString());
     console.log('Cron schedule:', event.cron);
     try {
+      // Ensure audit table exists (idempotent)
+      await env.DB.prepare(`
+        CREATE TABLE IF NOT EXISTS trigger_attempts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          puzzle_number INTEGER,
+          puzzle_date TEXT,
+          attempted_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          trigger_source TEXT,
+          http_status INTEGER,
+          success INTEGER,
+          error_message TEXT
+        )
+      `).run();
+
+      const isRetryCron = event.cron !== '0 8 * * *';
+
       const now = new Date();
       const adjustedDate = new Date(now.getTime() - 8 * 60 * 60 * 1000);
       const todayPinpointDate = adjustedDate.toISOString().split('T')[0];
-      console.log(`Running scheduled task. Pinpoint Date: ${todayPinpointDate}`);
+      console.log(`Running scheduled task. Pinpoint Date: ${todayPinpointDate}, retryCron=${isRetryCron}`);
 
       const dbResult = await env.DB.prepare(
         'SELECT number, date, clues, answer, explanation, other_solutions FROM pinpoint_data WHERE date = ?'
@@ -64,9 +83,23 @@ export default {
       }
 
       if (scrapeNeeded) {
+        // Retry crons should NOT scrape — only the 8:00 UTC main cron scrapes.
+        // If retry cron finds no data for today, alert and bail (something is
+        // wrong with the scrape step itself).
+        if (isRetryCron) {
+          const msg = `Retry cron ${event.cron} found NO puzzle data for ${todayPinpointDate}. The 8:00 UTC scrape likely failed.`;
+          console.error(msg);
+          await sendAlert(env, '⚠️ Pinpoint scrape missing', msg, { cron: event.cron, date: todayPinpointDate });
+          await env.DB.prepare(
+            `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
+          ).bind(null, todayPinpointDate, `cron:${event.cron}`, msg).run();
+          return;
+        }
+
         const scrapeRes = await scrapePinpointData(env);
         if (!scrapeRes || !scrapeRes.success) {
           console.error('Failed to scrape data:', scrapeRes?.error || 'Unknown error');
+          await sendAlert(env, '❌ Pinpoint scrape failed', scrapeRes?.error || 'Unknown error', { date: todayPinpointDate });
           return;
         }
         const data = scrapeRes.data;
@@ -98,22 +131,67 @@ export default {
         };
       }
 
+      // For retry crons: check if today's puzzle was already successfully triggered.
+      // If yes, bail out (don't spam GitHub with duplicate dispatches).
+      if (isRetryCron && dataToCommit) {
+        const lastAttempt = await env.DB.prepare(
+          `SELECT success, attempted_at, error_message FROM trigger_attempts
+           WHERE puzzle_number = ? AND success = 1
+           ORDER BY id DESC LIMIT 1`
+        ).bind(dataToCommit.number).first();
+        if (lastAttempt) {
+          console.log(`Retry cron: puzzle #${dataToCommit.number} already triggered successfully at ${lastAttempt.attempted_at}. Skipping.`);
+          return;
+        }
+      }
+
       // Trigger GitHub Actions build workflow if configured.
-      // We use ctx.waitUntil so the cron response isn't blocked, but we still
-      // log the result loudly. The trigger function now throws on persistent
-      // failure (e.g. revoked GITHUB_TOKEN) instead of failing silently.
+      // HARDENED: We now AWAIT the trigger (not ctx.waitUntil) so failures
+      // are surfaced to Cloudflare analytics as cron errors, AND we record
+      // the attempt in trigger_attempts, AND we send an alert webhook.
       if (dataToCommit && env.GITHUB_TOKEN) {
-        console.log('Triggering GitHub Actions build workflow...');
-        ctx.waitUntil(
-          triggerBuildWorkflow(dataToCommit, env).catch(err => {
-            console.error('!!! GitHub Actions trigger FAILED after retries:', err.message);
-          })
-        );
+        console.log(`Triggering GitHub Actions build workflow for puzzle #${dataToCommit.number}...`);
+        try {
+          const result = await triggerBuildWorkflow(dataToCommit, env);
+          await env.DB.prepare(
+            `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, http_status, success) VALUES (?, ?, ?, ?, 1)`
+          ).bind(dataToCommit.number, dataToCommit.date, `cron:${event.cron}`, result.status || 204).run();
+          console.log(`✅ Trigger recorded as success in audit table.`);
+
+          // If this was a retry cron that succeeded after a prior failure, send a recovery alert
+          if (isRetryCron) {
+            const priorFailure = await env.DB.prepare(
+              `SELECT error_message FROM trigger_attempts
+               WHERE puzzle_number = ? AND success = 0
+               ORDER BY id DESC LIMIT 1`
+            ).bind(dataToCommit.number).first();
+            if (priorFailure) {
+              await sendAlert(env, '✅ Pinpoint trigger RECOVERED',
+                `Puzzle #${dataToCommit.number} was successfully triggered by retry cron ${event.cron} after a prior failure: ${priorFailure.error_message}`,
+                { puzzle_number: dataToCommit.number, puzzle_date: dataToCommit.date });
+            }
+          }
+        } catch (err) {
+          console.error('!!! GitHub Actions trigger FAILED:', err.message);
+          await env.DB.prepare(
+            `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
+          ).bind(dataToCommit.number, dataToCommit.date, `cron:${event.cron}`, err.message).run();
+          await sendAlert(env, '❌ GitHub Actions trigger FAILED',
+            `Puzzle #${dataToCommit.number} (${dataToCommit.date}) — trigger failed: ${err.message}`,
+            { puzzle_number: dataToCommit.number, puzzle_date: dataToCommit.date, cron: event.cron });
+          // Don't rethrow — let the cron return "success" so Cloudflare doesn't
+          // mark the WHOLE cron as failed (which would mask the scrape success).
+          // The retry crons will pick this up.
+        }
       } else if (!env.GITHUB_TOKEN) {
         console.warn('GITHUB_TOKEN secret is NOT set on the worker — frontend will NOT auto-rebuild.');
+        await sendAlert(env, '❌ GITHUB_TOKEN missing',
+          'GITHUB_TOKEN secret is not set on the worker. Frontend will not auto-rebuild.',
+          {});
       }
     } catch (error) {
       console.error('Error in scheduled task:', error);
+      await sendAlert(env, '❌ Worker scheduled() crashed', error.message, { cron: event.cron }).catch(() => {});
     }
   },
 
@@ -130,7 +208,7 @@ export default {
     let isAuthorizedBySecret = false;
     const secretKey = env.SECRET_KEY;
 
-    const skipStrip = path.startsWith('/full') || path.startsWith('/trigger-build');
+    const skipStrip = path.startsWith('/full') || path.startsWith('/trigger-build') || path.startsWith('/trigger-history');
     if (secretKey && path.endsWith(`/${secretKey}`) && !skipStrip) {
       isAuthorizedBySecret = true;
       path = path.substring(0, path.length - (secretKey.length + 1));
@@ -212,7 +290,11 @@ export default {
             'GET /check/{number}/{word}': 'Check if a word is a valid solution',
             'GET /add/{number}/{secretkey}': 'Scrape and add data (uses LinkedIn API)',
             'GET /scrape': 'Scrape today\'s data from LinkedIn API',
-            'GET /delete/{number}/{secretkey}': 'Delete data'
+            'GET /delete/{number}/{secretkey}': 'Delete data',
+            'GET /trigger-build/{secretkey}': 'Manually trigger GitHub Actions build (latest puzzle)',
+            'GET /trigger-build/{number}/{secretkey}': 'Manually trigger build for a specific puzzle',
+            'GET /trigger-history/{secretkey}': 'View last 20 trigger_attempts rows (audit log)',
+            'GET /trigger-history/{limit}/{secretkey}': 'View last N trigger_attempts rows (max 100)'
           }
         }, null, 2), { headers: corsHeaders });
       }
@@ -507,6 +589,7 @@ export default {
       // GET /trigger-build/{secretkey} - Manually trigger the GitHub Actions
       // build workflow (uses the latest stored puzzle). Useful for testing that
       // the GITHUB_TOKEN secret works end-to-end without waiting for the cron.
+      // Records the attempt in the trigger_attempts audit table.
       const triggerBuildMatch = path.match(/^\/trigger-build(?:\/(\d+))?\/(.+)$/);
       if (triggerBuildMatch) {
         const [, numberStr, providedKey] = triggerBuildMatch;
@@ -519,6 +602,20 @@ export default {
             message: 'Invalid or missing secret key'
           }), { status: 401, headers: corsHeaders });
         }
+
+        // Ensure audit table exists
+        await env.DB.prepare(`
+          CREATE TABLE IF NOT EXISTS trigger_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            puzzle_number INTEGER,
+            puzzle_date TEXT,
+            attempted_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            trigger_source TEXT,
+            http_status INTEGER,
+            success INTEGER,
+            error_message TEXT
+          )
+        `).run();
 
         try {
           // Fetch the puzzle to trigger for
@@ -542,13 +639,23 @@ export default {
 
           // Trigger the workflow. Because this is a manual HTTP request we
           // await it (no ctx.waitUntil) so the caller sees the real result.
-          const result = await triggerBuildWorkflow(puzzleRow, env);
-          return new Response(JSON.stringify({
-            success: true,
-            message: `Triggered GitHub Actions build for Pinpoint #${puzzleRow.number}`,
-            puzzle: puzzleRow,
-            github: result
-          }), { headers: corsHeaders });
+          try {
+            const result = await triggerBuildWorkflow(puzzleRow, env);
+            await env.DB.prepare(
+              `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, http_status, success) VALUES (?, ?, ?, ?, 1)`
+            ).bind(puzzleRow.number, puzzleRow.date, 'manual:trigger-build', result.status || 204).run();
+            return new Response(JSON.stringify({
+              success: true,
+              message: `Triggered GitHub Actions build for Pinpoint #${puzzleRow.number}`,
+              puzzle: puzzleRow,
+              github: result
+            }), { headers: corsHeaders });
+          } catch (err) {
+            await env.DB.prepare(
+              `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
+            ).bind(puzzleRow.number, puzzleRow.date, 'manual:trigger-build', err.message).run();
+            throw err;
+          }
         } catch (err) {
           return new Response(JSON.stringify({
             success: false,
@@ -556,6 +663,35 @@ export default {
             message: err.message
           }), { status: 502, headers: corsHeaders });
         }
+      }
+
+      // GET /trigger-history/{secretkey} - Return recent trigger_attempts rows
+      // for diagnostics. Defaults to last 20 attempts.
+      const triggerHistoryMatch = path.match(/^\/trigger-history(?:\/(\d+))?\/(.+)$/);
+      if (triggerHistoryMatch) {
+        const [, limitStr, providedKey] = triggerHistoryMatch;
+        const limit = Math.min(parseInt(limitStr || '20'), 100);
+
+        if (providedKey !== env.SECRET_KEY && !isAuthorizedBySecret) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Unauthorized',
+            message: 'Invalid or missing secret key'
+          }), { status: 401, headers: corsHeaders });
+        }
+
+        const rows = await env.DB.prepare(
+          `SELECT id, puzzle_number, puzzle_date, attempted_at, trigger_source, http_status, success, error_message
+           FROM trigger_attempts
+           ORDER BY id DESC
+           LIMIT ?`
+        ).bind(limit).all();
+
+        return new Response(JSON.stringify({
+          success: true,
+          count: rows.results.length,
+          attempts: rows.results
+        }), { headers: corsHeaders });
       }
 
       // GET /delete/{number}/{secretkey} - Delete data
@@ -708,6 +844,8 @@ export default {
           'GET /delete/{number}/{secretkey}',
           'GET /trigger-build/{secretkey}',
           'GET /trigger-build/{number}/{secretkey}',
+          'GET /trigger-history/{secretkey} (last 20 trigger attempts)',
+          'GET /trigger-history/{limit}/{secretkey} (last N attempts, max 100)',
           'GET /search/clue?q={query}',
           'GET /search/answer?q={query}',
           'GET /search/number/{number}',
@@ -724,6 +862,51 @@ export default {
     }
   },
 };
+
+/**
+ * Send an alert to a configured webhook (Discord, Slack, or generic HTTP POST).
+ *
+ * Webhook URL is read from env.ALERT_WEBHOOK_URL. If not set, alerts are
+ * silently skipped (so this is opt-in). Discord and Slack both accept a JSON
+ * payload with a "content" or "text" field respectively — we send both.
+ *
+ * This function NEVER throws — it logs failures and returns. Alerting must
+ * not break the main flow.
+ */
+async function sendAlert(env, title, message, context = {}) {
+  const webhookUrl = env.ALERT_WEBHOOK_URL;
+  if (!webhookUrl) {
+    // No webhook configured — just console.warn so it shows in wrangler tail
+    console.warn(`[ALERT (no webhook configured)] ${title}: ${message}`, context);
+    return;
+  }
+  try {
+    const payload = {
+      // Discord field
+      content: `**${title}**\n${message}\n\`\`\`json\n${JSON.stringify(context, null, 2)}\n\`\`\``,
+      // Slack field
+      text: `*${title}*\n${message}\n\`\`\`${JSON.stringify(context, null, 2)}\`\`\``,
+      // Generic
+      title,
+      message,
+      context,
+      timestamp: new Date().toISOString(),
+      source: 'linkedin-pinpoint-worker'
+    };
+
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      console.warn(`[ALERT] Webhook returned HTTP ${res.status}: ${await res.text().catch(() => '')}`);
+    }
+  } catch (e) {
+    console.warn(`[ALERT] Failed to send webhook alert:`, e.message);
+  }
+}
 
 /**
  * Format a DB result for API response (with solution pagination)

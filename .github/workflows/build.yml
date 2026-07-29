@@ -20,12 +20,15 @@ on:
       - 'frontend-astro/**'
       - '.github/workflows/build.yml'
 
-  # NOTE: The daily scheduled cron ('0 9 * * *') has been REMOVED.
-  # Frontend builds are now triggered ONLY by the Cloudflare Worker's
-  # workflow_dispatch (fired immediately after the 8:00 UTC scrape + D1 store),
-  # plus manual workflow_dispatch and push-to-main. This ensures the site
-  # updates right after the puzzle is captured (~1:30 PM IST) rather than
-  # an hour later via a fallback schedule.
+  # SAFETY NET: daily scheduled cron at 09:30 UTC (3:00 PM IST).
+  # Primary trigger is the Cloudflare Worker's workflow_dispatch fired right
+  # after the 8:00 UTC scrape, with retries at 8:30 and 9:00 UTC. This GitHub
+  # schedule is the FINAL fallback in case all worker triggers fail (e.g.
+  # revoked GITHUB_TOKEN, worker down). It runs 30 min after the worker's last
+  # retry so they don't conflict; if the worker already deployed, this just
+  # produces a redundant same-content deploy (harmless).
+  schedule:
+    - cron: '30 9 * * *'
 
 jobs:
   build-and-deploy:
@@ -77,6 +80,31 @@ jobs:
           echo ""
           echo "Build size:"
           du -sh dist/
+
+      - name: Sanity-check today.json has today's puzzle (skip on push events)
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+        run: |
+          node -e "
+          const fs = require('fs');
+          const today = new Date();
+          // Match worker's date math: UTC 'today' = midnight UTC slice
+          const expectedDate = today.toISOString().split('T')[0];
+          const data = JSON.parse(fs.readFileSync('dist/data/today.json', 'utf8'));
+          console.log('Expected puzzle date:', expectedDate);
+          console.log('today.json date:    ', data.date);
+          console.log('today.json number:  ', data.number);
+          console.log('today.json answer:  ', data.answer);
+          if (!data.date || !data.number) {
+            console.error('❌ FAIL: today.json is missing required fields');
+            process.exit(1);
+          }
+          if (data.date !== expectedDate) {
+            console.error('❌ FAIL: today.json date ' + data.date + ' does not match expected ' + expectedDate);
+            console.error('    The worker scrape may have failed or stored stale data.');
+            process.exit(1);
+          }
+          console.log('✅ today.json is fresh and matches expected date');
+          "
 
       - name: Install Wrangler
         run: npm install -g wrangler@latest

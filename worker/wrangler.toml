@@ -12,4 +12,7 @@ database_name = "linkedin-pinpoint-db"
 database_id = "3037e22c-1f89-453c-8b5c-c84af52db65c"
 
 [triggers]
-crons = ["0 8 * * *"]
+# Main scrape + trigger at 1:30 PM IST (8:00 UTC)
+# Retry at 1:30 PM + 30 min IST (8:30 UTC) — picks up if 8:00 trigger failed
+# Retry at 2:30 PM IST (9:00 UTC) — last chance, also catches token-rotation issues
+crons = ["0 8 * * *", "30 8 * * *", "0 9 * * *"]
