@@ -55,11 +55,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Fetch data from Worker API
+      - name: Fetch data from Worker API + generate article via NVIDIA
         run: node scripts/fetch-data.js
         env:
           API_BASE: ${{ secrets.WORKER_API_URL }}
           API_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
 
       - name: Build static site (Astro SSG)
         run: npx astro build
