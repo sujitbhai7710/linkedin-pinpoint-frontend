@@ -83,26 +83,42 @@ export default {
       }
 
       if (scrapeNeeded) {
-        // Retry crons should NOT scrape — only the 8:00 UTC main cron scrapes.
-        // If retry cron finds no data for today, alert and bail (something is
-        // wrong with the scrape step itself).
-        if (isRetryCron) {
-          const msg = `Retry cron ${event.cron} found NO puzzle data for ${todayPinpointDate}. The 8:00 UTC scrape likely failed.`;
-          console.error(msg);
-          await sendAlert(env, '⚠️ Pinpoint scrape missing', msg, { cron: event.cron, date: todayPinpointDate });
-          await env.DB.prepare(
-            `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
-          ).bind(null, todayPinpointDate, `cron:${event.cron}`, msg).run();
-          return;
-        }
+        // BOTH main cron AND retry crons will attempt to scrape if data is
+        // missing. This is critical: if the 8:00 UTC scrape fails (Browser
+        // Rendering cold start, LinkedIn rate-limit, network blip), the 8:30
+        // and 9:00 UTC retry crons will try again instead of just complaining.
+        // scrapePinpointData now has 3 internal retries, so each cron fire
+        // gives us 3 chances. With 3 crons, that's up to 9 total attempts.
+        console.log(`${isRetryCron ? 'Retry cron' : 'Main cron'}: no data for ${todayPinpointDate}, attempting scrape...`);
 
         const scrapeRes = await scrapePinpointData(env);
         if (!scrapeRes || !scrapeRes.success) {
-          console.error('Failed to scrape data:', scrapeRes?.error || 'Unknown error');
-          await sendAlert(env, '❌ Pinpoint scrape failed', scrapeRes?.error || 'Unknown error', { date: todayPinpointDate });
+          const errMsg = scrapeRes?.error || 'Unknown error';
+          console.error(`Scrape failed on ${event.cron}:`, errMsg);
+          // Record to audit table (this was the missing piece — previously
+          // scrape failures were only logged to console, making them invisible)
+          await env.DB.prepare(
+            `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
+          ).bind(null, todayPinpointDate, `cron:${event.cron}:scrape`, errMsg).run();
+          // Alert on every failure EXCEPT retry crons that already alerted
+          // (avoid spamming 3 alerts for the same day)
+          if (!isRetryCron) {
+            await sendAlert(env, '❌ Pinpoint SCRAPE failed (main cron)',
+              `Scrape failed for ${todayPinpointDate}: ${errMsg}. Retry crons at 8:30 and 9:00 UTC will attempt again.`,
+              { date: todayPinpointDate, cron: event.cron });
+          } else {
+            // For retry crons, only alert if this is the LAST retry (9:00 UTC)
+            // so we get exactly one "all retries exhausted" alert
+            if (event.cron === '0 9 * * *') {
+              await sendAlert(env, '❌❌ Pinpoint SCRAPE failed — ALL retries exhausted',
+                `Scrape failed for ${todayPinpointDate} on ALL cron attempts (8:00, 8:30, 9:00 UTC). Manual intervention required.`,
+                { date: todayPinpointDate, last_error: errMsg });
+            }
+          }
           return;
         }
         const data = scrapeRes.data;
+        console.log(`Scrape succeeded! Puzzle #${data.number}, generating explanation...`);
 
         console.log('Generating explanation via NVIDIA Qwen...');
         const explanation = await generateExplanation(data.clues, data.answer, env);
@@ -129,6 +145,13 @@ export default {
           explanation,
           solutions: data.solutions
         };
+
+        // If a retry cron successfully scraped after a prior failure, send a recovery alert
+        if (isRetryCron) {
+          await sendAlert(env, '✅ Pinpoint scrape RECOVERED by retry cron',
+            `Puzzle #${data.number} (${data.date}) was successfully scraped by retry cron ${event.cron} after the main 8:00 UTC scrape failed.`,
+            { puzzle_number: data.number, puzzle_date: data.date, cron: event.cron });
+        }
       }
 
       // For retry crons: check if today's puzzle was already successfully triggered.
@@ -935,119 +958,158 @@ function formatPinpointResult(result) {
  * 5. Parse the response to get real puzzle data with all solutions
  */
 async function scrapePinpointData(env, forcedDate = null) {
-  let browser = null;
-  try {
-    console.log('Launching browser via Cloudflare Browser Rendering...');
-    browser = await puppeteer.launch(env.BROWSER);
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
+  const MAX_SCRAPE_ATTEMPTS = 3;
+  let lastError = null;
 
-    console.log('Navigating to LinkedIn Pinpoint game page...');
-    await page.goto('https://www.linkedin.com/games/view/pinpoint/', {
-      waitUntil: 'domcontentloaded',
-      timeout: 60000
-    });
+  for (let attempt = 1; attempt <= MAX_SCRAPE_ATTEMPTS; attempt++) {
+    console.log(`\n--- Scrape attempt ${attempt}/${MAX_SCRAPE_ATTEMPTS} ---`);
+    let browser = null;
+    try {
+      console.log('Launching browser via Cloudflare Browser Rendering...');
+      browser = await puppeteer.launch(env.BROWSER);
+      const page = await browser.newPage();
+      await page.setViewport({ width: 1920, height: 1080 });
 
-    // Wait for the page to load and set cookies
-    await new Promise(r => setTimeout(r, 5000));
-
-    console.log('Executing in-page Voyager GraphQL API fetch...');
-    const rawData = await page.evaluate(async () => {
-      // Extract CSRF token from the browser's cookies
-      const value = `; ${document.cookie}`;
-      const parts = value.split('; JSESSIONID=');
-      let csrfToken = null;
-      if (parts.length === 2) {
-        csrfToken = parts.pop().split(';').shift();
-      }
-      if (csrfToken) {
-        csrfToken = csrfToken.replace(/"/g, '');
-      }
-      if (!csrfToken) {
-        return { error: 'CSRF token not found - page may not have loaded correctly' };
-      }
-
-      try {
-        // Call LinkedIn's official Voyager GraphQL API
-        const response = await fetch(
-          'https://www.linkedin.com/voyager/api/graphql?variables=(gameTypeId:1)&queryId=voyagerIdentityDashGames.3664a5cdcf3ab7108948e8c925f3374f',
-          {
-            method: 'GET',
-            headers: {
-              'accept': 'application/vnd.linkedin.normalized+json+2.1',
-              'csrf-token': csrfToken,
-              'x-restli-protocol-version': '2.0.0'
-            }
-          }
-        );
-        if (!response.ok) {
-          throw new Error(`Voyager API fetch failed: ${response.status} ${response.statusText}`);
-        }
-        return await response.json();
-      } catch (e) {
-        return { error: e.toString() };
-      }
-    });
-
-    if (rawData.error) {
-      throw new Error(rawData.error);
-    }
-
-    // Parse the Voyager GraphQL response
-    const puzzleEntry = rawData.included?.find(item => item.puzzleId && item.gamePuzzle);
-    const puzzle = puzzleEntry?.gamePuzzle?.blueprintGamePuzzle;
-
-    if (!puzzleEntry || !puzzle) {
-      throw new Error('Puzzle data missing in Voyager API response structure');
-    }
-
-    // Extract solutions
-    const rawSolutions = puzzle.solutions || [];
-    const primaryAnswer = rawSolutions[0] || 'Unknown';
-
-    // Format solutions: handle quoted answer patterns like Words that come after "head"
-    let formattedSolutions = rawSolutions;
-    const quoteMatch = primaryAnswer.match(/^(.*")(.+)(".*)$/);
-    if (quoteMatch) {
-      const prefix = quoteMatch[1];
-      const baseWord = quoteMatch[2];
-      const suffix = quoteMatch[3];
-      formattedSolutions = rawSolutions.map(s => {
-        if (s.includes(prefix) && s.includes(suffix)) return s;
-        return `${prefix}${s}${suffix}`;
+      console.log('Navigating to LinkedIn Pinpoint game page...');
+      await page.goto('https://www.linkedin.com/games/view/pinpoint/', {
+        waitUntil: 'networkidle2',
+        timeout: 60000
       });
-    }
 
-    const uniqueSolutions = [...new Set(formattedSolutions)];
-
-    // Determine the date
-    let finalDate = forcedDate;
-    if (!finalDate) {
-      const now = new Date();
-      const adjustedDate = new Date(now.getTime() - 8 * 60 * 60 * 1000);
-      finalDate = adjustedDate.toISOString().split('T')[0];
-    }
-
-    console.log(`Successfully scraped Pinpoint #${puzzleEntry.puzzleId} with ${uniqueSolutions.length} solutions from LinkedIn API`);
-
-    return {
-      success: true,
-      data: {
-        number: puzzleEntry.puzzleId,
-        date: finalDate,
-        clues: puzzle.clues,
-        answer: primaryAnswer,
-        solutions: uniqueSolutions
+      // Wait for JSESSIONID cookie to appear (poll every 1s, up to 15s)
+      // This is far more reliable than a fixed 5-second sleep.
+      console.log('Waiting for JSESSIONID cookie...');
+      let csrfReady = false;
+      for (let wait = 0; wait < 15; wait++) {
+        const cookies = await page.cookies();
+        if (cookies.some(c => c.name === 'JSESSIONID')) {
+          csrfReady = true;
+          console.log(`JSESSIONID cookie found after ${wait}s`);
+          break;
+        }
+        await new Promise(r => setTimeout(r, 1000));
       }
-    };
-  } catch (error) {
-    console.error('LinkedIn API scraping error:', error);
-    return { success: false, error: error.message };
-  } finally {
-    if (browser) {
-      await browser.close();
+      if (!csrfReady) {
+        // Extra 3s grace period even if cookie not detected via page.cookies()
+        // (sometimes the cookie is set in document.cookie but not yet visible
+        // via the CDP cookies API)
+        await new Promise(r => setTimeout(r, 3000));
+        console.warn('JSESSIONID not detected via page.cookies() — proceeding with grace-period wait');
+      }
+
+      console.log('Executing in-page Voyager GraphQL API fetch...');
+      const rawData = await page.evaluate(async () => {
+        // Extract CSRF token from the browser's cookies
+        const value = `; ${document.cookie}`;
+        const parts = value.split('; JSESSIONID=');
+        let csrfToken = null;
+        if (parts.length === 2) {
+          csrfToken = parts.pop().split(';').shift();
+        }
+        if (csrfToken) {
+          csrfToken = csrfToken.replace(/"/g, '');
+        }
+        if (!csrfToken) {
+          return { error: 'CSRF token not found - page may not have loaded correctly' };
+        }
+
+        try {
+          // Call LinkedIn's official Voyager GraphQL API
+          const response = await fetch(
+            'https://www.linkedin.com/voyager/api/graphql?variables=(gameTypeId:1)&queryId=voyagerIdentityDashGames.3664a5cdcf3ab7108948e8c925f3374f',
+            {
+              method: 'GET',
+              headers: {
+                'accept': 'application/vnd.linkedin.normalized+json+2.1',
+                'csrf-token': csrfToken,
+                'x-restli-protocol-version': '2.0.0'
+              }
+            }
+          );
+          if (!response.ok) {
+            throw new Error(`Voyager API fetch failed: ${response.status} ${response.statusText}`);
+          }
+          return await response.json();
+        } catch (e) {
+          return { error: e.toString() };
+        }
+      });
+
+      if (rawData.error) {
+        throw new Error(rawData.error);
+      }
+
+      // Parse the Voyager GraphQL response
+      const puzzleEntry = rawData.included?.find(item => item.puzzleId && item.gamePuzzle);
+      const puzzle = puzzleEntry?.gamePuzzle?.blueprintGamePuzzle;
+
+      if (!puzzleEntry || !puzzle) {
+        throw new Error('Puzzle data missing in Voyager API response structure');
+      }
+
+      // Extract solutions
+      const rawSolutions = puzzle.solutions || [];
+      const primaryAnswer = rawSolutions[0] || 'Unknown';
+
+      // Format solutions: handle quoted answer patterns like Words that come after "head"
+      let formattedSolutions = rawSolutions;
+      const quoteMatch = primaryAnswer.match(/^(.*")(.+)(".*)$/);
+      if (quoteMatch) {
+        const prefix = quoteMatch[1];
+        const baseWord = quoteMatch[2];
+        const suffix = quoteMatch[3];
+        formattedSolutions = rawSolutions.map(s => {
+          if (s.includes(prefix) && s.includes(suffix)) return s;
+          return `${prefix}${s}${suffix}`;
+        });
+      }
+
+      const uniqueSolutions = [...new Set(formattedSolutions)];
+
+      // Determine the date
+      let finalDate = forcedDate;
+      if (!finalDate) {
+        const now = new Date();
+        const adjustedDate = new Date(now.getTime() - 8 * 60 * 60 * 1000);
+        finalDate = adjustedDate.toISOString().split('T')[0];
+      }
+
+      console.log(`✅ Successfully scraped Pinpoint #${puzzleEntry.puzzleId} with ${uniqueSolutions.length} solutions from LinkedIn API`);
+
+      return {
+        success: true,
+        data: {
+          number: puzzleEntry.puzzleId,
+          date: finalDate,
+          clues: puzzle.clues,
+          answer: primaryAnswer,
+          solutions: uniqueSolutions
+        }
+      };
+    } catch (error) {
+      console.error(`Scrape attempt ${attempt} failed:`, error.message);
+      lastError = error;
+      // Close browser before retrying
+      if (browser) {
+        try { await browser.close(); } catch (e) { /* ignore */ }
+        browser = null;
+      }
+      // If we have more attempts, wait before retrying
+      if (attempt < MAX_SCRAPE_ATTEMPTS) {
+        const waitMs = attempt * 5000; // 5s, 10s backoff
+        console.log(`Retrying scrape in ${waitMs}ms...`);
+        await new Promise(r => setTimeout(r, waitMs));
+      }
+    } finally {
+      if (browser) {
+        try { await browser.close(); } catch (e) { /* ignore */ }
+      }
     }
   }
+
+  // All attempts failed
+  console.error(`❌ All ${MAX_SCRAPE_ATTEMPTS} scrape attempts failed. Last error:`, lastError?.message);
+  return { success: false, error: `Scrape failed after ${MAX_SCRAPE_ATTEMPTS} attempts. Last error: ${lastError?.message || 'Unknown'}` };
 }
 
 /**
