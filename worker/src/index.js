@@ -14,9 +14,15 @@
 import puppeteer from '@cloudflare/puppeteer';
 
 // NVIDIA_API_KEY should be set via `npx wrangler secret put NVIDIA_API_KEY`
+// Model history:
+//   - qwen/qwen3.5-122b-a10b  → EOL on 2026-07-20 (caused 10 days of missing articles)
+//   - nvidia/llama-3.3-nemotron-super-49b-v1.5  → too slow (200s+ for 900 words, exceeds Worker wall-clock)
+//   - meta/llama-3.3-70b-instruct  → too slow (86s for 65 tokens, 5+ min for 900 words)
+//   - meta/llama-3.1-8b-instruct  → CURRENT: 6s for 732 words. Fast, reliable, fits Worker time budget.
+//     Quality is good enough for SEO articles; can revisit if quality issues arise.
 const NVIDIA_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const NVIDIA_MODEL = 'qwen/qwen3.5-122b-a10b';
-const MIN_EXPLANATION_WORDS = 900;
+const NVIDIA_MODEL = 'meta/llama-3.1-8b-instruct';
+const MIN_EXPLANATION_WORDS = 700;  // 8B model averages 700-900 words; lowered from 900
 
 // Allowed Origins for Protected Endpoints
 const ALLOWED_ORIGINS = [
@@ -231,7 +237,7 @@ export default {
     let isAuthorizedBySecret = false;
     const secretKey = env.SECRET_KEY;
 
-    const skipStrip = path.startsWith('/full') || path.startsWith('/trigger-build') || path.startsWith('/trigger-history');
+    const skipStrip = path.startsWith('/full') || path.startsWith('/trigger-build') || path.startsWith('/trigger-history') || path.startsWith('/cron-test');
     if (secretKey && path.endsWith(`/${secretKey}`) && !skipStrip) {
       isAuthorizedBySecret = true;
       path = path.substring(0, path.length - (secretKey.length + 1));
@@ -316,6 +322,7 @@ export default {
             'GET /delete/{number}/{secretkey}': 'Delete data',
             'GET /trigger-build/{secretkey}': 'Manually trigger GitHub Actions build (latest puzzle)',
             'GET /trigger-build/{number}/{secretkey}': 'Manually trigger build for a specific puzzle',
+            'GET /cron-test/{secretkey}': 'Simulate full daily cron flow (scrape → D1 → article → trigger) for testing',
             'GET /trigger-history/{secretkey}': 'View last 20 trigger_attempts rows (audit log)',
             'GET /trigger-history/{limit}/{secretkey}': 'View last N trigger_attempts rows (max 100)'
           }
@@ -575,12 +582,29 @@ export default {
 
           const data = scrapeRes.data;
 
-          // Generate explanation
-          let explanation = null;
+          // Generate explanation — MANDATORY, not optional.
+          // Previously this was wrapped in try/catch that swallowed errors,
+          // causing puzzles to be stored with explanation=NULL and silently
+          // deployed to the live site without an article. Now we let the
+          // error propagate so the caller knows the scrape was incomplete.
+          // (generateExplanation already has 3 internal retries on 429/5xx,
+          //  so if it throws, the NVIDIA API is genuinely down or the key
+          //  is bad — in which case we want to know, not hide it.)
+          console.log('Generating explanation via NVIDIA Qwen (mandatory)...');
+          let explanation;
           try {
             explanation = await generateExplanation(data.clues, data.answer, env);
           } catch (err) {
-            console.error('Explanation generation failed:', err.message);
+            console.error('Explanation generation FAILED:', err.message);
+            // Record to audit table so it's visible
+            await env.DB.prepare(
+              `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
+            ).bind(data.number, data.date, 'manual:scrape:explanation', `NVIDIA explanation failed: ${err.message}`).run();
+            await sendAlert(env, '❌ NVIDIA explanation generation failed',
+              `Puzzle #${data.number} (${data.date}) — explanation generation failed: ${err.message}. Puzzle data was scraped but NOT stored (no article).`,
+              { puzzle_number: data.number, puzzle_date: data.date, error: err.message });
+            // Re-throw so the caller gets a clear failure
+            throw new Error(`Explanation generation failed: ${err.message}. Puzzle data NOT stored.`);
           }
           data.explanation = explanation;
 
@@ -685,6 +709,167 @@ export default {
             error: 'GitHub trigger failed',
             message: err.message
           }), { status: 502, headers: corsHeaders });
+        }
+      }
+
+      // GET /cron-test/{secretkey} - Simulate the FULL daily cron flow end-to-end:
+      //   1. Check if today's puzzle already in D1 (if so, use it; else scrape)
+      //   2. Generate explanation via NVIDIA (mandatory)
+      //   3. Store in D1
+      //   4. Trigger GitHub Actions build
+      //   5. Record every step in trigger_attempts audit table
+      //
+      // This is the "official Cloudflare way" to test that tomorrow's cron
+      // will work, without waiting for 8:00 UTC. Returns a JSON report of
+      // each step's status so you can see exactly where (if anywhere) it
+      // failed.
+      const cronTestMatch = path.match(/^\/cron-test\/(.+)$/);
+      if (cronTestMatch) {
+        const [, providedKey] = cronTestMatch;
+
+        if (providedKey !== env.SECRET_KEY && !isAuthorizedBySecret) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Unauthorized',
+            message: 'Invalid or missing secret key'
+          }), { status: 401, headers: corsHeaders });
+        }
+
+        const report = {
+          steps: [],
+          success: true,
+          started_at: new Date().toISOString()
+        };
+
+        function step(name, status, detail = {}) {
+          report.steps.push({ name, status, ...detail, at: new Date().toISOString() });
+          if (status === 'failed') report.success = false;
+          console.log(`[cron-test] ${name}: ${status}`, detail);
+        }
+
+        try {
+          // Ensure audit table
+          await env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS trigger_attempts (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              puzzle_number INTEGER,
+              puzzle_date TEXT,
+              attempted_at TEXT DEFAULT CURRENT_TIMESTAMP,
+              trigger_source TEXT,
+              http_status INTEGER,
+              success INTEGER,
+              error_message TEXT
+            )
+          `).run();
+          step('audit_table_ready', 'ok');
+
+          // Step 1: Determine today's pinpoint date
+          const now = new Date();
+          const adjustedDate = new Date(now.getTime() - 8 * 60 * 60 * 1000);
+          const todayPinpointDate = adjustedDate.toISOString().split('T')[0];
+          step('date_computed', 'ok', { todayPinpointDate });
+
+          // Step 2: Check D1 for existing data
+          let dbResult = await env.DB.prepare(
+            'SELECT number, date, clues, answer, explanation, other_solutions FROM pinpoint_data WHERE date = ?'
+          ).bind(todayPinpointDate).first();
+
+          let dataToCommit;
+
+          if (dbResult) {
+            step('d1_lookup', 'ok', { already_exists: true, puzzle_number: dbResult.number, has_explanation: !!dbResult.explanation });
+            dataToCommit = {
+              number: dbResult.number,
+              date: dbResult.date,
+              clues: JSON.parse(dbResult.clues),
+              answer: dbResult.answer,
+              explanation: dbResult.explanation,
+              solutions: dbResult.other_solutions ? JSON.parse(dbResult.other_solutions) : []
+            };
+          } else {
+            step('d1_lookup', 'ok', { already_exists: false, message: 'No data for today — will scrape' });
+
+            // Step 3: Scrape
+            const scrapeRes = await scrapePinpointData(env);
+            if (!scrapeRes || !scrapeRes.success) {
+              step('scrape', 'failed', { error: scrapeRes?.error || 'Unknown' });
+              await env.DB.prepare(
+                `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
+              ).bind(null, todayPinpointDate, 'manual:cron-test:scrape', scrapeRes?.error || 'Unknown').run();
+              return new Response(JSON.stringify(report, null, 2), { status: 500, headers: corsHeaders });
+            }
+            const data = scrapeRes.data;
+            step('scrape', 'ok', { puzzle_number: data.number, answer: data.answer, solutions_count: data.solutions.length });
+
+            // Step 4: Generate explanation (mandatory)
+            try {
+              const explanation = await generateExplanation(data.clues, data.answer, env);
+              data.explanation = explanation;
+              step('explanation', 'ok', { word_count: explanation.trim().split(/\s+/).length, char_count: explanation.length });
+            } catch (err) {
+              step('explanation', 'failed', { error: err.message });
+              await env.DB.prepare(
+                `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
+              ).bind(data.number, data.date, 'manual:cron-test:explanation', err.message).run();
+              await sendAlert(env, '❌ cron-test: NVIDIA explanation failed',
+                `Puzzle #${data.number} (${data.date}) — explanation generation failed: ${err.message}`,
+                { puzzle_number: data.number, puzzle_date: data.date, error: err.message });
+              return new Response(JSON.stringify(report, null, 2), { status: 500, headers: corsHeaders });
+            }
+
+            // Step 5: Store in D1
+            await env.DB.prepare(
+              `INSERT OR REPLACE INTO pinpoint_data (number, date, clues, answer, explanation, other_solutions) VALUES (?, ?, ?, ?, ?, ?)`
+            ).bind(
+              data.number,
+              data.date,
+              JSON.stringify(data.clues),
+              data.answer,
+              data.explanation,
+              JSON.stringify(data.solutions)
+            ).run();
+            step('d1_store', 'ok', { puzzle_number: data.number });
+
+            dataToCommit = {
+              number: data.number,
+              date: data.date,
+              clues: data.clues,
+              answer: data.answer,
+              explanation: data.explanation,
+              solutions: data.solutions
+            };
+          }
+
+          // Step 6: Trigger GitHub Actions
+          if (env.GITHUB_TOKEN) {
+            try {
+              const result = await triggerBuildWorkflow(dataToCommit, env);
+              step('github_trigger', 'ok', { http_status: result.status, puzzle_number: dataToCommit.number });
+              await env.DB.prepare(
+                `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, http_status, success) VALUES (?, ?, ?, ?, 1)`
+              ).bind(dataToCommit.number, dataToCommit.date, 'manual:cron-test', result.status || 204).run();
+            } catch (err) {
+              step('github_trigger', 'failed', { error: err.message });
+              await env.DB.prepare(
+                `INSERT INTO trigger_attempts (puzzle_number, puzzle_date, trigger_source, success, error_message) VALUES (?, ?, ?, 0, ?)`
+              ).bind(dataToCommit.number, dataToCommit.date, 'manual:cron-test', err.message).run();
+              await sendAlert(env, '❌ cron-test: GitHub trigger failed',
+                `Puzzle #${dataToCommit.number} (${dataToCommit.date}) — trigger failed: ${err.message}`,
+                { puzzle_number: dataToCommit.number, puzzle_date: dataToCommit.date, error: err.message });
+              return new Response(JSON.stringify(report, null, 2), { status: 502, headers: corsHeaders });
+            }
+          } else {
+            step('github_trigger', 'skipped', { reason: 'GITHUB_TOKEN not set' });
+          }
+
+          report.completed_at = new Date().toISOString();
+          report.puzzle = dataToCommit;
+          return new Response(JSON.stringify(report, null, 2), { headers: corsHeaders });
+
+        } catch (err) {
+          step('unexpected_error', 'failed', { error: err.message });
+          report.completed_at = new Date().toISOString();
+          return new Response(JSON.stringify(report, null, 2), { status: 500, headers: corsHeaders });
         }
       }
 
@@ -867,6 +1052,7 @@ export default {
           'GET /delete/{number}/{secretkey}',
           'GET /trigger-build/{secretkey}',
           'GET /trigger-build/{number}/{secretkey}',
+          'GET /cron-test/{secretkey} (simulate full daily cron flow for testing)',
           'GET /trigger-history/{secretkey} (last 20 trigger attempts)',
           'GET /trigger-history/{limit}/{secretkey} (last N attempts, max 100)',
           'GET /search/clue?q={query}',
@@ -958,7 +1144,7 @@ function formatPinpointResult(result) {
  * 5. Parse the response to get real puzzle data with all solutions
  */
 async function scrapePinpointData(env, forcedDate = null) {
-  const MAX_SCRAPE_ATTEMPTS = 3;
+  const MAX_SCRAPE_ATTEMPTS = 2;  // Reduced from 3 to fit within Worker wall-clock
   let lastError = null;
 
   for (let attempt = 1; attempt <= MAX_SCRAPE_ATTEMPTS; attempt++) {
@@ -972,15 +1158,15 @@ async function scrapePinpointData(env, forcedDate = null) {
 
       console.log('Navigating to LinkedIn Pinpoint game page...');
       await page.goto('https://www.linkedin.com/games/view/pinpoint/', {
-        waitUntil: 'networkidle2',
-        timeout: 60000
+        waitUntil: 'domcontentloaded',
+        timeout: 30000  // Reduced from 60000 to fit more retries in wall-clock
       });
 
-      // Wait for JSESSIONID cookie to appear (poll every 1s, up to 15s)
+      // Wait for JSESSIONID cookie to appear (poll every 1s, up to 10s)
       // This is far more reliable than a fixed 5-second sleep.
       console.log('Waiting for JSESSIONID cookie...');
       let csrfReady = false;
-      for (let wait = 0; wait < 15; wait++) {
+      for (let wait = 0; wait < 10; wait++) {
         const cookies = await page.cookies();
         if (cookies.some(c => c.name === 'JSESSIONID')) {
           csrfReady = true;
@@ -991,8 +1177,6 @@ async function scrapePinpointData(env, forcedDate = null) {
       }
       if (!csrfReady) {
         // Extra 3s grace period even if cookie not detected via page.cookies()
-        // (sometimes the cookie is set in document.cookie but not yet visible
-        // via the CDP cookies API)
         await new Promise(r => setTimeout(r, 3000));
         console.warn('JSESSIONID not detected via page.cookies() — proceeding with grace-period wait');
       }
@@ -1249,9 +1433,10 @@ If any answer is no, continue writing until everything is complete.`;
     ],
     temperature: 0.68,
     top_p: 0.92,
-    max_tokens: 16384,
-    stream: false,
-    chat_template_kwargs: { enable_thinking: true }
+    max_tokens: 4096,  // 8B model: 4096 is plenty for 700-1000 words
+    stream: false
+    // Note: removed `chat_template_kwargs: { enable_thinking: true }` —
+    // that was Qwen-specific. Llama Nemotron doesn't use thinking blocks.
   };
 
   const maxRetries = 3;
