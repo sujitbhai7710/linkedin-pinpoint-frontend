@@ -17,11 +17,28 @@ const TODAY_FEATURED_IMAGE = `${SITE_URL}/pinpoint-answer-today.webp`;
 export function puzzlePermalink(dateString: string): string {
         const date = new Date(`${dateString}T00:00:00Z`);
         const month = date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }).toLowerCase();
-        return `/linkedin-pinpoint-answer-for-${month}-${date.getUTCDate()}-${date.getUTCFullYear()}`;
+        return `/linkedin-pinpoint-answer-for-${month}-${date.getUTCDate()}-${date.getUTCFullYear()}/`;
+}
+
+/**
+ * Ensure a URL ends with a trailing slash, EXCEPT for the root domain.
+ * This fixes the HTTP 308 redirect issue: Cloudflare Pages serves pages
+ * as directories (e.g., /today/index.html) and 308-redirects /today → /today/.
+ * If our sitemap and canonical tags use /today (no slash), Google sees a
+ * redirect chain + canonical mismatch and refuses to index. By using /today/
+ * everywhere, we eliminate the redirect and the mismatch.
+ */
+export function ensureTrailingSlash(url: string): string {
+        if (url.endsWith('/')) return url;
+        // Don't add slash to root domain (https://pinpointanswertoday.online)
+        if (url === SITE_URL || url === `${SITE_URL}/`) return url;
+        // Don't add slash to root path
+        if (url.endsWith('://') || url.endsWith('.online')) return url;
+        return url + '/';
 }
 
 export function buildMeta(seo: SEOData) {
-        const canonical = seo.canonical || SITE_URL;
+        const canonical = ensureTrailingSlash(seo.canonical || SITE_URL);
         const ogImage = seo.ogImage || DEFAULT_OG_IMAGE;
         const jsonLd = seo.jsonLd
                 ? Array.isArray(seo.jsonLd)

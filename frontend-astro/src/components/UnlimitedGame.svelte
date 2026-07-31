@@ -321,7 +321,7 @@
     </div>
 
     <div class="mt-3 text-center">
-      <a href="/today" class="btn btn-ghost btn-sm">Play today's Pinpoint →</a>
+      <a href="/today/" class="btn btn-ghost btn-sm">Play today's Pinpoint →</a>
     </div>
   {:else}
     <div class="text-center" style="padding: 3rem 0;">

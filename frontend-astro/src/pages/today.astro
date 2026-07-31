@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import AnswerReveal from '../components/AnswerReveal.svelte';
 import SolutionsLoader from '../components/SolutionsLoader.svelte';
 import { formatDate, renderExplanation, getExplanationHeadings } from '../lib/api';
-import { buildMeta, articleJsonLd, breadcrumbJsonLd, puzzlePermalink, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
+import { buildMeta, articleJsonLd, breadcrumbJsonLd, faqJsonLd, puzzlePermalink, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import fs from 'fs';
 import path from 'path';
 
@@ -59,7 +59,7 @@ const introText = today
 const seo = buildMeta({
   title,
   description: descriptionText,
-  canonical: `${SITE_URL}/today`,
+  canonical: `${SITE_URL}/today/`,
   ogImage: TODAY_FEATURED_IMAGE,
   ogType: 'article',
   jsonLd: [
@@ -68,7 +68,7 @@ const seo = buildMeta({
       description: today
         ? `LinkedIn Pinpoint answer today for ${shortDateStr} and puzzle #${today.number}, with clues, explanations, word meanings, tips, strategies, and archive access.`
         : "Today's LinkedIn Pinpoint answer",
-      url: `${SITE_URL}/today`,
+      url: `${SITE_URL}/today/`,
       datePublished: today?.date || new Date().toISOString().split('T')[0],
       answer: today?.answer || '',
       number: today?.number || 0,
@@ -77,7 +77,16 @@ const seo = buildMeta({
 
     breadcrumbJsonLd([
       { name: 'Home', url: SITE_URL },
-      { name: "Today's Answer", url: `${SITE_URL}/today` }
+      { name: "Today's Answer", url: `${SITE_URL}/today/` }
+    ]),
+
+    // FIX 3.5: FAQPage schema on /today page for "People also ask" boxes
+    faqJsonLd(today ? [
+      { question: `What is the LinkedIn Pinpoint answer for ${shortDateStr}?`, answer: `The LinkedIn Pinpoint answer for ${shortDateStr} (puzzle #${today.number}) is "${today.answer}".` },
+      { question: 'What time does the new LinkedIn Pinpoint puzzle come out?', answer: `New LinkedIn Pinpoint puzzles are released daily. Our answer for puzzle #${today.number} is published by 1:30 PM IST each day.` },
+      { question: `How many clues are in LinkedIn Pinpoint #${today.number}?`, answer: `LinkedIn Pinpoint #${today.number} has ${today.clues?.length || 5} clues. The answer "${today.answer}" connects all of them.` }
+    ] : [
+      { question: 'What is the LinkedIn Pinpoint answer today?', answer: "See the answer revealed above on this page, updated daily." }
     ])
   ]
 });
@@ -91,8 +100,8 @@ const seo = buildMeta({
           <p>{error}</p>
           <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">New puzzles appear after 1:30 PM IST. If it is past that time, a site rebuild is likely in progress - check back in a few minutes.</p>
           <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <a href="/archive" class="btn btn-secondary btn-sm">Browse Archive</a>
-            <a href="/unlimited" class="btn btn-secondary btn-sm">Play Unlimited</a>
+            <a href="/archive/" class="btn btn-secondary btn-sm">Browse Archive</a>
+            <a href="/unlimited/" class="btn btn-secondary btn-sm">Play Unlimited</a>
           </div>
         </div>
       </div>
@@ -115,6 +124,7 @@ const seo = buildMeta({
               <span aria-hidden="true">•</span>
               <span>Game {today.number}</span>
             </p>
+            <p class="last-updated" style="font-size: 0.85em; color: var(--text-muted, #666); margin: 0.25rem 0;">Last updated: {shortDateStr}</p>
             <p style="margin:0.65rem 0 0; color:var(--text-secondary); font-size:0.95rem; line-height:1.7;">{introText}</p>
           </div>
 
