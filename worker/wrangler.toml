@@ -13,6 +13,13 @@ database_id = "3037e22c-1f89-453c-8b5c-c84af52db65c"
 
 [triggers]
 # Main scrape + trigger at 1:30 PM IST (8:00 UTC)
-# Retry at 1:30 PM + 30 min IST (8:30 UTC) — picks up if 8:00 trigger failed
-# Retry at 2:30 PM IST (9:00 UTC) — last chance, also catches token-rotation issues
-crons = ["0 8 * * *", "30 8 * * *", "0 9 * * *"]
+# Quick retry at 1:35 PM IST (8:05 UTC) — picks up if 8:00 scrape hit a rate limit
+# Retry at 1:40 PM IST (8:10 UTC) — second quick retry
+# Retry at 1:50 PM IST (8:20 UTC) — third retry
+# Final retry at 2:30 PM IST (9:00 UTC) — last chance, also catches token-rotation issues
+#
+# Added 8:05 and 8:10 UTC retries because on Aug 2, 2026 the 8:00 UTC scrape
+# failed with Cloudflare Browser Rendering rate limit (HTTP 429), and the site
+# was 30 minutes late (published at 2:00 PM IST instead of 1:30 PM IST).
+# The quick retries ensure we recover within 5-10 minutes instead of 30.
+crons = ["0 8 * * *", "5 8 * * *", "10 8 * * *", "20 8 * * *", "0 9 * * *"]

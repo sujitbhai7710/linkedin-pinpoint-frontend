@@ -40,9 +40,11 @@ const API_KEY = 'BloggingIo@7';
 export default {
 
   // Scheduled Trigger Handler
-  //   cron "0 8 * * *"  -> main scrape at 1:30 PM IST (8:00 UTC)
-  //   cron "30 8 * * *"  -> 30-min safety retry in case the 8:00 trigger failed
-  //   cron "0 9 * * *"   -> 1-hour safety retry (catches token-rotation issues)
+  //   cron "0 8 * * *"   -> main scrape at 1:30 PM IST (8:00 UTC)
+  //   cron "5 8 * * *"   -> 5-min quick retry (1:35 PM IST) — recovers from rate limits fast
+  //   cron "10 8 * * *"  -> 10-min retry (1:40 PM IST)
+  //   cron "20 8 * * *"  -> 20-min retry (1:50 PM IST)
+  //   cron "0 9 * * *"   -> final retry (2:30 PM IST) — catches token-rotation issues
   async scheduled(event, env, ctx) {
     console.log('Scheduled event triggered at', new Date().toISOString());
     console.log('Cron schedule:', event.cron);
