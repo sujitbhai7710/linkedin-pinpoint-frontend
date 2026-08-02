@@ -285,12 +285,33 @@ async function main() {
       const generated = await generateExplanation(todayFull.clues, todayFull.answer);
       if (generated) {
         todayFull.explanation = generated;
-        console.log(`  ✅ Article generated successfully`);
+        console.log(`  ✅ Article generated successfully (${generated.length} chars)`);
+
+        // Save the generated explanation back to D1 so future builds don't regenerate it.
+        // This is critical: without this, every build (push, schedule, manual) would
+        // call NVIDIA again, wasting API quota and slowing down builds.
+        try {
+          console.log(`  💾 Saving explanation back to D1 for puzzle #${todayFull.number}...`);
+          const saveRes = await fetch(`${API_BASE}/save-explanation/${API_SECRET}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ number: todayFull.number, explanation: generated })
+          });
+          const saveJson = await saveRes.json();
+          if (saveJson.success) {
+            console.log(`  ✅ Explanation saved to D1 — future builds will skip NVIDIA`);
+          } else {
+            console.warn(`  ⚠ Failed to save explanation to D1: ${saveJson.error}`);
+          }
+        } catch (saveErr) {
+          console.warn(`  ⚠ Error saving explanation to D1: ${saveErr.message}`);
+          console.warn(`     (Build will continue — explanation is in today.json for this build)`);
+        }
       } else {
         console.log(`  ⚠ Article generation failed — puzzle will be deployed without article`);
       }
     } else if (todayFull.explanation) {
-      console.log(`  ℹ️  Explanation already exists in D1 (${todayFull.explanation.length} chars) — using it`);
+      console.log(`  ℹ️  Explanation already exists in D1 (${todayFull.explanation.length} chars) — using it, skipping NVIDIA`);
     }
 
     const todayMeta = {

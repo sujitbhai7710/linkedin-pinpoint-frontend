@@ -240,7 +240,7 @@ export default {
     let isAuthorizedBySecret = false;
     const secretKey = env.SECRET_KEY;
 
-    const skipStrip = path.startsWith('/full') || path.startsWith('/trigger-build') || path.startsWith('/trigger-history') || path.startsWith('/cron-test');
+    const skipStrip = path.startsWith('/full') || path.startsWith('/trigger-build') || path.startsWith('/trigger-history') || path.startsWith('/cron-test') || path.startsWith('/save-explanation');
     if (secretKey && path.endsWith(`/${secretKey}`) && !skipStrip) {
       isAuthorizedBySecret = true;
       path = path.substring(0, path.length - (secretKey.length + 1));
@@ -257,7 +257,7 @@ export default {
 
     // CORS headers
     let corsHeaders = {
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
       'Content-Type': 'application/json',
     };
@@ -872,6 +872,61 @@ export default {
           count: rows.results.length,
           attempts: rows.results
         }), { headers: corsHeaders });
+      }
+
+      // POST /save-explanation/{secretkey} - Save generated explanation back to D1
+      // Called by GitHub Actions (fetch-data.js) after generating an article via NVIDIA.
+      // This prevents re-generation on subsequent builds — once the article is in D1,
+      // future builds just fetch it via /full/ and skip NVIDIA entirely.
+      // Body: { "number": 824, "explanation": "..." }
+      const saveExplanationMatch = path.match(/^\/save-explanation\/(.+)$/);
+      if (saveExplanationMatch && request.method === 'POST') {
+        const [, providedKey] = saveExplanationMatch;
+
+        if (providedKey !== env.SECRET_KEY && !isAuthorizedBySecret) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Unauthorized',
+            message: 'Invalid or missing secret key'
+          }), { status: 401, headers: corsHeaders });
+        }
+
+        try {
+          const body = await request.json();
+          const { number, explanation } = body;
+
+          if (!number || !explanation) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: 'Missing required fields: number, explanation'
+            }), { status: 400, headers: corsHeaders });
+          }
+
+          const result = await env.DB.prepare(
+            `UPDATE pinpoint_data SET explanation = ? WHERE number = ?`
+          ).bind(explanation, parseInt(number)).run();
+
+          if (result.meta.changes === 0) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: 'Not found',
+              message: `No puzzle found with number ${number}`
+            }), { status: 404, headers: corsHeaders });
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: `Explanation saved for puzzle #${number} (${explanation.length} chars)`,
+            number: parseInt(number),
+            char_count: explanation.length
+          }), { headers: corsHeaders });
+        } catch (e) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Save failed',
+            message: e.message
+          }), { status: 500, headers: corsHeaders });
+        }
       }
 
       // GET /delete/{number}/{secretkey} - Delete data
