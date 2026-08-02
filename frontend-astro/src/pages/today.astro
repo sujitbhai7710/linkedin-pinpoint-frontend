@@ -91,7 +91,7 @@ const seo = buildMeta({
   ]
 });
 ---
-<BaseLayout {...seo} articlePublishedTime={today?.date} allowAds={(explanationWordCount || 0) >= 500}>
+<BaseLayout {...seo} articlePublishedTime={today?.date}>
   {error && !today ? (
     <section class="section">
       <div class="container">

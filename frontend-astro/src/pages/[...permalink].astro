@@ -100,7 +100,7 @@ const seo = buildMeta({
 // FIX 3.7: Last updated timestamp
 const lastUpdated = puzzle.date;
 ---
-<BaseLayout {...seo} articlePublishedTime={puzzle.date} allowAds={explanationWordCount >= 500}>
+<BaseLayout {...seo} articlePublishedTime={puzzle.date}>
   <article class="puzzle-page">
     <div class="container">
       <div style="max-width:720px; margin:0 auto;">
