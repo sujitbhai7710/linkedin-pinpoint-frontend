@@ -3,14 +3,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { breadcrumbJsonLd, buildMeta, SITE_URL } from '../lib/seo';
 const seo = buildMeta({ title: 'Terms of Use', description: 'Terms governing use of Pinpoint Answer Today and its independent puzzle guides.', canonical: `${SITE_URL}/terms`, jsonLd: [breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Terms of Use', url: `${SITE_URL}/terms` }])] });
 ---
-<BaseLayout {...seo}>
+<BaseLayout {...seo} allowAds={false}>
   <div class="content-page container">
     <h1>Terms of Use</h1>
     <p class="page-desc">Effective July 28, 2026.</p>
     <h2>Informational Use</h2>
     <p>This site provides independent puzzle references, explanations, and practice features for personal informational use. You are responsible for how you use the information.</p>
     <h2>Accuracy and Availability</h2>
-    <p>We aim to keep dated guides accurate, but errors and interruptions can occur. Content may be corrected, updated, or removed without notice. Report an issue through the <a href="/contact">contact page</a>.</p>
+    <p>We aim to keep dated guides accurate, but errors and interruptions can occur. Content may be corrected, updated, or removed without notice. Report an issue through the <a href="/contact/">contact page</a>.</p>
     <h2>Intellectual Property</h2>
     <p>LinkedIn, Microsoft, Pinpoint, and other third-party names and marks are owned by their respective holders. Their use here identifies the subjects discussed and does not imply affiliation or endorsement. The site's original layout and explanatory text may not be republished in bulk without permission.</p>
     <h2>Acceptable Use</h2>

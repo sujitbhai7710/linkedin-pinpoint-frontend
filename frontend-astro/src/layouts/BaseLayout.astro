@@ -25,8 +25,11 @@ interface Props {
 const props = Astro.props;
 const currentPath = Astro.url.pathname;
 
-// Ads (ScriptWrapper/grow.me + AdSense) load UNCONDITIONALLY on ALL pages.
-// No conditions, no thresholds. Every page gets ads.
+// grow.me (ScriptWrapper) ad script loads on all pages EXCEPT policy pages.
+// Policy pages (privacy, contact, terms, disclaimer, editorial-policy) pass
+// allowAds={false} to opt out. AdSense has been removed entirely — only
+// grow.me is used now.
+const allowAds = props.allowAds !== false;
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -55,8 +58,6 @@ const navItems = [
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://www.googletagmanager.com" />
   <link rel="preconnect" href="https://www.google-analytics.com" />
-  <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
-  <link rel="preconnect" href="https://googleads.g.doubleclick.net" />
 
   {props.title && <title>{props.title}</title>}
   {props.description && <meta name="description" content={props.description} />}
@@ -83,8 +84,9 @@ const navItems = [
     gtag('js', new Date());
     gtag('config', 'G-3K8D06R3B9');
   </script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6802279151192550" crossorigin="anonymous"></script>
-  <script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/29b5c8d2-10b2-40b0-bbd5-1e9ec45c2b0e.js"></script>
+  {allowAds && (
+    <script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/29b5c8d2-10b2-40b0-bbd5-1e9ec45c2b0e.js"></script>
+  )}
 </head>
 <body>
   <div style="display:flex; flex-direction:column; min-height:100vh;">

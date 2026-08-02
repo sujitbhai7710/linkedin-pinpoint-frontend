@@ -34,9 +34,8 @@ assert(!/Disallow:\s*\/(privacy|contact)/i.test(robots), 'robots.txt blocks a po
 for (const route of ['privacy', 'contact', 'editorial-policy', 'terms', 'disclaimer']) {
   const html = read(join(route, 'index.html'));
   assert(!html.includes('noindex'), `${route} is unexpectedly noindex`);
-  // Removed AdSense check — ads are now unconditional on all pages per site owner request.
-  // (These pages pass allowAds={false} to exclude AdSense/ScriptWrapper, but the
-  // validation no longer enforces this as a hard requirement.)
+  assert(!html.includes('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'), `${route} loads AdSense`);
+  assert(!html.includes('scripts.scriptwrapper.com'), `${route} loads grow.me ad script`);
 }
 
 // Blog pages are now indexed for AdSense approval

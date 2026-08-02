@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { breadcrumbJsonLd, buildMeta, SITE_URL } from '../lib/seo';
 const seo = buildMeta({ title: 'Independence and Trademark Disclaimer', description: 'Independence, trademark, spoiler, and accuracy disclaimer for Pinpoint Answer Today.', canonical: `${SITE_URL}/disclaimer`, jsonLd: [breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Disclaimer', url: `${SITE_URL}/disclaimer` }])] });
 ---
-<BaseLayout {...seo}>
+<BaseLayout {...seo} allowAds={false}>
   <div class="content-page container">
     <h1>Independence and Trademark Disclaimer</h1>
     <p class="page-desc">Last updated July 28, 2026.</p>

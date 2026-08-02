@@ -9,7 +9,7 @@ const seo = buildMeta({
   jsonLd: [breadcrumbJsonLd([{ name: 'Home', url: SITE_URL }, { name: 'Editorial Policy', url: `${SITE_URL}/editorial-policy` }])]
 });
 ---
-<BaseLayout {...seo}>
+<BaseLayout {...seo} allowAds={false}>
   <div class="content-page container">
     <h1>Editorial Policy and Corrections</h1>
     <p class="page-desc">Effective July 28, 2026. This page documents the standards used for daily and archived puzzle guides.</p>
