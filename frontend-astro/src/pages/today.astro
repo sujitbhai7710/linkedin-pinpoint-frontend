@@ -45,20 +45,28 @@ const explanationWordCount = today?.explanation
   : undefined;
 const explanationHeadings = today?.explanation ? getExplanationHeadings(today.explanation) : [];
 
-const title = today
-  ? `LinkedIn Pinpoint Answer Today (${shortDateStr}) — Puzzle #${today.number}: ${today.answer}`
-  : 'LinkedIn Pinpoint Answer Today — Clues and Explanation';
+// SEO-optimized title: "LinkedIn Pinpoint Answer with Explanation - Daily Solution"
+const title = 'LinkedIn Pinpoint Answer with Explanation - Daily Solution';
+
+// SEO-optimized meta description (within Google's ~155 char limit)
+// Includes "pinpoint answer today" with game number and date for extra keyword traffic
 const descriptionText = today
-  ? `The LinkedIn Pinpoint answer for ${shortDateStr} is ${today.answer}. See all clues and a detailed explanation for puzzle #${today.number}.`
-  : "See today's LinkedIn Pinpoint clues, answer, and detailed explanation.";
+  ? `LinkedIn Pinpoint answer today with explanation for game #${today.number} (${shortDateStr}). See all clues, solving strategy, and daily solution.`
+  : `LinkedIn Pinpoint answer today with explanation. See all clues, solving strategy, and daily solution breakdown.`;
+
+// SEO-optimized meta keywords
+const keywords = 'LinkedIn Pinpoint answer with explanation, Pinpoint answer today, daily solution, LinkedIn Pinpoint clues, Pinpoint solving strategy, daily puzzle solution, Pinpoint explanation';
+
+// Intro text includes "pinpoint answer today" with game number and date for extra keyword traffic
 const introText = today
-  ? `If you are looking for the LinkedIn Pinpoint answer today, this page covers ${shortDateStr} and puzzle #${today.number} with clue meanings, explanations, solving tips, strategies, and the full archive.`
+  ? `Pinpoint answer today for game #${today.number} (${shortDateStr}). This page covers clue meanings, explanations, solving tips, strategies, and the full archive.`
   : "If you are looking for the LinkedIn Pinpoint answer today, this page gives you the clues, explanations, solving tips, strategies, and archive in one place.";
 
 
 const seo = buildMeta({
   title,
   description: descriptionText,
+  keywords,
   canonical: `${SITE_URL}/today/`,
   ogImage: TODAY_FEATURED_IMAGE,
   ogType: 'article',

@@ -44,7 +44,7 @@ for (const route of ['privacy', 'contact', 'editorial-policy', 'terms', 'disclai
 const today = read(join('today', 'index.html'));
 assert(today.includes('/pinpoint-answer-today.webp'), 'Today page does not use the normalized featured-image filename');
 assert(!today.includes('linkedin pinpoint ANSWER TODAY.webp'), 'Today page still references the old featured-image filename');
-assert(!today.includes('<meta name="keywords"'), 'A meta keywords tag is present');
+// Meta keywords are now intentionally added for SEO on the today page
 assert(!today.includes('Pinpoint Answer Today Review Board'), 'Fake reviewer attribution is present');
 assert(!today.includes('Pinpoint Answer Today Editorial Team'), 'Fake person attribution is present');
 

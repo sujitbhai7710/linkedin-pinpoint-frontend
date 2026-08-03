@@ -11,125 +11,125 @@
 import type { PinpointPuzzle, PinpointSummary, CheckResult, SolutionsResponse } from './types';
 
 export interface ExplanationHeading {
-        id: string;
-        text: string;
-        level: number;
+	id: string;
+	text: string;
+	level: number;
 }
 
 function slugifyHeading(text: string): string {
-        return text
-                .toLowerCase()
-                .replace(/[^a-z0-9\s-]/g, '')
-                .trim()
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-') || 'section';
+	return text
+		.toLowerCase()
+		.replace(/[^a-z0-9\s-]/g, '')
+		.trim()
+		.replace(/\s+/g, '-')
+		.replace(/-+/g, '-') || 'section';
 }
 
 function createHeadingIdFactory() {
-        const counts = new Map<string, number>();
+	const counts = new Map<string, number>();
 
-        return (text: string) => {
-                const base = slugifyHeading(text);
-                const count = counts.get(base) || 0;
-                counts.set(base, count + 1);
-                return count === 0 ? base : `${base}-${count + 1}`;
-        };
+	return (text: string) => {
+		const base = slugifyHeading(text);
+		const count = counts.get(base) || 0;
+		counts.set(base, count + 1);
+		return count === 0 ? base : `${base}-${count + 1}`;
+	};
 }
 
 export function getExplanationHeadings(text: string): ExplanationHeading[] {
-        if (!text) return [];
+	if (!text) return [];
 
-        const getId = createHeadingIdFactory();
-        return Array.from(text.matchAll(/^(#{1,3})\s+(.+)$/gm)).map((match) => ({
-                level: match[1].length,
-                text: match[2].trim(),
-                id: getId(match[2].trim())
-        }));
+	const getId = createHeadingIdFactory();
+	return Array.from(text.matchAll(/^(#{1,3})\s+(.+)$/gm)).map((match) => ({
+		level: match[1].length,
+		text: match[2].trim(),
+		id: getId(match[2].trim())
+	}));
 }
 
 /** Convert markdown-like text to HTML */
 export function renderExplanation(text: string): string {
-        if (!text) return '';
-        const getId = createHeadingIdFactory();
-        let html = text
-                // Headings
-                .replace(/^### (.+)$/gm, (_, heading: string) => `<h3 id="${getId(heading.trim())}">${heading.trim()}</h3>`)
-                .replace(/^## (.+)$/gm, (_, heading: string) => `<h2 id="${getId(heading.trim())}">${heading.trim()}</h2>`)
-                .replace(/^# (.+)$/gm, (_, heading: string) => `<h1 id="${getId(heading.trim())}">${heading.trim()}</h1>`)
-                // FAQ Q: and A: patterns — style them differently BEFORE generic bold
-                .replace(/\*\*Q:\s*(.+?)\*\*/g, '<span class="faq-q">Q: $1</span>')
-                .replace(/\*\*A:\s*\*\*/g, '<span class="faq-a">A:</span>')
-                .replace(/\*\*A:\s*(.+?)\*\*/g, '<span class="faq-a">A:</span> $1')
-                // Bold (generic — after Q/A patterns are handled)
-                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                // Italic
-                .replace(/\*(.+?)\*/g, '<em>$1</em>')
-                // Unordered lists
-                .replace(/^\- (.+)$/gm, '<li>$1</li>')
-                .replace(/^\* (.+)$/gm, '<li>$1</li>')
-                // Ordered lists
-                .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-                // Paragraphs
-                .replace(/\n\n/g, '</p><p>')
-                // Line breaks
-                .replace(/\n/g, '<br>');
+	if (!text) return '';
+	const getId = createHeadingIdFactory();
+	let html = text
+		// Headings — use h2 for # to avoid multiple h1 tags on the page
+		.replace(/^### (.+)$/gm, (_, heading: string) => `<h3 id="${getId(heading.trim())}">${heading.trim()}</h3>`)
+		.replace(/^## (.+)$/gm, (_, heading: string) => `<h2 id="${getId(heading.trim())}">${heading.trim()}</h2>`)
+		.replace(/^# (.+)$/gm, (_, heading: string) => `<h2 id="${getId(heading.trim())}">${heading.trim()}</h2>`)
+		// FAQ Q: and A: patterns — style them differently BEFORE generic bold
+		.replace(/\*\*Q:\s*(.+?)\*\*/g, '<span class="faq-q">Q: $1</span>')
+		.replace(/\*\*A:\s*\*\*/g, '<span class="faq-a">A:</span>')
+		.replace(/\*\*A:\s*(.+?)\*\*/g, '<span class="faq-a">A:</span> $1')
+		// Bold (generic — after Q/A patterns are handled)
+		.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+		// Italic
+		.replace(/\*(.+?)\*/g, '<em>$1</em>')
+		// Unordered lists
+		.replace(/^\- (.+)$/gm, '<li>$1</li>')
+		.replace(/^\* (.+)$/gm, '<li>$1</li>')
+		// Ordered lists
+		.replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+		// Paragraphs
+		.replace(/\n\n/g, '</p><p>')
+		// Line breaks
+		.replace(/\n/g, '<br>');
 
-        if (!html.startsWith('<h') && !html.startsWith('<li') && !html.startsWith('<p')) {
-                html = '<p>' + html + '</p>';
-        }
+	if (!html.startsWith('<h') && !html.startsWith('<li') && !html.startsWith('<p')) {
+		html = '<p>' + html + '</p>';
+	}
 
-        html = html.replace(/(<li>.*?<\/li>(\s*<br>)?)+/g, (match) => {
-                const cleaned = match.replace(/<br>/g, '');
-                return '<ul>' + cleaned + '</ul>';
-        });
+	html = html.replace(/(<li>.*?<\/li>(\s*<br>)?)+/g, (match) => {
+		const cleaned = match.replace(/<br>/g, '');
+		return '<ul>' + cleaned + '</ul>';
+	});
 
-        return html;
+	return html;
 }
 
 /** Format date string to readable format */
 export function formatDate(dateStr: string): string {
-        const date = new Date(dateStr + 'T00:00:00');
-        return date.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-        });
+	const date = new Date(dateStr + 'T00:00:00');
+	return date.toLocaleDateString('en-US', {
+		weekday: 'long',
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	});
 }
 
 /** Format date string to short format */
 export function formatDateShort(dateStr: string): string {
-        const date = new Date(dateStr + 'T00:00:00');
-        return date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-        });
+	const date = new Date(dateStr + 'T00:00:00');
+	return date.toLocaleDateString('en-US', {
+		month: 'short',
+		day: 'numeric'
+	});
 }
 
 /** Format date to URL-friendly slug format (e.g. "may-16-2026") */
 export function formatDateSlug(dateStr: string): string {
-        const date = new Date(dateStr + 'T00:00:00');
-        const month = date.toLocaleDateString('en-US', { month: 'long' }).toLowerCase();
-        const day = date.getDate();
-        const year = date.getFullYear();
-        return `${month}-${day}-${year}`;
+	const date = new Date(dateStr + 'T00:00:00');
+	const month = date.toLocaleDateString('en-US', { month: 'long' }).toLowerCase();
+	const day = date.getDate();
+	const year = date.getFullYear();
+	return `${month}-${day}-${year}`;
 }
 
 /** Format date to month-day-year for URL slugs */
 export function formatDateParts(dateStr: string): { month: string; day: string; year: string } {
-        const date = new Date(dateStr + 'T00:00:00');
-        return {
-                month: date.toLocaleDateString('en-US', { month: 'long' }).toLowerCase(),
-                day: String(date.getDate()),
-                year: String(date.getFullYear())
-        };
+	const date = new Date(dateStr + 'T00:00:00');
+	return {
+		month: date.toLocaleDateString('en-US', { month: 'long' }).toLowerCase(),
+		day: String(date.getDate()),
+		year: String(date.getFullYear())
+	};
 }
 
 /** Get yesterday's date string */
 export function getYesterdayDate(): string {
-        const d = new Date();
-        d.setDate(d.getDate() - 1);
-        return d.toISOString().split('T')[0];
+	const d = new Date();
+	d.setDate(d.getDate() - 1);
+	return d.toISOString().split('T')[0];
 }
 
 /**
@@ -138,18 +138,18 @@ export function getYesterdayDate(): string {
  * No API call — just fetches a static JSON file from the same origin.
  */
 export async function loadSolutionsFromJson(number: number): Promise<SolutionsResponse> {
-        const res = await fetch(`/data/solutions/${number}.json`);
-        if (!res.ok) {
-                throw new Error(`Failed to load solutions for puzzle #${number}`);
-        }
-        const data = await res.json();
-        return {
-                solutions: data.solutions,
-                offset: 0,
-                limit: data.solutions.length,
-                total: data.totalSolutions,
-                number: data.number
-        };
+	const res = await fetch(`/data/solutions/${number}.json`);
+	if (!res.ok) {
+		throw new Error(`Failed to load solutions for puzzle #${number}`);
+	}
+	const data = await res.json();
+	return {
+		solutions: data.solutions,
+		offset: 0,
+		limit: data.solutions.length,
+		total: data.totalSolutions,
+		number: data.number
+	};
 }
 
 /**
@@ -158,14 +158,14 @@ export async function loadSolutionsFromJson(number: number): Promise<SolutionsRe
  * No API call needed.
  */
 export async function checkWordLocally(number: number, word: string): Promise<CheckResult> {
-        try {
-                const data = await loadSolutionsFromJson(number);
-                const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/g, '');
-                const exists = data.solutions.some(
-                        s => s.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanWord
-                );
-                return { exists, word };
-        } catch {
-                return { exists: false, word };
-        }
+	try {
+		const data = await loadSolutionsFromJson(number);
+		const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/g, '');
+		const exists = data.solutions.some(
+			s => s.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanWord
+		);
+		return { exists, word };
+	} catch {
+		return { exists: false, word };
+	}
 }

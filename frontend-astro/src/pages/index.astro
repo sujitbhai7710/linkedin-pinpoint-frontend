@@ -30,22 +30,27 @@ try {
 const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
 const heroDateStr = shortDateStr;
 
-// FIX 3.1 + 3.3: Title now includes "LinkedIn" (the #1 keyword by volume)
-// and dynamically includes today's date + puzzle number for freshness signal.
-const title = today
-  ? `LinkedIn Pinpoint Answer Today (${shortDateStr}, #${today.number}) — Daily Solutions & Archive`
-  : 'LinkedIn Pinpoint Answer Today — Daily Solutions & Archive';
+// Dynamic month and year for SEO title — auto-updates each month
+const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long' });
+const currentYear = new Date().getFullYear();
 
-// FIX 3.2: Meta description now includes "LinkedIn", "today's", "answer",
-// "clue explanations", "updated daily" — matches user search intent.
+// SEO-optimized title: "LinkedIn Pinpoint Answer Today (August 2026)"
+const title = `LinkedIn Pinpoint Answer Today (${currentMonth} ${currentYear})`;
+
+// SEO-optimized meta description (within Google's ~155 char limit)
+// Includes "pinpoint answer today" with game number and date for extra keyword traffic
 const description = today
-  ? `Today's LinkedIn Pinpoint answer is "${today.answer}" (Puzzle #${today.number}). See step-by-step clue explanations, solving strategy, and our full archive of past puzzles. Updated daily.`
-  : "Today's LinkedIn Pinpoint answer revealed with step-by-step clue explanations. Updated daily at 1:30 PM IST. Browse our full archive and play unlimited practice rounds.";
+  ? `Pinpoint answer today for LinkedIn game #${today.number} (${shortDateStr}). Get clues, explanations, solving tips, and full archive. Updated daily.`
+  : `Get today's LinkedIn Pinpoint answer with clues and explanations. Full puzzle archive, solving tips, and unlimited practice. Updated daily.`;
+
+// SEO-optimized meta keywords
+const keywords = 'LinkedIn Pinpoint answer today, Pinpoint answer today, LinkedIn Pinpoint, daily puzzle answer, Pinpoint clues, Pinpoint solution, Pinpoint archive, word puzzle game, LinkedIn games';
 
 
 const seo = buildMeta({
   title,
   description,
+  keywords,
   canonical: SITE_URL,
   ogImage: TODAY_FEATURED_IMAGE,
   ogType: 'website',
@@ -92,9 +97,9 @@ const faqs = [
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             {today ? `Updated for Game ${today.number}` : 'Daily Puzzle Answer'}
           </div>
-          <h1>Daily Pinpoint Puzzle Guides and Explanations</h1>
+          <h1>LinkedIn Pinpoint Answer Today ({currentMonth} {currentYear})</h1>
           <div class="hero-accent"></div>
-          <p class="hero-desc">{today ? `See the answer for ${heroDateStr}, game ${today.number}, with all clues, explanations, and valid solutions in one place.` : `Get today's Pinpoint answer with all clues and an explanation for each one. See how every clue connects to the solution — the more puzzles you read through, the faster you spot patterns.`}</p>
+          <p class="hero-desc">{today ? `Pinpoint answer today for game ${today.number} (${heroDateStr}). See all clues, explanations, and valid solutions in one place.` : `Get today's Pinpoint answer with all clues and an explanation for each one. See how every clue connects to the solution.`}</p>
           <div class="hero-buttons">
             <a href="/today/" class="btn btn-primary btn-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>

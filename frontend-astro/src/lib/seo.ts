@@ -61,13 +61,14 @@ export function buildMeta(seo: SEOData) {
                 ogUrl: canonical,
                 ogType: seo.ogType || 'website',
                 ogSiteName: SITE_NAME,
-                twitterCard: 'summary_large_image',
-                twitterTitle: seo.title,
-                twitterDescription: seo.description,
-                twitterImage: ogImage,
-                jsonLdString: JSON.stringify(jsonLd),
-                noindex: seo.noindex || false
-        };
+        twitterCard: 'summary_large_image',
+        twitterTitle: seo.title,
+        twitterDescription: seo.description,
+        twitterImage: ogImage,
+        jsonLdString: JSON.stringify(jsonLd),
+        noindex: seo.noindex || false,
+        keywords: seo.keywords
+    };
 }
 
 export function websiteJsonLd(): object {
