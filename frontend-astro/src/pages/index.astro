@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroAnswerReveal from '../components/HeroAnswerReveal.svelte';
 import FaqAccordion from '../components/FaqAccordion.svelte';
 import { formatDate, formatDateShort } from '../lib/api';
-import { buildMeta, websiteJsonLd, organizationJsonLd, faqJsonLd, howToJsonLd, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
+import { buildMeta, websiteJsonLd, organizationJsonLd, faqJsonLd, howToJsonLd, speakableJsonLd, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import type { PinpointPuzzle, PinpointSummary } from '../lib/types';
 import fs from 'fs';
 import path from 'path';
@@ -53,6 +53,10 @@ const keywords = today
     ].join(', ');
 
 
+const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+const currentMonthLower = new Date().toLocaleDateString('en-US', { month: 'long' }).toLowerCase();
+const currentYear = new Date().getFullYear();
+
 const seo = buildMeta({
   title,
   description,
@@ -72,7 +76,12 @@ const seo = buildMeta({
       { question: 'Can I play Pinpoint unlimited times?', answer: 'The daily puzzle is once per day, but our Unlimited Game mode lets you practice with random historical puzzles as many times as you want.' },
       { question: 'What time does the new Pinpoint puzzle come out?', answer: 'New LinkedIn Pinpoint puzzles are released at midnight Eastern Time. Our answers are typically posted by early afternoon each day.' },
       { question: 'Why are there multiple valid answers for some puzzles?', answer: 'LinkedIn Pinpoint accepts a specific set of words for each puzzle. Sometimes a synonym or close variant also works. We list every accepted solution, not just the main one.' }
-    ])
+    ]),
+    speakableJsonLd({
+      url: SITE_URL,
+      headline: 'LinkedIn Pinpoint Answer Today',
+      summary: 'Daily LinkedIn Pinpoint answers with clue-by-clue explanations, valid solutions, and a complete puzzle archive.'
+    })
   ]
 });
 

@@ -316,4 +316,26 @@ export function itemListJsonLd(items: { name: string; url: string; date: string 
 	};
 }
 
+export function speakableJsonLd(data: {
+	url: string;
+	headline: string;
+	summary: string;
+}): object {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'WebPage',
+		'@id': data.url,
+		name: data.headline,
+		speakable: {
+			'@type': 'SpeakableSpecification',
+			cssSelector: ['h1', '.hero-desc', '.seo-content-main p:first-of-type']
+		},
+		mainEntity: {
+			'@type': 'Thing',
+			name: data.headline,
+			description: data.summary
+		}
+	};
+}
+
 export { SITE_NAME, SITE_URL, TODAY_FEATURED_IMAGE };
