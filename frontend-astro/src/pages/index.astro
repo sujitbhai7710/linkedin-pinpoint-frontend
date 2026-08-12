@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroAnswerReveal from '../components/HeroAnswerReveal.svelte';
 import FaqAccordion from '../components/FaqAccordion.svelte';
 import { formatDate, formatDateShort } from '../lib/api';
-import { buildMeta, websiteJsonLd, organizationJsonLd, faqJsonLd, howToJsonLd, itemListJsonLd, puzzlePermalink, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
+import { buildMeta, websiteJsonLd, organizationJsonLd, faqJsonLd, howToJsonLd, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import type { PinpointPuzzle, PinpointSummary } from '../lib/types';
 import fs from 'fs';
 import path from 'path';
@@ -27,24 +27,30 @@ try {
 } catch (e) { /* Not critical */ }
 
 
+const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
 const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
 const heroDateStr = shortDateStr;
-
-// Dynamic month and year for SEO title — auto-updates each month
-const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long' });
-const currentYear = new Date().getFullYear();
-
-// SEO-optimized title: "LinkedIn Pinpoint Answer Today (August 2026)"
-const title = `LinkedIn Pinpoint Answer Today (${currentMonth} ${currentYear})`;
-
-// SEO-optimized meta description (within Google's ~155 char limit)
-// Includes "pinpoint answer today" with game number and date for extra keyword traffic
+const title = 'Linkedin pinpoint answer today - Updated';
 const description = today
-  ? `Pinpoint answer today for LinkedIn game #${today.number} (${shortDateStr}). Get clues, explanations, solving tips, and full archive. Updated daily.`
-  : `Get today's LinkedIn Pinpoint answer with clues and explanations. Full puzzle archive, solving tips, and unlimited practice. Updated daily.`;
-
-// SEO-optimized meta keywords
-const keywords = 'LinkedIn Pinpoint answer today, Pinpoint answer today, LinkedIn Pinpoint, daily puzzle answer, Pinpoint clues, Pinpoint solution, Pinpoint archive, word puzzle game, LinkedIn games';
+  ? `Linkedin pinpoint answer today - Updated with ${shortDateStr} clues, full explanation, valid solutions, and archive access for puzzle #${today.number}.`
+  : "Linkedin pinpoint answer today - Updated with today's clues, full explanation, valid solutions, and archive access.";
+const keywords = today
+  ? [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions',
+      `linkedin pinpoint ${shortDateStr.toLowerCase()}`,
+      `pinpoint puzzle ${today.number}`
+    ].join(', ')
+  : [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions'
+    ].join(', ');
 
 
 const seo = buildMeta({
@@ -66,14 +72,7 @@ const seo = buildMeta({
       { question: 'Can I play Pinpoint unlimited times?', answer: 'The daily puzzle is once per day, but our Unlimited Game mode lets you practice with random historical puzzles as many times as you want.' },
       { question: 'What time does the new Pinpoint puzzle come out?', answer: 'New LinkedIn Pinpoint puzzles are released at midnight Eastern Time. Our answers are typically posted by early afternoon each day.' },
       { question: 'Why are there multiple valid answers for some puzzles?', answer: 'LinkedIn Pinpoint accepts a specific set of words for each puzzle. Sometimes a synonym or close variant also works. We list every accepted solution, not just the main one.' }
-    ]),
-    itemListJsonLd(
-      recent.slice(0, 10).map(p => ({
-        name: `LinkedIn Pinpoint #${p.number} — ${new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
-        url: `${SITE_URL}${puzzlePermalink(p.date)}`,
-        date: p.date
-      }))
-    )
+    ])
   ]
 });
 
@@ -97,15 +96,15 @@ const faqs = [
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             {today ? `Updated for Game ${today.number}` : 'Daily Puzzle Answer'}
           </div>
-          <h1>LinkedIn Pinpoint Answer Today ({currentMonth} {currentYear})</h1>
+          <h1>LinkedIn Pinpoint Answer Today</h1>
           <div class="hero-accent"></div>
           <p class="hero-desc">{today ? `Pinpoint answer today for game ${today.number} (${heroDateStr}). See all clues, explanations, and valid solutions in one place.` : `Get today's Pinpoint answer with all clues and an explanation for each one. See how every clue connects to the solution.`}</p>
           <div class="hero-buttons">
-            <a href="/today/" class="btn btn-primary btn-lg">
+            <a href="/today" class="btn btn-primary btn-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
               View Today's Answer
             </a>
-            <a href="/archive/" class="btn btn-secondary btn-lg">
+            <a href="/archive" class="btn btn-secondary btn-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               Browse Archive
             </a>
@@ -153,11 +152,11 @@ const faqs = [
       <div class="container">
         <div class="section-header">
           <h2 id="recent-heading" class="section-title">Recent pinpoint puzzles with answers</h2>
-          <a href="/archive/" class="btn btn-ghost btn-sm">View All →</a>
+          <a href="/archive" class="btn btn-ghost btn-sm">View All →</a>
         </div>
         <div class="archive-cards">
           {recent.map((puzzle: any) => (
-            <a href={puzzlePermalink(puzzle.date)} class="archive-card">
+            <a href="/archive" class="archive-card">
               <div class="archive-card-header">
                 <span class="archive-card-number">#{puzzle.number}</span>
                 <span class="archive-card-date">{formatDateShort(puzzle.date)}</span>
@@ -206,7 +205,7 @@ const faqs = [
         <div class="feature-card">
           <div class="feature-icon" style="background:var(--teal-50); color:var(--teal-500);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <h3>Unlimited Practice Game</h3>
-          <p>The daily puzzle is once per day, but our <a href="/unlimited/" style="color:var(--teal-600); text-decoration:underline;">Unlimited Game</a> gives you as many rounds as you want from our archive.</p>
+          <p>The daily puzzle is once per day, but our <a href="/unlimited" style="color:var(--teal-600); text-decoration:underline;">Unlimited Game</a> gives you as many rounds as you want from our archive.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
@@ -229,11 +228,11 @@ const faqs = [
           <h2 id="game-heading">Pinpoint Unlimited — Play As Many Rounds As You Want</h2>
           <p>The daily LinkedIn Pinpoint puzzle is one round per day. That's it. If you want more — and most regular players do — our <strong>Pinpoint Unlimited Game</strong> is built for exactly that. It pulls from our complete archive of hundreds of past puzzles, shuffles them randomly, and lets you play round after round.</p>
           <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <a href="/unlimited/" class="btn btn-primary">
+            <a href="/unlimited" class="btn btn-primary">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               Play Unlimited Now
             </a>
-            <a href="/how-to-play/" class="btn btn-secondary">Learn Strategies</a>
+            <a href="/how-to-play" class="btn btn-secondary">Learn Strategies</a>
           </div>
         </div>
         <div class="game-spotlight-aside">
@@ -275,18 +274,18 @@ const faqs = [
           <h3>All Valid Pinpoint Answers, Not Just One</h3>
           <p>One of the most frustrating things in Pinpoint is typing a perfectly reasonable answer that the game rejects. That happens because Pinpoint has a fixed set of accepted <strong>answers</strong> for each puzzle, and your synonym or alternative phrasing might not be on the list. We show you every single accepted word for each puzzle — sometimes there are hundreds of them.</p>
           <h3>Practice With Pinpoint Unlimited</h3>
-          <p>One daily puzzle not enough? Our <a href="/unlimited/" style="color:var(--accent-600); text-decoration:underline;">Pinpoint Unlimited Game</a> lets you play random historical puzzles as many times as you want. Each round gives you five progressive clues — wrong guesses reveal the next one, just like the real game.</p>
+          <p>One daily puzzle not enough? Our <a href="/unlimited" style="color:var(--accent-600); text-decoration:underline;">Pinpoint Unlimited Game</a> lets you play random historical puzzles as many times as you want. Each round gives you five progressive clues — wrong guesses reveal the next one, just like the real game.</p>
           <h3>How We Publish and Correct Guides</h3>
-          <p>Each guide records the puzzle number, publication date, clues, and answer together so readers can check the connection for themselves. The explanation then examines how every clue relates to the result. If a reader finds an error, the <a href="/contact/">contact page</a> provides a direct correction channel, and our <a href="/editorial-policy/">editorial policy</a> explains how updates are handled.</p>
+          <p>Each guide records the puzzle number, publication date, clues, and answer together so readers can check the connection for themselves. The explanation then examines how every clue relates to the result. If a reader finds an error, the <a href="/contact">contact page</a> provides a direct correction channel, and our <a href="/editorial-policy">editorial policy</a> explains how updates are handled.</p>
         </div>
         <aside class="seo-content-sidebar">
           <div class="sidebar-card">
             <h3>Quick Access</h3>
             <div style="display:flex; flex-direction:column; gap:0.4rem;">
-              <a href="/today/" class="btn btn-secondary btn-sm">Today's Pinpoint Answer</a>
-              <a href="/archive/" class="btn btn-secondary btn-sm">Pinpoint Archive</a>
-              <a href="/unlimited/" class="btn btn-secondary btn-sm">Unlimited Practice</a>
-              <a href="/how-to-play/" class="btn btn-secondary btn-sm">How to Play</a>
+              <a href="/today" class="btn btn-secondary btn-sm">Today's Pinpoint Answer</a>
+              <a href="/archive" class="btn btn-secondary btn-sm">Pinpoint Archive</a>
+              <a href="/unlimited" class="btn btn-secondary btn-sm">Unlimited Practice</a>
+              <a href="/how-to-play" class="btn btn-secondary btn-sm">How to Play</a>
             </div>
           </div>
           <div class="sidebar-card mt-2">

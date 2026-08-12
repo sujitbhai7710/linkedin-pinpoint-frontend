@@ -75,7 +75,7 @@
     <nav class="breadcrumbs" aria-label="Breadcrumb">
       <a href="/">Home</a>
       <span class="separator" aria-hidden="true">/</span>
-      <a href="/blog/">Blog</a>
+      <a href="/blog">Blog</a>
       <span class="separator" aria-hidden="true">/</span>
       <span class="current">{post.title}</span>
     </nav>
