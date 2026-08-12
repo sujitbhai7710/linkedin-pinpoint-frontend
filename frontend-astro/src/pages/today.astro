@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AnswerReveal from '../components/AnswerReveal.svelte';
 import SolutionsLoader from '../components/SolutionsLoader.svelte';
+import ShareButtons from '../components/ShareButtons.astro';
 import { formatDate, renderExplanation, getExplanationHeadings } from '../lib/api';
 import { buildMeta, articleJsonLd, breadcrumbJsonLd, faqJsonLd, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import fs from 'fs';
@@ -214,6 +215,10 @@ const seo = buildMeta({
               </div>
             </section>
           )}
+
+          <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border-light);">
+            <ShareButtons />
+          </div>
 
           {yesterday && (
             <div class="card mt-3" style="border-left: 3px solid var(--accent-500);">
