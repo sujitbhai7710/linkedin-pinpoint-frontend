@@ -2,4 +2,24 @@ User-agent: *
 Allow: /
 Disallow: /data/
 
+# AI Bots — explicitly allowed
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
 Sitemap: https://pinpointanswertoday.online/sitemap.xml
+Sitemap: https://pinpointanswertoday.online/feed.xml

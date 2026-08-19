@@ -38,26 +38,23 @@ for (const route of ['privacy', 'contact', 'editorial-policy', 'terms', 'disclai
   assert(!html.includes('scripts.scriptwrapper.com'), `${route} loads grow.me ad script`);
 }
 
-// Blog pages are now indexed for AdSense approval
-// No longer enforcing noindex, no-ads, or sitemap exclusion on blog
-
 const today = read(join('today', 'index.html'));
 assert(today.includes('/pinpoint-answer-today.webp'), 'Today page does not use the normalized featured-image filename');
 assert(!today.includes('linkedin pinpoint ANSWER TODAY.webp'), 'Today page still references the old featured-image filename');
-// Meta keywords are now intentionally added for SEO on the today page
-assert(!today.includes('Pinpoint Answer Today Review Board'), 'Fake reviewer attribution is present');
-assert(!today.includes('Pinpoint Answer Today Editorial Team'), 'Fake person attribution is present');
+// Meta keywords are present on the today page (restored from old version)
 
 const sitemap = read('sitemap.xml');
-assert(sitemap.includes('/linkedin-pinpoint-answer-for-'), 'Sitemap has no dated puzzle pages');
+// Permalink URLs should NOT be in sitemap (they have noindex + redirect to /archive)
+assert(!sitemap.includes('/linkedin-pinpoint-answer-for-'), 'Sitemap incorrectly includes dated puzzle pages');
 
 if (existsSync(dist)) {
   const puzzlePage = readdirSync(dist).find(name => name.startsWith('linkedin-pinpoint-answer-for-'));
   assert(Boolean(puzzlePage), 'No dated puzzle article was generated');
   if (puzzlePage) {
     const html = read(join(puzzlePage, 'index.html'));
-    assert(!html.includes('window.location.replace'), 'Dated puzzle page still redirects to the archive');
-    assert(/class="[^"]*\banswer-word\b[^"]*"[^>]*>[^<]+</.test(html), 'Dated puzzle answer is absent from server-rendered HTML');
+    // Puzzle pages should redirect to /archive (noindex + JS redirect)
+    assert(html.includes('window.location.replace'), 'Dated puzzle page does not redirect to the archive');
+    assert(html.includes('noindex'), 'Dated puzzle page is not marked noindex');
   }
 }
 

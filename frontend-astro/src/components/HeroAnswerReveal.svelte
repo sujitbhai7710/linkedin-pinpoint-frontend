@@ -13,7 +13,7 @@
     Click to reveal the answer
   </button>
 {:else}
-  <a href="/today/" class="hero-read-explanation">Read Full Explanation</a>
+  <a href="/today" class="hero-read-explanation">Read Full Explanation</a>
 {/if}
 
 <style>

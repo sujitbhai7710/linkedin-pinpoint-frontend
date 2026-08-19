@@ -12,11 +12,7 @@
   let currentYear = $state(today.getFullYear());
   let selectedDate = $state<string | null>(null);
   let selectedPuzzle = $state<any>(null);
-  let selectedError = $state<string | null>(null);
   let loadingPuzzle = $state(false);
-
-  // Archive now links to dedicated per-puzzle pages.
-  // Keep these states only for progressive enhancement/legacy behavior.
 
   const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -71,50 +67,20 @@
   }
 
   function selectDate(dateStr: string) {
-    // Legacy fallback: navigate to the dedicated page.
+    if (!puzzleDatesSet.has(dateStr)) return;
+    // Show puzzle inline — no navigation, no redirect loop
     selectedDate = dateStr;
-    const target = puzzlePath(dateStr);
-    if (typeof window !== 'undefined') window.location.href = target;
+    selectedPuzzle = puzzleDates[dateStr] || archiveSummary.find(p => p.date === dateStr) || null;
+  }
+
+  function closeDetail() {
+    selectedDate = null;
+    selectedPuzzle = null;
   }
 
   function isToday(dateStr: string): boolean {
     return dateStr === today.toISOString().split('T')[0];
   }
-
-  function puzzlePath(dateStr: string): string {
-    const date = new Date(`${dateStr}T00:00:00Z`);
-    const month = date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' }).toLowerCase();
-    return `/linkedin-pinpoint-answer-for-${month}-${date.getUTCDate()}-${date.getUTCFullYear()}`;
-  }
-
-  import { onMount } from 'svelte';
-  onMount(() => {
-    // If /archive is opened with a legacy hash/query/date, redirect to the dedicated page.
-    let dateToOpen: string | null = null;
-
-    try {
-      const stored = sessionStorage.getItem('pinpoint-open-date');
-      if (stored && /^\d{4}-\d{2}-\d{2}$/.test(stored)) {
-        dateToOpen = stored;
-        sessionStorage.removeItem('pinpoint-open-date');
-      }
-    } catch (e) {}
-
-    if (!dateToOpen) {
-      const hash = window.location.hash.slice(1);
-      if (hash && /^\d{4}-\d{2}-\d{2}$/.test(hash)) dateToOpen = hash;
-    }
-
-    if (!dateToOpen) {
-      const params = new URLSearchParams(window.location.search);
-      const dateParam = params.get('date') || params.get('d');
-      if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) dateToOpen = dateParam;
-    }
-
-    if (dateToOpen) {
-      window.location.replace(puzzlePath(dateToOpen));
-    }
-  });
 </script>
 
 <div class="article-layout">
@@ -141,7 +107,7 @@
               role="gridcell"
               aria-label="{formatDate(day.date)}{day.hasPuzzle ? ' - Puzzle available' : ''}"
               disabled={!day.hasPuzzle}
-              onclick={() => day.hasPuzzle && (window.location.href = puzzlePath(day.date))}
+              onclick={() => selectDate(day.date)}
             >
               {day.day}
             </button>
@@ -150,29 +116,24 @@
       </div>
     </div>
 
-    <!-- Selected Date Puzzle -->
-    {#if loadingPuzzle}
-      <div class="mt-3 text-center" style="padding: 2rem 0;">
-        <div class="loading-spinner" style="margin: 0 auto 0.75rem;"></div>
-        <p style="color:var(--text-secondary);">Loading puzzle...</p>
+    <!-- Selected Date Puzzle Detail (inline, no navigation) -->
+    {#if selectedPuzzle}
+      <div class="mt-3">
+        <button class="btn btn-ghost btn-sm" onclick={closeDetail} style="margin-bottom: 0.75rem;">
+          ← Back to calendar
+        </button>
+        <ArchivePuzzleDetail puzzle={selectedPuzzle} />
       </div>
-    {:else if selectedError}
-      <div class="mt-3 error-state">
-        <h3>{selectedError}</h3>
-        <p style="color:var(--text-secondary);">Try picking a different date from the calendar.</p>
-      </div>
-    {:else if selectedPuzzle}
-      <ArchivePuzzleDetail puzzle={selectedPuzzle} />
     {:else}
       <!-- Show recent puzzles as cards -->
       <div class="mt-3">
         <h2 style="margin-bottom: 0.75rem;">Recent Puzzles</h2>
         <div class="archive-cards">
           {#each archiveSummary.slice(0, 10) as puzzle}
-            <a
+            <button
               class="archive-card"
-              href={puzzlePath(puzzle.date)}
-              style="border: 1px solid var(--border-light); text-align: left; width: 100%; background: white;"
+              style="border: 1px solid var(--border-light); text-align: left; width: 100%; background: white; cursor: pointer;"
+              onclick={() => selectDate(puzzle.date)}
             >
               <div class="archive-card-header">
                 <span class="archive-card-number">#{puzzle.number}</span>
@@ -186,7 +147,7 @@
               <div class="archive-card-link">
                 Answer: <span class="archive-answer-preview">{puzzle.answer}</span> — Read guide →
               </div>
-            </a>
+            </button>
           {/each}
         </div>
       </div>
@@ -198,14 +159,14 @@
       <h2>Recent Puzzles</h2>
       <div style="display:flex; flex-direction:column; gap:0.3rem;">
         {#each archiveSummary.slice(0, 10) as puzzle}
-          <a
+          <button
             class="btn btn-ghost btn-sm"
             style="justify-content: flex-start; text-align: left;"
-            href={puzzlePath(puzzle.date)}
+            onclick={() => selectDate(puzzle.date)}
           >
             <span class="puzzle-number" style="margin-right: 0.4rem;">#{puzzle.number}</span>
             {formatDateShort(puzzle.date)}
-          </a>
+          </button>
         {/each}
       </div>
     </div>
@@ -217,11 +178,11 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           Home
         </a>
-        <a href="/today/" class="btn btn-secondary btn-sm">
+        <a href="/today" class="btn btn-secondary btn-sm">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           Today's Answer
         </a>
-        <a href="/unlimited/" class="btn btn-secondary btn-sm">
+        <a href="/unlimited" class="btn btn-secondary btn-sm">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           Unlimited Game
         </a>

@@ -2,8 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroAnswerReveal from '../components/HeroAnswerReveal.svelte';
 import FaqAccordion from '../components/FaqAccordion.svelte';
+import ShareButtons from '../components/ShareButtons.astro';
 import { formatDate, formatDateShort } from '../lib/api';
-import { buildMeta, websiteJsonLd, organizationJsonLd, faqJsonLd, howToJsonLd, itemListJsonLd, puzzlePermalink, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
+import { buildMeta, websiteJsonLd, organizationJsonLd, faqJsonLd, howToJsonLd, speakableJsonLd, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import type { PinpointPuzzle, PinpointSummary } from '../lib/types';
 import fs from 'fs';
 import path from 'path';
@@ -27,25 +28,35 @@ try {
 } catch (e) { /* Not critical */ }
 
 
+const clueWords = today ? today.clues.slice(0, 3).join(', ') : '';
 const shortDateStr = today ? new Date(today.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
 const heroDateStr = shortDateStr;
-
-// Dynamic month and year for SEO title — auto-updates each month
-const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long' });
-const currentYear = new Date().getFullYear();
-
-// SEO-optimized title: "LinkedIn Pinpoint Answer Today (August 2026)"
-const title = `LinkedIn Pinpoint Answer Today (${currentMonth} ${currentYear})`;
-
-// SEO-optimized meta description (within Google's ~155 char limit)
-// Includes "pinpoint answer today" with game number and date for extra keyword traffic
+const title = 'Linkedin pinpoint answer today - Updated';
 const description = today
-  ? `Pinpoint answer today for LinkedIn game #${today.number} (${shortDateStr}). Get clues, explanations, solving tips, and full archive. Updated daily.`
-  : `Get today's LinkedIn Pinpoint answer with clues and explanations. Full puzzle archive, solving tips, and unlimited practice. Updated daily.`;
+  ? `Linkedin pinpoint answer today - Updated with ${shortDateStr} clues, full explanation, valid solutions, and archive access for puzzle #${today.number}.`
+  : "Linkedin pinpoint answer today - Updated with today's clues, full explanation, valid solutions, and archive access.";
+const keywords = today
+  ? [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions',
+      `linkedin pinpoint ${shortDateStr.toLowerCase()}`,
+      `pinpoint puzzle ${today.number}`
+    ].join(', ')
+  : [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions'
+    ].join(', ');
 
-// SEO-optimized meta keywords
-const keywords = 'LinkedIn Pinpoint answer today, Pinpoint answer today, LinkedIn Pinpoint, daily puzzle answer, Pinpoint clues, Pinpoint solution, Pinpoint archive, word puzzle game, LinkedIn games';
 
+const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+const currentMonthLower = new Date().toLocaleDateString('en-US', { month: 'long' }).toLowerCase();
+const currentYear = new Date().getFullYear();
 
 const seo = buildMeta({
   title,
@@ -67,13 +78,11 @@ const seo = buildMeta({
       { question: 'What time does the new Pinpoint puzzle come out?', answer: 'New LinkedIn Pinpoint puzzles are released at midnight Eastern Time. Our answers are typically posted by early afternoon each day.' },
       { question: 'Why are there multiple valid answers for some puzzles?', answer: 'LinkedIn Pinpoint accepts a specific set of words for each puzzle. Sometimes a synonym or close variant also works. We list every accepted solution, not just the main one.' }
     ]),
-    itemListJsonLd(
-      recent.slice(0, 10).map(p => ({
-        name: `LinkedIn Pinpoint #${p.number} — ${new Date(p.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
-        url: `${SITE_URL}${puzzlePermalink(p.date)}`,
-        date: p.date
-      }))
-    )
+    speakableJsonLd({
+      url: SITE_URL,
+      headline: 'LinkedIn Pinpoint Answer Today',
+      summary: 'Daily LinkedIn Pinpoint answers with clue-by-clue explanations, valid solutions, and a complete puzzle archive.'
+    })
   ]
 });
 
@@ -86,9 +95,145 @@ const faqs = [
   { question: 'Can I practice Pinpoint more than once a day?', answer: 'The daily puzzle is once per day on LinkedIn, but our Pinpoint Unlimited Game lets you practice with random past puzzles as many times as you want.' },
   { question: 'Why are there multiple valid answers for some puzzles?', answer: 'LinkedIn Pinpoint accepts a specific set of words for each puzzle. Sometimes a synonym or close variant also works. We list every accepted solution, not just the main one.' }
 ];
+
+const tocItems = [
+  { id: 'how-pinpoint-works', label: 'How LinkedIn Pinpoint Works' },
+  { id: 'recent-heading', label: 'Recent Pinpoint Puzzles' },
+  { id: 'features-heading', label: 'Why Use This Site' },
+  { id: 'game-heading', label: 'Pinpoint Unlimited Game' },
+  { id: 'strategies-heading', label: 'Winning Strategies' },
+  { id: 'patterns-heading', label: 'Common Answer Patterns' },
+  { id: 'compare-heading', label: 'Pinpoint vs Other Games' },
+  { id: 'why-site-heading', label: 'Why Players Trust Us' },
+  { id: 'archive-months-heading', label: 'Browse by Month' },
+  { id: 'faq-heading', label: 'FAQ' },
+];
 ---
+
+<style>
+  /* ── Table of Contents ── */
+  .toc {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 2rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .toc-title {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+  .toc ol {
+    list-style: none;
+    counter-reset: toc;
+    padding: 0;
+    margin: 0;
+    columns: 2;
+    column-gap: 1.5rem;
+  }
+  .toc li {
+    counter-increment: toc;
+    margin-bottom: 0.4rem;
+    break-inside: avoid;
+  }
+  .toc li::before {
+    content: counter(toc) ".";
+    display: inline-block;
+    width: 1.6rem;
+    color: var(--accent-500);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .toc a {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .toc a:hover {
+    color: var(--accent-600);
+    text-decoration: underline;
+  }
+
+  /* ── Content sections typography ── */
+  .content-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2.5rem 0;
+  }
+  .content-section h2 {
+    font-family: var(--font-serif);
+    font-size: 1.65rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .content-section h3 {
+    font-family: var(--font-sans);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 0.6rem;
+    line-height: 1.4;
+  }
+  .content-section p {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+  .content-section p:last-child {
+    margin-bottom: 0;
+  }
+  .content-section ul, .content-section ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .content-section li {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+  }
+  .content-section a {
+    color: var(--accent-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .content-section a:hover {
+    color: var(--accent-700);
+  }
+  .content-section strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* Alternating section backgrounds */
+  .bg-white { background: var(--bg-primary); }
+  .bg-gray  { background: var(--bg-secondary); }
+
+  /* Section divider */
+  .content-section + .content-section {
+    border-top: 1px solid var(--border-light);
+  }
+
+  @media (max-width: 640px) {
+    .toc { padding: 1rem 1.25rem; }
+    .toc ol { columns: 1; }
+    .content-section { padding: 1.75rem 0; }
+    .content-section h2 { font-size: 1.35rem; }
+    .content-section h3 { font-size: 1.05rem; margin-top: 1.5rem; }
+  }
+</style>
+
 <BaseLayout {...seo}>
-  <!-- Hero Section -->
+
+  <!-- ═══════════ HERO (only H1) ═══════════ -->
   <section class="hero">
     <div class="container">
       <div class="hero-grid">
@@ -97,15 +242,15 @@ const faqs = [
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             {today ? `Updated for Game ${today.number}` : 'Daily Puzzle Answer'}
           </div>
-          <h1>LinkedIn Pinpoint Answer Today ({currentMonth} {currentYear})</h1>
+          <h1>LinkedIn Pinpoint Answer Today</h1>
           <div class="hero-accent"></div>
           <p class="hero-desc">{today ? `Pinpoint answer today for game ${today.number} (${heroDateStr}). See all clues, explanations, and valid solutions in one place.` : `Get today's Pinpoint answer with all clues and an explanation for each one. See how every clue connects to the solution.`}</p>
           <div class="hero-buttons">
-            <a href="/today/" class="btn btn-primary btn-lg">
+            <a href="/today" class="btn btn-primary btn-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
               View Today's Answer
             </a>
-            <a href="/archive/" class="btn btn-secondary btn-lg">
+            <a href="/archive" class="btn btn-secondary btn-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               Browse Archive
             </a>
@@ -147,17 +292,63 @@ const faqs = [
     </div>
   </section>
 
-  <!-- Recent Puzzles -->
+  <!-- ═══════════ SHARE BAR (after hero) ═══════════ -->
+  <section class="section section-white" style="padding: 1rem 0;" aria-label="Share this page">
+    <div class="container" style="max-width:800px; display:flex; justify-content:center;">
+      <ShareButtons />
+    </div>
+  </section>
+
+  <!-- ═══════════ TABLE OF CONTENTS ═══════════ -->
+  <section class="section section-white" aria-label="Table of contents">
+    <div class="container">
+      <nav class="toc">
+        <div class="toc-title">What's on this page</div>
+        <ol>
+          {tocItems.map(item => (
+            <li><a href={`#${item.id}`}>{item.label}</a></li>
+          ))}
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ═══════════ HOW PINPOINT WORKS ═══════════ -->
+  <section class="bg-white" aria-labelledby="how-pinpoint-works">
+    <div class="container">
+      <div class="content-section">
+        <h2 id="how-pinpoint-works">How LinkedIn Pinpoint Works — A Complete Breakdown</h2>
+        <p>LinkedIn Pinpoint is a daily word-association puzzle built into the LinkedIn platform. It sits alongside other LinkedIn games like Crossclimb, Zip, and Queens, but Pinpoint has captured the largest player base by far. The premise is dead simple: you get five clues, revealed one at a time, and you need to guess the connecting word or category that ties them all together.</p>
+
+        <h3>The Five-Clue Structure</h3>
+        <p>Every Pinpoint puzzle follows the same format. Clue one appears on screen. You type your guess. If you are wrong, clue two appears. This continues until you either guess correctly or all five clues are visible. The fewer clues you need, the better your score. A one-clue solve is rare and usually means you recognized the category instantly. A two-clue solve is strong. Three is average. Four or five means the puzzle got you — and that happens to everyone.</p>
+        <p>The clues are designed to get progressively more specific. Clue one is intentionally ambiguous — it could belong to dozens of categories. Clue two starts narrowing the field. By clue three, most players have a working theory. Clue four confirms it for anyone still guessing. Clue five is the safety net that makes the answer obvious to everyone.</p>
+
+        <h3>What Counts as a "Connecting Word"</h3>
+        <p>The answer in Pinpoint is not always a single word. Sometimes it is a phrase, a category name, or a compound word. The connecting element might be a prefix (all clues precede a common word), a suffix (all clues follow a common word), or a thematic link (all clues belong to the same category). Understanding this distinction matters because it changes how you approach the puzzle. If you assume the answer is always one word, you will miss puzzles where the answer is a two-word phrase.</p>
+
+        <h3>Scoring and Streaks</h3>
+        <p>LinkedIn tracks your Pinpoint performance over time. You can see how many puzzles you have solved, your average clue count, and your current streak. Streaks are the primary motivator for most players — solving every day without missing one builds a streak that becomes hard to break. Some players have streaks lasting hundreds of days. Missing a day resets the streak to zero, which is why many players check our site first thing in the morning to make sure they do not get stuck and miss their solve.</p>
+
+        <h3>When Does the New Puzzle Drop?</h3>
+        <p>New Pinpoint puzzles release at midnight Eastern Time every single day. Players in different time zones see the new puzzle at different real-world times. A player in London sees it at 5 AM. A player in Tokyo sees it at 1 PM. A player in Los Angeles sees it at 9 PM the night before. Our site updates by early afternoon Eastern Time, which covers most time zones before their next morning.</p>
+
+        <p>Pinpoint is free to play. You do not need a premium LinkedIn account. Just head to the LinkedIn games section, tap Pinpoint, and start guessing. There is no timer, so you can take as long as you need between clues. The only constraint is that you want to solve it in as few clues as possible for the best score.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ RECENT PUZZLES ═══════════ -->
   {recent.length > 0 && (
-    <section class="section section-white" aria-labelledby="recent-heading">
+    <section class="section section-gray" aria-labelledby="recent-heading">
       <div class="container">
         <div class="section-header">
           <h2 id="recent-heading" class="section-title">Recent pinpoint puzzles with answers</h2>
-          <a href="/archive/" class="btn btn-ghost btn-sm">View All →</a>
+          <a href="/archive" class="btn btn-ghost btn-sm">View All →</a>
         </div>
         <div class="archive-cards">
           {recent.map((puzzle: any) => (
-            <a href={puzzlePermalink(puzzle.date)} class="archive-card">
+            <a href="/archive" class="archive-card">
               <div class="archive-card-header">
                 <span class="archive-card-number">#{puzzle.number}</span>
                 <span class="archive-card-date">{formatDateShort(puzzle.date)}</span>
@@ -175,8 +366,8 @@ const faqs = [
     </section>
   )}
 
-  <!-- Features Section -->
-  <section class="section section-gray" aria-labelledby="features-heading">
+  <!-- ═══════════ FEATURES ═══════════ -->
+  <section class="section section-white" aria-labelledby="features-heading">
     <div class="container">
       <div style="text-align:center; margin-bottom:1.25rem;">
         <h2 id="features-heading">Why Pinpoint Answer Today?</h2>
@@ -206,7 +397,7 @@ const faqs = [
         <div class="feature-card">
           <div class="feature-icon" style="background:var(--teal-50); color:var(--teal-500);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <h3>Unlimited Practice Game</h3>
-          <p>The daily puzzle is once per day, but our <a href="/unlimited/" style="color:var(--teal-600); text-decoration:underline;">Unlimited Game</a> gives you as many rounds as you want from our archive.</p>
+          <p>The daily puzzle is once per day, but our <a href="/unlimited" style="color:var(--teal-600); text-decoration:underline;">Unlimited Game</a> gives you as many rounds as you want from our archive.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
@@ -217,8 +408,8 @@ const faqs = [
     </div>
   </section>
 
-  <!-- Unlimited Game Spotlight -->
-  <section class="section section-white" aria-labelledby="game-heading">
+  <!-- ═══════════ UNLIMITED GAME ═══════════ -->
+  <section class="section section-gray" aria-labelledby="game-heading">
     <div class="container">
       <div class="game-spotlight">
         <div class="game-spotlight-content">
@@ -229,11 +420,11 @@ const faqs = [
           <h2 id="game-heading">Pinpoint Unlimited — Play As Many Rounds As You Want</h2>
           <p>The daily LinkedIn Pinpoint puzzle is one round per day. That's it. If you want more — and most regular players do — our <strong>Pinpoint Unlimited Game</strong> is built for exactly that. It pulls from our complete archive of hundreds of past puzzles, shuffles them randomly, and lets you play round after round.</p>
           <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <a href="/unlimited/" class="btn btn-primary">
+            <a href="/unlimited" class="btn btn-primary">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               Play Unlimited Now
             </a>
-            <a href="/how-to-play/" class="btn btn-secondary">Learn Strategies</a>
+            <a href="/how-to-play" class="btn btn-secondary">Learn Strategies</a>
           </div>
         </div>
         <div class="game-spotlight-aside">
@@ -252,41 +443,154 @@ const faqs = [
     </div>
   </section>
 
-  <!-- FAQ Section -->
-  <section class="faq-section section-gray" aria-labelledby="faq-heading">
+  <!-- ═══════════ STRATEGIES ═══════════ -->
+  <section class="bg-white" aria-labelledby="strategies-heading">
     <div class="container">
-      <h2 id="faq-heading" class="section-title" style="text-align:center; margin-bottom:1rem;">Frequently Asked Questions</h2>
-      <FaqAccordion client:load faqs={faqs} />
+      <div class="content-section">
+        <h2 id="strategies-heading">Pinpoint Strategies That Actually Work</h2>
+        <p>After playing hundreds of puzzles, certain patterns emerge. Here are the strategies that consistently help players solve in two or three clues instead of five.</p>
+
+        <h3>Think in Categories, Not Specifics</h3>
+        <p>The first clue is almost always vague on purpose. When you see "Apple," do not jump to "fruit" or "technology." Wait for the second clue. If clue two is "Google," then the answer is probably tech companies. If clue two is "Banana," then it is fruit. The first clue alone is never enough to narrow down the answer — it is designed to be ambiguous.</p>
+
+        <h3>Watch for Word Patterns</h3>
+        <p>Many Pinpoint answers follow compound-word or phrase patterns. If the clues are "Back," "Eye," "Eaves," and "Rain," think about what word comes after each one. In this case, it is "drop" — backdrop, eyedrop, eavesdrop, raindrop. Recognizing these patterns is the fastest path to a two-clue solve.</p>
+
+        <h3>Use the Process of Elimination</h3>
+        <p>Each clue that does not fit your current theory should change your theory. If you thought the answer was "sports" after clue one, but clue two has nothing to do with sports, abandon that theory immediately. Do not try to force clues to fit a category they do not belong to.</p>
+
+        <h3>Practice With Our Unlimited Game</h3>
+        <p>The single best way to improve at Pinpoint is repetition. Our <a href="/unlimited">Unlimited Game</a> pulls random puzzles from the full archive and lets you play round after round. After 50 or 100 practice rounds, you will start recognizing answer patterns instinctively. Most players who consistently solve in two clues credit unlimited practice as the key factor.</p>
+      </div>
     </div>
   </section>
 
-  <!-- SEO Content Section -->
-  <section class="section section-white seo-content-section" aria-labelledby="seo-heading">
+  <!-- ═══════════ COMMON PATTERNS ═══════════ -->
+  <section class="bg-gray" aria-labelledby="patterns-heading">
+    <div class="container">
+      <div class="content-section">
+        <h2 id="patterns-heading">Common Pinpoint Answer Patterns You Will See</h2>
+        <p>Pinpoint answers fall into a handful of recurring patterns. Recognizing these patterns is the difference between solving in two clues and needing all five.</p>
+
+        <h3>"Things that come before X" or "Things that come after X"</h3>
+        <p>This is the most common pattern. The clues are all words that share a common prefix or suffix. For example: Brick, Maroon, Tomato, Scarlet, Cherry — these are all shades of red. Or: Back, Eye, Eaves, Rain — these all precede "drop." When you see this pattern, try appending or prepending common words to each clue.</p>
+
+        <h3>"Category members"</h3>
+        <p>The clues are all members of a single category: planets, countries, musical instruments, types of wood, breeds of dogs. These are usually the easiest puzzles because the connection is straightforward. The challenge is that the first clue could belong to many categories, so you need two or three clues to narrow it down.</p>
+
+        <h3>"Things associated with X"</h3>
+        <p>The clues are all strongly associated with a single person, place, event, or concept. For example: Hook, Jaws, War Horse, Jurassic Park, Schindler's List — all films directed by Steven Spielberg. Or: Strength, Temperance, The Moon, The High Priestess — all Major Arcana tarot cards.</p>
+
+        <h3>"Phrase patterns"</h3>
+        <p>The clues form a recognizable phrase or expression when combined with a common word. For example: Balance, Limits, The Wall, The Record, The Cuff — these all follow "off" (off-balance, off-limits, off-the-wall, off-the-record, off-the-cuff). When the clues seem unrelated individually but share a structural similarity, look for a connecting word.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ PINPOINT VS OTHER GAMES ═══════════ -->
+  <section class="bg-white" aria-labelledby="compare-heading">
+    <div class="container">
+      <div class="content-section">
+        <h2 id="compare-heading">Pinpoint vs Other LinkedIn Games — How They Compare</h2>
+        <p>LinkedIn now offers several daily games beyond Pinpoint. Here is how they compare and why Pinpoint remains the most popular.</p>
+
+        <h3>Pinpoint vs Crossclimb</h3>
+        <p>Crossclimb is a word ladder puzzle where you change one letter at a time to move between words. It is more logic-heavy than Pinpoint, which is pure word association. Pinpoint tests your vocabulary and pattern recognition; Crossclimb tests your ability to manipulate letters systematically. Most players find Pinpoint more intuitive because the clues give you something to work with, while Crossclimb requires you to generate answers from scratch.</p>
+
+        <h3>Pinpoint vs Zip</h3>
+        <p>Zip is a pathfinding puzzle on a grid. You draw a line to connect numbered dots in order while covering every cell. It is spatial reasoning rather than word association. Completely different skill set. Pinpoint is better for players who enjoy language and categories; Zip is better for players who enjoy spatial puzzles.</p>
+
+        <h3>Pinpoint vs Queens</h3>
+        <p>Queens is a logic puzzle similar to Sudoku where you place queens on a grid so that no two queens attack each other. It is pure logic with no language component. Pinpoint is the most accessible of the LinkedIn games because it requires general knowledge rather than specialized logic skills.</p>
+
+        <h3>Pinpoint vs Wordle</h3>
+        <p>Wordle gives you six attempts to guess a five-letter word with color-coded feedback. Pinpoint gives you five clues and asks for a connecting category. The skill sets overlap slightly — both reward vocabulary — but Pinpoint is more about lateral thinking and category recognition, while Wordle is more about letter frequency and positional logic. Many players do both daily, and the skills complement each other.</p>
+
+        <p>Pinpoint's popularity comes from its simplicity. Anyone who knows English can play. There is no math, no grid manipulation, no letter juggling. Just five clues and a category. That accessibility is why it has become the most-played LinkedIn game and why sites like ours exist to help players improve.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ WHY PLAYERS TRUST US ═══════════ -->
+  <section class="bg-gray" aria-labelledby="why-site-heading">
+    <div class="container">
+      <div class="content-section">
+        <h2 id="why-site-heading">Why Players Come Back to This Site Every Day</h2>
+        <p>There are other Pinpoint answer sites out there. We know because we used them before building this one. Most of them give you a single word and nothing else. No explanation of how the clues connect. No list of alternative accepted answers. No walkthrough of the solving process. Just a one-line answer surrounded by ad networks.</p>
+        <p>We built this site because we wanted more. When we get a puzzle wrong, we want to understand why. When we see the answer, we want to trace each clue back to the connecting word and understand the relationship. When a puzzle has 200 accepted answers, we want to see all of them — not just the "official" one.</p>
+
+        <h3>Dated, Puzzle-Specific Guides</h3>
+        <p>Every guide on this site is tied to a specific puzzle number and date. This matters because the same clue word can appear in different puzzles with different answers. When you search for "Pinpoint answer March 2026" or "Pinpoint puzzle 847 answer," you get a guide written specifically for that puzzle, not a generic answer page that might be wrong.</p>
+
+        <h3>Clue-by-Clue Explanations</h3>
+        <p>Each clue gets its own paragraph explaining how it connects to the answer. We do not just say "the answer is RED." We explain why "Brick" connects to RED (brick red is a color), why "Maroon" connects to RED (maroon is a shade of red), and so on. This kind of analysis helps you spot similar patterns in future puzzles. After reading enough of these explanations, you start recognizing the common structures automatically.</p>
+
+        <h3>Every Accepted Answer Listed</h3>
+        <p>LinkedIn Pinpoint accepts multiple answers for most puzzles. If the connecting category is "red," the game might accept crimson, scarlet, ruby, vermillion, cherry, brick, maroon, and dozens more. We list every single accepted word so you can see the full range. This is especially useful when your answer gets rejected — you can check the list and see what the game was looking for.</p>
+
+        <h3>No Registration, No Paywall, No Gimmicks</h3>
+        <p>Everything on this site is free. No account creation. No email sign-up. No premium tier. No "sign in to reveal the answer" gates. You come here, you find your puzzle, you read the explanation. That is it. We make money through non-intrusive advertising, and we keep the reading experience clean.</p>
+
+        <h3>Spoiler-Safe Design</h3>
+        <p>Answers are hidden behind click-to-reveal buttons. When you land on a puzzle page, you see the clues first. The answer stays hidden until you actively choose to reveal it. This means you can browse the clues for hints without accidentally seeing the answer. It sounds like a small thing, but regular players tell us it is one of the features they appreciate most.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ MONTHLY ARCHIVE ═══════════ -->
+  <section class="bg-white" aria-labelledby="archive-months-heading">
+    <div class="container">
+      <div class="content-section">
+        <h2 id="archive-months-heading">Pinpoint Answer Archive — Browse by Month</h2>
+        <p>Our archive covers every Pinpoint puzzle since launch. Each month's puzzles are organized with dates, clue lists, full explanations, and every accepted answer. Use the links below to jump to a specific month, or use the <a href="/archive">calendar view</a> to pick an exact date.</p>
+
+        <h3>Recent Months — {currentMonth} Pinpoint Answers</h3>
+        <p>Looking for {currentMonthLower} {currentYear} Pinpoint answers? This month's puzzles are all here with fresh daily updates. Each guide includes the puzzle number, all five clues, the connecting answer, a clue-by-clue breakdown, and every valid solution. We update by early afternoon Eastern Time each day.</p>
+
+        <h3>How the Archive Helps You Improve</h3>
+        <p>Reading past puzzle explanations is one of the fastest ways to get better at Pinpoint. You start to see the recurring patterns: "things that precede X," "members of category Y," "words associated with Z." After reviewing 30 or 40 past puzzles, your brain starts recognizing these structures in real time. Players who use the archive for practice regularly report solving in two or three clues instead of four or five.</p>
+
+        <h3>Using the Calendar View</h3>
+        <p>The <a href="/archive">archive calendar</a> lets you pick any date and see that day's puzzle. It is the fastest way to find a specific puzzle if you know the date. Each calendar entry shows the puzzle number, date, and a link to the full guide with clues and explanations.</p>
+
+        <h3>Bookmark This Page</h3>
+        <p>If you play Pinpoint daily, bookmark this page. We update it every day with the latest answer, and the recent puzzles section always shows the most recent guides. Between the daily answer, the archive, and the unlimited practice game, this is the only Pinpoint resource you need.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SEO SIDEBAR CONTENT ═══════════ -->
+  <section class="section section-gray seo-content-section" aria-labelledby="seo-heading">
     <div class="container">
       <div class="seo-content-grid">
         <div class="seo-content-main">
           <h2 id="seo-heading">Today's Pinpoint Answer — Every Clue, Every Solution, Explained</h2>
           <p>Looking for today's LinkedIn Pinpoint answer? We've got it. Every day we post the full <strong>Pinpoint answer</strong> with every clue broken down, every valid alternative solution listed, and a walkthrough of how each clue ties back to the category.</p>
           <p>We started this site because the existing answer sites left us frustrated. You get the answer word and nothing else — no explanation, no context, no list of alternatives. Just "the answer is X" surrounded by ads. We do things differently: each puzzle gets a full <strong>clue-by-clue analysis</strong>, a solving walkthrough, and a takeaways section so you can spot similar patterns the next time you play.</p>
+
           <h3>What Makes a Great Pinpoint Clue?</h3>
           <p>Each <strong>Pinpoint clue</strong> points toward one connecting word or category. Clue one is vague on purpose — it could fit dozens of answers. As more clues appear, the field narrows. By clue four or five, the answer is obvious to most players. The skill is in spotting the pattern early, and that comes with practice.</p>
+
           <h3>Browse Every Pinpoint Answer in Our Archive</h3>
           <p>Our <strong>Pinpoint archive</strong> holds every past puzzle, organized by date with a calendar view. Want to revisit last week's puzzle? Curious about a particular clue structure? The archive lets you pull up any date, see all five clues, read the explanation, and browse every accepted <strong>Pinpoint answer</strong> — not just the main solution but every word the game counts as correct.</p>
+
           <h3>All Valid Pinpoint Answers, Not Just One</h3>
           <p>One of the most frustrating things in Pinpoint is typing a perfectly reasonable answer that the game rejects. That happens because Pinpoint has a fixed set of accepted <strong>answers</strong> for each puzzle, and your synonym or alternative phrasing might not be on the list. We show you every single accepted word for each puzzle — sometimes there are hundreds of them.</p>
+
           <h3>Practice With Pinpoint Unlimited</h3>
-          <p>One daily puzzle not enough? Our <a href="/unlimited/" style="color:var(--accent-600); text-decoration:underline;">Pinpoint Unlimited Game</a> lets you play random historical puzzles as many times as you want. Each round gives you five progressive clues — wrong guesses reveal the next one, just like the real game.</p>
+          <p>One daily puzzle not enough? Our <a href="/unlimited">Pinpoint Unlimited Game</a> lets you play random historical puzzles as many times as you want. Each round gives you five progressive clues — wrong guesses reveal the next one, just like the real game.</p>
+
           <h3>How We Publish and Correct Guides</h3>
-          <p>Each guide records the puzzle number, publication date, clues, and answer together so readers can check the connection for themselves. The explanation then examines how every clue relates to the result. If a reader finds an error, the <a href="/contact/">contact page</a> provides a direct correction channel, and our <a href="/editorial-policy/">editorial policy</a> explains how updates are handled.</p>
+          <p>Each guide records the puzzle number, publication date, clues, and answer together so readers can check the connection for themselves. The explanation then examines how every clue relates to the result. If a reader finds an error, the <a href="/contact">contact page</a> provides a direct correction channel, and our <a href="/editorial-policy">editorial policy</a> explains how updates are handled.</p>
         </div>
         <aside class="seo-content-sidebar">
           <div class="sidebar-card">
             <h3>Quick Access</h3>
             <div style="display:flex; flex-direction:column; gap:0.4rem;">
-              <a href="/today/" class="btn btn-secondary btn-sm">Today's Pinpoint Answer</a>
-              <a href="/archive/" class="btn btn-secondary btn-sm">Pinpoint Archive</a>
-              <a href="/unlimited/" class="btn btn-secondary btn-sm">Unlimited Practice</a>
-              <a href="/how-to-play/" class="btn btn-secondary btn-sm">How to Play</a>
+              <a href="/today" class="btn btn-secondary btn-sm">Today's Pinpoint Answer</a>
+              <a href="/archive" class="btn btn-secondary btn-sm">Pinpoint Archive</a>
+              <a href="/unlimited" class="btn btn-secondary btn-sm">Unlimited Practice</a>
+              <a href="/how-to-play" class="btn btn-secondary btn-sm">How to Play</a>
             </div>
           </div>
           <div class="sidebar-card mt-2">
@@ -311,4 +615,24 @@ const faqs = [
       </div>
     </div>
   </section>
+
+  <!-- ═══════════ SHARE CTA ═══════════ -->
+  <section class="section section-white" aria-label="Share this page">
+    <div class="container" style="max-width:800px; text-align:center;">
+      <h2 style="font-family:var(--font-serif); font-size:1.35rem; color:var(--text-primary); margin-bottom:0.5rem;">Found This Helpful? Share It With Friends</h2>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Know someone who plays LinkedIn Pinpoint every morning? Send them this page so they never get stuck on a puzzle again.</p>
+      <div style="display:flex; justify-content:center;">
+        <ShareButtons />
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ FAQ ═══════════ -->
+  <section class="section section-gray" aria-labelledby="faq-heading">
+    <div class="container">
+      <h2 id="faq-heading" class="section-title" style="text-align:center; margin-bottom:1rem;">Frequently Asked Questions</h2>
+      <FaqAccordion client:load faqs={faqs} />
+    </div>
+  </section>
+
 </BaseLayout>

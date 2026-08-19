@@ -2,8 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AnswerReveal from '../components/AnswerReveal.svelte';
 import SolutionsLoader from '../components/SolutionsLoader.svelte';
+import ShareButtons from '../components/ShareButtons.astro';
 import { formatDate, renderExplanation, getExplanationHeadings } from '../lib/api';
-import { buildMeta, articleJsonLd, breadcrumbJsonLd, faqJsonLd, puzzlePermalink, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
+import { buildMeta, articleJsonLd, breadcrumbJsonLd, faqJsonLd, SITE_URL, TODAY_FEATURED_IMAGE } from '../lib/seo';
 import fs from 'fs';
 import path from 'path';
 
@@ -45,21 +46,31 @@ const explanationWordCount = today?.explanation
   : undefined;
 const explanationHeadings = today?.explanation ? getExplanationHeadings(today.explanation) : [];
 
-// SEO-optimized title: "LinkedIn Pinpoint Answer with Explanation - Daily Solution"
-const title = 'LinkedIn Pinpoint Answer with Explanation - Daily Solution';
-
-// SEO-optimized meta description (within Google's ~155 char limit)
-// Includes "pinpoint answer today" with game number and date for extra keyword traffic
+const title = 'Linked pinpoint answer , meaning and full explanation for today';
 const descriptionText = today
-  ? `LinkedIn Pinpoint answer today with explanation for game #${today.number} (${shortDateStr}). See all clues, solving strategy, and daily solution.`
-  : `LinkedIn Pinpoint answer today with explanation. See all clues, solving strategy, and daily solution breakdown.`;
-
-// SEO-optimized meta keywords
-const keywords = 'LinkedIn Pinpoint answer with explanation, Pinpoint answer today, daily solution, LinkedIn Pinpoint clues, Pinpoint solving strategy, daily puzzle solution, Pinpoint explanation';
-
-// Intro text includes "pinpoint answer today" with game number and date for extra keyword traffic
+  ? `Linkedin pinpoint answer today - Updated with ${shortDateStr} clues, full explanation, valid solutions, and archive access for puzzle #${today.number}.`
+  : "Linkedin pinpoint answer today - Updated with today's clues, full explanation, valid solutions, and archive access.";
+const keywordDateStr = today ? shortDateStr.toLowerCase() : '';
+const keywords = today
+  ? [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions',
+      `linkedin pinpoint answer for ${keywordDateStr}`,
+      `pinpoint answer for ${today.number}`,
+      "today's linkedin pinpoint answer"
+    ].join(', ')
+  : [
+      'linkedin pinpoint answer today - updated',
+      'linkedin pinpoint answer today',
+      'daily linkedin pinpoint answer',
+      'linkedin pinpoint clues',
+      'linkedin pinpoint solutions'
+    ].join(', ');
 const introText = today
-  ? `Pinpoint answer today for game #${today.number} (${shortDateStr}). This page covers clue meanings, explanations, solving tips, strategies, and the full archive.`
+  ? `If you are looking for the LinkedIn Pinpoint answer today, this page covers ${shortDateStr} and puzzle #${today.number} with clue meanings, explanations, solving tips, strategies, and the full archive.`
   : "If you are looking for the LinkedIn Pinpoint answer today, this page gives you the clues, explanations, solving tips, strategies, and archive in one place.";
 
 
@@ -67,7 +78,7 @@ const seo = buildMeta({
   title,
   description: descriptionText,
   keywords,
-  canonical: `${SITE_URL}/today/`,
+  canonical: `${SITE_URL}/today`,
   ogImage: TODAY_FEATURED_IMAGE,
   ogType: 'article',
   jsonLd: [
@@ -76,7 +87,7 @@ const seo = buildMeta({
       description: today
         ? `LinkedIn Pinpoint answer today for ${shortDateStr} and puzzle #${today.number}, with clues, explanations, word meanings, tips, strategies, and archive access.`
         : "Today's LinkedIn Pinpoint answer",
-      url: `${SITE_URL}/today/`,
+      url: `${SITE_URL}/today`,
       datePublished: today?.date || new Date().toISOString().split('T')[0],
       answer: today?.answer || '',
       number: today?.number || 0,
@@ -85,7 +96,7 @@ const seo = buildMeta({
 
     breadcrumbJsonLd([
       { name: 'Home', url: SITE_URL },
-      { name: "Today's Answer", url: `${SITE_URL}/today/` }
+      { name: "Today's Answer", url: `${SITE_URL}/today` }
     ]),
 
     // FIX 3.5: FAQPage schema on /today page for "People also ask" boxes
@@ -108,8 +119,8 @@ const seo = buildMeta({
           <p>{error}</p>
           <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">New puzzles appear after 1:30 PM IST. If it is past that time, a site rebuild is likely in progress - check back in a few minutes.</p>
           <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <a href="/archive/" class="btn btn-secondary btn-sm">Browse Archive</a>
-            <a href="/unlimited/" class="btn btn-secondary btn-sm">Play Unlimited</a>
+            <a href="/archive" class="btn btn-secondary btn-sm">Browse Archive</a>
+            <a href="/unlimited" class="btn btn-secondary btn-sm">Play Unlimited</a>
           </div>
         </div>
       </div>
@@ -205,6 +216,10 @@ const seo = buildMeta({
             </section>
           )}
 
+          <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border-light);">
+            <ShareButtons />
+          </div>
+
           {yesterday && (
             <div class="card mt-3" style="border-left: 3px solid var(--accent-500);">
               <div style="display:inline-flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
@@ -212,7 +227,7 @@ const seo = buildMeta({
                 <h3 style="font-size:0.85rem; font-weight:700; margin:0;">Previous Puzzle</h3>
               </div>
               <p style="font-size:0.85rem;">
-                <a href={puzzlePermalink(yesterday.date)}>
+                <a href="/archive">
                   Pinpoint #{yesterday.number} ({formatDate(yesterday.date)}) - Answer: <strong>{yesterday.answer}</strong>
                 </a>
               </p>
